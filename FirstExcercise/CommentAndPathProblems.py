@@ -41,3 +41,7 @@ order of operations practice:
 # enter your code for "order of operations practice" between this line and the line below it
 ordOp1 = -5
 ordOp2 = 4624
+
+print(add, sub, mul, div, power, mod)
+
+print (mod1, mod2, mod3)
