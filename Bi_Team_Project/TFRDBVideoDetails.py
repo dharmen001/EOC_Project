@@ -1,8 +1,9 @@
+from __future__ import unicode_literals
 import cx_Oracle
 import csv
 import  ftplib
+#from django.utils.encoding import smart_str, smart_unicode
 from datetime import date, timedelta
-import pandas as pd
 def uploadFile(filePath):
     # lets upload file to ftp server
     ftpClient = ftplib.FTP ( '10.29.21.56' )
@@ -103,14 +104,14 @@ def createFile(filePath):
         Join TFR_FEV_INT_VIDEO_DIM I on A.FEV_INT_VIDEO_ID=I.FEV_INT_VIDEO_ID\
         Join TFR_IO_dim J on D.IO_ID=J.IO_ID\
         Join TFR_Placement_dim K on D.PLACEMENT_ID=K.PLACEMENT_ID\
-        where J.IO_ID = :The_IO_ID\
+        where B.DAY_ID = (select max(day_id) from tfr_day_dim)-1\
         group by B.day_desc,c.month_desc,D.Buy_ID,D.Buy_desc,E.MEDIA_ID,E.MEDIA_Desc,F.FEV_MEDIA_SOURCE_ID,F.FEV_MEDIA_SOURCE_desc,\
     G.FEV_MEDIA_SUB_SOURCE_ID,G.FEV_MEDIA_SUB_SOURCE_Desc,H.PRIMARY_VIDEO_LENGTH_ID,H.PRIMARY_VIDEO_LENGTH_desc,I.FEV_INT_VIDEO_ID,I.FEV_INT_VIDEO_DESC,\
     J.IO_ID,J.IO_Desc ,K.PLACEMENT_ID,K.PLACEMENT_DESC"
-    which_IO_ID = int ( input ( "Kindly provide IO ID:" ) )
+    #which_IO_ID = int ( input ( "Kindly provide IO ID:" ) )
     try:
         cursor = conn.cursor ()
-        cursor.execute ( sql, {'The_IO_ID': which_IO_ID} )
+        cursor.execute ( sql)#, {'The_IO_ID': which_IO_ID} )
     except cx_Oracle.DatabaseError as e:
         error, = e.args
         print("Error while trying to execute cursor.")
@@ -118,15 +119,13 @@ def createFile(filePath):
         print("oracle error code is " + str ( error.code ))
         print ('sql string is [' + sql + ']')
         exit ( error.code )
-    # file = open("C:\Users\Dharmendra.Mishra\Box Sync\Dharamendra Reports\Eoc_Automation\IO.csv","w")
     writer.writerow ( [ i[ 0 ].strip () for i in cursor.description ] )
 
     try:
         for row in cursor:
-            print row;
-            writer.writerow ( [ row[ 0 ].date () ] + list ( row[ 1: ] ) )
-            # fout.close()
-            # exit()
+            print row
+            writer.writerow ( [ row[ 0 ].date () ] + [i.encode('utf-8') if isinstance(i, unicode) else i for i in row[1:]] )
+
         fout.close ()
     except cx_Oracle.DatabaseError as e:
         error, e.args
@@ -139,9 +138,9 @@ def createFile(filePath):
     conn.close ()
 
 def main():
-    filePath = 'C:\Users\Dharmendra.Mishra\Box Sync\Dharamendra Reports\Eoc_Automation\VideoDetail.csv'
+    filePath = r'C:\\Users\Dharmendra.Mishra\Box Sync\Dharamendra Reports\Eoc_Automation\VideoDetail.csv'
     createFile(filePath)
-    uploadFile(filePath)
+    #uploadFile(filePath)
 
 if __name__ == '__main__':
     main()
