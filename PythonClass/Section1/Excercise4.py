@@ -1,0 +1,1 @@
+print "w    w\n www\n  w\n www\nw    w"
