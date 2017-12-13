@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 import cx_Oracle
 import csv
 import  ftplib
-#from django.utils.encoding import smart_str, smart_unicode
 from datetime import date, timedelta
+
 def uploadFile(filePath):
     # lets upload file to ftp server
     ftpClient = ftplib.FTP ( '10.29.21.56' )
@@ -124,7 +124,7 @@ def createFile(filePath):
     try:
         for row in cursor:
             print row
-            writer.writerow ( [ row[ 0 ].date () ] + [i.encode('utf-8') if isinstance(i, unicode) else i for i in row[1:]] )
+            writer.writerow ( [ row[ 0 ].date () ] + [i.encode('utf-8') if isinstance(i, unicode) else i for i in row[1:]])
 
         fout.close ()
     except cx_Oracle.DatabaseError as e:
@@ -138,9 +138,9 @@ def createFile(filePath):
     conn.close ()
 
 def main():
-    filePath = r'C:\\Users\Dharmendra.Mishra\Box Sync\Dharamendra Reports\Eoc_Automation\VideoDetail.csv'
+    filePath = r'C:\\Users\\Dharmendra.Mishra\\Box Sync\\Dharamendra Reports\\Eoc_Automation\\VideoDetail.csv'
     createFile(filePath)
-    #uploadFile(filePath)
+    uploadFile(filePath)
 
 if __name__ == '__main__':
     main()
