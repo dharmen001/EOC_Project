@@ -6,6 +6,7 @@ from datetime import date, timedelta
 
 def uploadFile(filePath):
     # lets upload file to ftp server
+    # should be refresh first
     ftpClient = ftplib.FTP ( '10.29.21.56' )
     ftpClient.login ( 'repgen', 'reports001' )
     ftpClient.cwd ( '/mnt/svmdev01exporeporting01/crdg2-reporting-bak/data/bidata/Dharmendra/KM-Video-Interaction/' )
