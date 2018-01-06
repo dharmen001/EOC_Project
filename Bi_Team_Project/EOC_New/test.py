@@ -4,7 +4,8 @@ import numpy as np
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter")
+writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter",datetime_format="YYYY-MM-DD hh:mm:ss",
+                        date_format="YYYY-MM-DD")
 
 def common_columns():
     read_common_columns = pd.read_csv("Eociocommoncolumn.csv")
@@ -73,7 +74,6 @@ def summary_creation():
                                       "METRIC_DESC", "COST_TYPE_DESC", "UNIT_COST", "BUDGET", "BOOKED_QTY",
                                       "ENGAGEMENTS", "VIEWS", "IMPRESSIONS", "CLICKS", "CONVERSIONS", "CPCV_COUNT",
                                       "DPE_ENGAGEMENTS"]]
-
     return summary_new
 
 def rename_cols():
@@ -91,7 +91,6 @@ def rename_cols():
                                                       "CONVERSIONS": "Conversions", "CPCV_COUNT": "Completions",
                                                       "DPE_ENGAGEMENTS": "Deep Engagements"},
                                              inplace=True)
-
     return summary_new
 def adding_column_Delivery():
     summary_new = rename_cols()
@@ -130,23 +129,11 @@ def write_summary():
     df1 = pd.DataFrame({"Campaign Summary": []})
     add_df1 = df1.to_excel(writer, sheet_name="Summary({})".format(IO_ID), startcol=3, startrow=5,
                            index=False)
+
+
     final_summary = summary_new.to_excel(writer, sheet_name="Summary({})".format(IO_ID),  startcol=3, startrow=6,
-                                         header=True, index=False, )
+                                         header=True, index=False)
 
-    return summary, add_df1, final_summary
-
-def format_summary():
-    summary, add_df1, final_summary = write_summary()
-    workbook = writer.book
-    worksheet = writer.sheets["Summary({})".format(IO_ID)]
-    format1 = workbook.add_format({"num_format": "$#,###0.00"})
-    format2 = workbook.add_format({"num_format": "0.00%"})
-    worksheet.set_column("K:L", 30, format1)
-    worksheet.set_column("U:AA", 30, format2)
-    worksheet.set_column("AB:AH", 20, format1)
-    worksheet.set_column("D:J", 30)
-    worksheet.set_column("M:T", 30)
-    worksheet.hide_gridlines(2)
     writer.save
     writer.close()
 
@@ -160,7 +147,6 @@ def main():
     adding_column_Delivery()
     adding_column_Spend()
     write_summary()
-    format_summary()
 
 if __name__ == "__main__":
     main ()
