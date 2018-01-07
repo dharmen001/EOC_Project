@@ -1,10 +1,11 @@
 import pandas as pd
 import cx_Oracle
 import numpy as np
+import datetime
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter")
+writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter", datetime_format="YYYY-MM-DD")
 
 def common_columns():
     read_common_columns = pd.read_csv("Eociocommoncolumn.csv")
@@ -95,6 +96,7 @@ def rename_cols():
     return summary_new
 def adding_column_Delivery():
     summary_new = rename_cols()
+
     summary_new["Delivery% ENG"] = summary_new["Delivered Engagements"]/summary_new["Booked Eng#"
                                                                                     "Booked Imp"]
     summary_new["Delivery% Impression"] = summary_new["Delivered Impressions"]/summary_new["Booked Eng#"
@@ -123,13 +125,16 @@ def adding_column_Spend():
     return summary_new
 
 def write_summary():
-    summary_new = adding_column_Spend()
+    summary_old = adding_column_Spend()
     data_common_columns = common_columns()
+
+    summary_new = summary_old.fillna(0)
     summary = data_common_columns[1].to_excel(writer, sheet_name="Summary({})".format(IO_ID), startcol=0,
                                               startrow=1, index=False, header=False)
 
     final_summary = summary_new.to_excel(writer, sheet_name="Summary({})".format(IO_ID),  startcol=0, startrow=6,
                                          header=True, index=False, )
+
 
     return summary, final_summary
 
