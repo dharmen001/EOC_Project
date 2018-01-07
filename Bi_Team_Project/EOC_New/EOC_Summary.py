@@ -125,28 +125,36 @@ def adding_column_Spend():
 def write_summary():
     summary_new = adding_column_Spend()
     data_common_columns = common_columns()
-    summary = data_common_columns[1].to_excel(writer, sheet_name="Summary({})".format(IO_ID), startcol=3,
+    summary = data_common_columns[1].to_excel(writer, sheet_name="Summary({})".format(IO_ID), startcol=0,
                                               startrow=1, index=False, header=False)
-    df1 = pd.DataFrame({"Campaign Summary": []})
-    add_df1 = df1.to_excel(writer, sheet_name="Summary({})".format(IO_ID), startcol=3, startrow=5,
-                           index=False)
-    final_summary = summary_new.to_excel(writer, sheet_name="Summary({})".format(IO_ID),  startcol=3, startrow=6,
+
+    final_summary = summary_new.to_excel(writer, sheet_name="Summary({})".format(IO_ID),  startcol=0, startrow=6,
                                          header=True, index=False, )
 
-    return summary, add_df1, final_summary
+    return summary, final_summary
 
 def format_summary():
-    summary, add_df1, final_summary = write_summary()
+    summary, final_summary = write_summary()
     workbook = writer.book
     worksheet = writer.sheets["Summary({})".format(IO_ID)]
-    format1 = workbook.add_format({"num_format": "$#,###0.00"})
-    format2 = workbook.add_format({"num_format": "0.00%"})
-    worksheet.set_column("K:L", 30, format1)
-    worksheet.set_column("U:AA", 30, format2)
-    worksheet.set_column("AB:AH", 20, format1)
-    worksheet.set_column("D:J", 30)
-    worksheet.set_column("M:T", 30)
     worksheet.hide_gridlines(2)
+    format1 = workbook.add_format({"num_format": "$#,###0.00", "align": "center"})
+    format2 = workbook.add_format({"num_format": "0.00%", "align": "center"})
+    format3 = workbook.add_format({"bold": True, "font_color": '#FFFFFF', "align": "left", "fg_color": "#87CEFA"})
+    format4 = workbook.add_format({"align": "center"})
+    format5 = workbook.add_format({"bold": True, "font_color": '#000000', "fg_color": "#87CEFA"})
+    worksheet.set_column("A:A", 30, format4)
+    worksheet.set_column("B:B", 78, format4)
+    worksheet.set_column("C:D", 30, format4)
+    worksheet.set_column("E:E", 40, format4)
+    worksheet.set_column("F:G", 20, format4)
+    worksheet.set_column("H:I", 20, format1)
+    worksheet.set_column("J:J", 22, format4)
+    worksheet.set_column("K:Q", 20, format4)
+    worksheet.set_column("R:X", 20, format2)
+    worksheet.set_column("Y:AE", 20, format1)
+    worksheet.merge_range("A6:AE6", "Campaign Summary", format3)
+    worksheet.freeze_panes(7, 2)
     writer.save
     writer.close()
 
