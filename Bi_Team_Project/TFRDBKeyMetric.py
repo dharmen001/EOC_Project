@@ -120,8 +120,8 @@ def createFile(filePath):
         print("Oracle error message is [" + error.message[ :-1 ] + ']')
         print("oracle error code is " + str ( error.code ))
         print ('sql string is [' + sql + ']')
-        exit ( error.code )
-    writer.writerow ( [ i[ 0 ].strip () for i in cursor.description ] )
+        exit (error.code)
+    writer.writerow ( [ i[0].strip () for i in cursor.description ] )
 
     try:
         for row in cursor:

@@ -1,7 +1,8 @@
 import pandas as pd
 import cx_Oracle
 import numpy as np
-import datetime
+from xlsxwriter.utility import xl_rowcol_to_cell
+from StyleFrame import StyleFrame
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
@@ -17,24 +18,21 @@ def common_columns():
     return read_common_columns, data_common_columns
 
 def connect_TFR():
-    sql_summary = "select * from TFR_REP.SUMMARY_MV where IO_ID = {}".format(IO_ID)
-    sql_KM = "select * from TFR_REP.KEY_METRIC_MV where IO_ID = {}".format(IO_ID)
-    sql_VD = "select * from TFR_REP.VIDEO_DETAIL_MV where IO_ID = {}".format(IO_ID)
-    sql_ID = "select * from TFR_REP.INTERACTION_DETAIL_MV where IO_ID = {}".format(IO_ID)
-    sql_Daily_sales = "select * from TFR_REP.DAILY_SALES_MV where IO_ID = {}".format(IO_ID)
-    return sql_summary, sql_KM, sql_VD, sql_ID, sql_Daily_sales
+
+        sql_summary = "select * from TFR_REP.SUMMARY_MV where IO_ID = {}".format(IO_ID)
+        sql_KM = "select * from TFR_REP.KEY_METRIC_MV where IO_ID = {}".format(IO_ID)
+        sql_Daily_sales = "select * from TFR_REP.DAILY_SALES_MV where IO_ID = {}".format(IO_ID)
+        return sql_summary, sql_KM, sql_Daily_sales
 
 def read_query():
-    sql_summary, sql_KM, sql_VD, sql_ID, sql_Daily_sales = connect_TFR()
+    sql_summary, sql_KM, sql_Daily_sales = connect_TFR()
     read_sql_summary = pd.read_sql(sql_summary, conn)
     read_sql_KM = pd.read_sql(sql_KM, conn)
-    read_sql_VD = pd.read_sql(sql_VD, conn)
-    read_sql_ID = pd.read_sql(sql_ID, conn)
     read_sql_Daily_sales = pd.read_sql(sql_Daily_sales, conn)
-    return read_sql_summary, read_sql_KM, read_sql_VD, read_sql_ID, read_sql_Daily_sales
+    return read_sql_summary, read_sql_KM, read_sql_Daily_sales
 
 def access_data_summary():
-    read_sql_summary, read_sql_KM, read_sql_VD, read_sql_ID, read_sql_Daily_sales = read_query()
+    read_sql_summary, read_sql_KM, read_sql_Daily_sales = read_query()
 
     summary_pivot_first = pd.pivot_table(read_sql_summary, values=["BUDGET"], index=["PLACEMENT_ID", "PLACEMENT_DESC",
                                                                                      "SDATE",
@@ -50,7 +48,7 @@ def access_data_summary():
                                                      "UNIT_COST", "BUDGET", "BOOKED_QTY"]]
 
     KM_pivot_first = pd.pivot_table(read_sql_KM, values=["IMPRESSIONS", "ENGAGEMENTS", "CPCV_COUNT", "DPE_ENGAGEMENTS"],
-                                    index=["PLACEMENT_ID","PLACEMENT_DESC"],
+                                    index=["PLACEMENT_ID", "PLACEMENT_DESC"],
                                     aggfunc=np.sum)
     KM_data_summary_new = KM_pivot_first.reset_index()
 
@@ -127,40 +125,49 @@ def adding_column_Spend():
 def write_summary():
     summary_old = adding_column_Spend()
     data_common_columns = common_columns()
-
     summary_new = summary_old.fillna(0)
+
     summary = data_common_columns[1].to_excel(writer, sheet_name="Summary({})".format(IO_ID), startcol=0,
-                                              startrow=1, index=False, header=False)
+                                              startrow=7, index=False, header=False)
 
-    final_summary = summary_new.to_excel(writer, sheet_name="Summary({})".format(IO_ID),  startcol=0, startrow=6,
-                                         header=True, index=False, )
+    final_summary = summary_new.to_excel(writer, sheet_name="Summary({})".format(IO_ID),  startcol=0, startrow=12,
+                                         header=True, index=False)
 
 
-    return summary, final_summary
+    return summary, final_summary, summary_old
+def common_summary():
+    data_common_columns = common_columns()
+    summary_new = adding_column_Spend()
+    workbook=writer.book
+    worksheet=writer.sheets["Summary({})".format(IO_ID)]
+    money_fmt = workbook.add_format({"num_format":"$#,###0.00","align":"center"})
 
-def format_summary():
-    summary, final_summary = write_summary()
-    workbook = writer.book
-    worksheet = writer.sheets["Summary({})".format(IO_ID)]
+    percent_fmt = workbook.add_format({"num_format":"0.00%","align":"center"})
+
+    alignment = workbook.add_format({"align":"center"})
     worksheet.hide_gridlines(2)
-    format1 = workbook.add_format({"num_format": "$#,###0.00", "align": "center"})
-    format2 = workbook.add_format({"num_format": "0.00%", "align": "center"})
-    format3 = workbook.add_format({"bold": True, "font_color": '#FFFFFF', "align": "left", "fg_color": "#87CEFA"})
-    format4 = workbook.add_format({"align": "center"})
-    format5 = workbook.add_format({"bold": True, "font_color": '#000000', "fg_color": "#87CEFA"})
-    worksheet.set_column("A:A", 30, format4)
-    worksheet.set_column("B:B", 78, format4)
-    worksheet.set_column("C:D", 30, format4)
-    worksheet.set_column("E:E", 40, format4)
-    worksheet.set_column("F:G", 20, format4)
-    worksheet.set_column("H:I", 20, format1)
-    worksheet.set_column("J:J", 22, format4)
-    worksheet.set_column("K:Q", 20, format4)
-    worksheet.set_column("R:X", 20, format2)
-    worksheet.set_column("Y:AE", 20, format1)
-    worksheet.merge_range("A6:AE6", "Campaign Summary", format3)
-    worksheet.freeze_panes(7, 2)
-    writer.save
+    worksheet.insert_image("A1","Exponential.png")
+    worksheet.freeze_panes(13,2)
+    format_common_column = {"header_row":False, "style": "Table Style Medium 2", 'autofilter': False}
+    worksheet.add_table("A8:F10",format_common_column)
+    format_merge_row = workbook.add_format({"bold": True, "font_color": '#FFFFFF', "align": "left",
+                                            "fg_color": "#8DB6CD"})
+    worksheet.merge_range("A7:AE7", "Campaign Summary", format_merge_row)
+    worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
+    worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
+    worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
+    worksheet.set_column("A:AE", None, alignment)
+    worksheet.set_column("A:A", 30)
+    worksheet.set_column("B:B", 78)
+    worksheet.set_column("C:D", 30)
+    worksheet.set_column("E:E", 40)
+    worksheet.set_column("F:G", 20)
+    worksheet.set_column("H:I", 20, money_fmt)
+    worksheet.set_column("J:J", 22)
+    worksheet.set_column("K:Q", 20)
+    worksheet.set_column("R:X", 20, percent_fmt)
+    worksheet.set_column("Y:AE", 20, money_fmt)
+    writer.save()
     writer.close()
 
 def main():
@@ -173,7 +180,7 @@ def main():
     adding_column_Delivery()
     adding_column_Spend()
     write_summary()
-    format_summary()
+    common_summary()
 
 if __name__ == "__main__":
     main ()

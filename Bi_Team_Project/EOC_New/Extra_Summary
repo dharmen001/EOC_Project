@@ -1,0 +1,62 @@
+    """format1 = workbook.add_format({"num_format": "$#,###0.00", "align": "center"})
+
+    format2 = workbook.add_format({"num_format": "0.00%", "align": "center"})
+
+    format4 = workbook.add_format({"align": "center"})
+
+    format6 = workbook.add_format({"num_format": "$#,###0.00", "align": "center", 'bold': True, 'bottom': 1, 'top': 1,
+                                   'right': 1, 'left': 1})
+    #format7 = workbook.add_format({"num_format": "0.0%", "align":"center", 'bold': True, 'bottom':6})
+    worksheet.set_column("A:A", 30, format4)
+    worksheet.set_column("B:B", 78, format4)
+    worksheet.set_column("C:D", 30, format4)
+    worksheet.set_column("E:E", 40, format4)
+    worksheet.set_column("F:G", 20, format4)
+    worksheet.set_column("H:I", 20, format1)
+    worksheet.set_column("J:J", 22, format4)
+    worksheet.set_column("K:Q", 20, format4)
+    worksheet.set_column("R:X", 20, format2)
+    worksheet.set_column("Y:AE", 20, format1)
+    worksheet.set_column("M:N", 20, None, {'level': 1, 'hidden': True})
+    worksheet.set_column("T:X",20,None, {'level': 1, 'hidden': True})
+    worksheet.set_column("AA:AE",20,None, {'level': 1, 'hidden': True})
+    for column in range(8, 12):
+        cell_location= xl_rowcol_to_cell(number_rows+1, column)
+        start_range=xl_rowcol_to_cell(1,column)
+        end_range=xl_rowcol_to_cell(number_rows,column)
+        formula = "=SUM({:s}:{:s})".format(start_range,end_range)
+        worksheet.write_formula(cell_location,formula,format6)
+    worksheet.write_string(number_rows+1,6,"Total",format6)
+
+        for column_index in range(start_col, end_col):
+        print column_index
+        #worksheet.write(row_index,column_index, column_index - start_col, format_border)
+    for rows in range(row_index, end_row):
+        print rows
+    writer.save()
+    writer.close()
+
+
+
+
+    #number_rows = len(summary_new.index)
+
+
+    #column_series = pd.Series(range(number_columns))
+    #column_list = column_series.tolist()
+    for i in column_list:
+        print i
+        #filter for header
+        header = summary_new[[i]].astype(str).columns.values
+        print header
+        #Get length of header
+        #header_len = len(header.max())+2
+        #Get length of column values
+        #column_len = summary_new[[i]].astype(str).apply(lambda x:x.str.len()).max().max()+2
+        #Choose the greater of the column length or column value length
+        #if header_len >= column_len:
+         #   worksheet.set_column(i,i,header_len)
+        #else:
+          #  worksheet.set_column(i,i,column_len)
+
+
