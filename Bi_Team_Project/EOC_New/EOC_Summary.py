@@ -140,22 +140,55 @@ def common_summary():
     summary_new = adding_column_Spend()
     workbook=writer.book
     worksheet=writer.sheets["Summary({})".format(IO_ID)]
+    number_rows = summary_new.shape[0]
+    number_cols = summary_new.shape[1]
+
+
+
     money_fmt = workbook.add_format({"num_format":"$#,###0.00","align":"center"})
 
     percent_fmt = workbook.add_format({"num_format":"0.00%","align":"center"})
 
+    full_border = workbook.add_format({"num_format":"$#,###0.00",
+                                       "border": 1, "border_color":"#8EE5EE","align":"center",
+                                       "fg_color": "#8EE5EE", "bold": True})
+
+    border_style = workbook.add_format({"border": 1, "border_color":"#8EE5EE", "fg_color": "#8EE5EE"})
+
     alignment = workbook.add_format({"align":"center"})
+
     worksheet.hide_gridlines(2)
     worksheet.insert_image("A1","Exponential.png")
     worksheet.freeze_panes(13,2)
+
     format_common_column = {"header_row":False, "style": "Table Style Medium 2", 'autofilter': False}
+
     worksheet.add_table("A8:F10",format_common_column)
+
     format_merge_row = workbook.add_format({"bold": True, "font_color": '#FFFFFF', "align": "left",
-                                            "fg_color": "#8DB6CD"})
+                                            "fg_color": "#8EE5EE"})
+
     worksheet.merge_range("A7:AE7", "Campaign Summary", format_merge_row)
     worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
+
+    for col in range(7,17):
+        cell_location = xl_rowcol_to_cell(number_rows+13,col)
+        start_range = xl_rowcol_to_cell(13,col)
+        end_range = xl_rowcol_to_cell(number_rows+12,col)
+        formula = "=SUM({:s}:{:s})".format(start_range, end_range)
+        worksheet.write_formula(cell_location, formula, full_border)
+
+    for col in range(24, 31):
+        cell_location = xl_rowcol_to_cell(number_rows+13, col)
+        start_range = xl_rowcol_to_cell(13,col)
+        end_range = xl_rowcol_to_cell(number_rows+12,col)
+        formula = "=SUM({:s}:{:s})".format(start_range, end_range)
+        worksheet.write_formula(cell_location, formula, full_border)
+
+
+    worksheet.write_string(number_rows+13, 0, "Total", full_border)
     worksheet.set_column("A:AE", None, alignment)
     worksheet.set_column("A:A", 30)
     worksheet.set_column("B:B", 78)
