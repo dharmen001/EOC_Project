@@ -2,7 +2,6 @@ import pandas as pd
 import cx_Oracle
 import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell
-from StyleFrame import StyleFrame
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
@@ -16,6 +15,7 @@ def common_columns():
                                                           "Values-Campaign-Info"]]
 
     return read_common_columns, data_common_columns
+
 
 def connect_TFR():
 
@@ -144,7 +144,6 @@ def common_summary():
     number_cols = summary_new.shape[1]
 
 
-
     money_fmt = workbook.add_format({"num_format":"$#,###0.00","align":"center"})
 
     percent_fmt = workbook.add_format({"num_format":"0.00%","align":"center"})
@@ -194,7 +193,7 @@ def common_summary():
     worksheet.write_string(number_rows+13, 0, "Total", full_border)
     worksheet.set_column("A:AE", None, alignment)
     worksheet.set_column("A:A", 30)
-    worksheet.set_column("B:B", 30)
+    worksheet.set_column("B:B", 78)
     worksheet.set_column("C:D", 30)
     worksheet.set_column("E:E", 40)
     worksheet.set_column("F:G", 20)
