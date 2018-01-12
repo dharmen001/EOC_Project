@@ -155,6 +155,8 @@ def common_summary():
 
     border_style = workbook.add_format({"border": 1, "border_color":"#8EE5EE", "fg_color": "#8EE5EE"})
 
+    data_border_style = workbook.add_format({"border": 1, "border_color":"#8EE5EE"})
+
     alignment = workbook.add_format({"align":"center"})
 
     worksheet.hide_gridlines(2)
@@ -172,6 +174,7 @@ def common_summary():
     worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
+    wrap_format=workbook.add_format({'text_wrap':True})
 
     for col in range(7,17):
         cell_location = xl_rowcol_to_cell(number_rows+13,col)
@@ -191,7 +194,7 @@ def common_summary():
     worksheet.write_string(number_rows+13, 0, "Total", full_border)
     worksheet.set_column("A:AE", None, alignment)
     worksheet.set_column("A:A", 30)
-    worksheet.set_column("B:B", 78)
+    worksheet.set_column("B:B", 30)
     worksheet.set_column("C:D", 30)
     worksheet.set_column("E:E", 40)
     worksheet.set_column("F:G", 20)
@@ -200,6 +203,8 @@ def common_summary():
     worksheet.set_column("K:Q", 20)
     worksheet.set_column("R:X", 20, percent_fmt)
     worksheet.set_column("Y:AE", 20, money_fmt)
+    worksheet.conditional_format("A14:AE{}".format(number_cols),{"type":"no_blanks","format":data_border_style})
+    worksheet.conditional_format("A13:AE13", {"type": "no_blanks","format": border_style})
     writer.save()
     writer.close()
 
