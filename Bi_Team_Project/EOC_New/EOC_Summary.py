@@ -5,7 +5,7 @@ from xlsxwriter.utility import xl_rowcol_to_cell
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter", datetime_format="YYYY-MM-DD")
+writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter", datetime_format="MM-DD-YYYY")
 
 def common_columns():
     read_common_columns = pd.read_csv("Eociocommoncolumn.csv")
@@ -173,7 +173,7 @@ def common_summary():
     worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
-    wrap_format=workbook.add_format({'text_wrap':True})
+    #wrap_format=workbook.add_format({'text_wrap':True})
 
     for col in range(7,17):
         cell_location = xl_rowcol_to_cell(number_rows+13,col)

@@ -1,1 +1,0 @@
-print ("This is a python\n  and hope you are a programmer\nwho wants to learn me")
