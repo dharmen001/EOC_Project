@@ -170,15 +170,15 @@ def common_summary():
                                             "fg_color": "#8EE5EE"})
 
     worksheet.merge_range("A7:AE7", "Campaign Summary", format_merge_row)
-    worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
+    worksheet.set_column("M:N", 20, None, {'level': 1, 'hidden': True})
     worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
     #wrap_format=workbook.add_format({'text_wrap':True})
 
-    for col in range(7,17):
-        cell_location = xl_rowcol_to_cell(number_rows+13,col)
-        start_range = xl_rowcol_to_cell(13,col)
-        end_range = xl_rowcol_to_cell(number_rows+12,col)
+    for col in range(7, 17):
+        cell_location = xl_rowcol_to_cell(number_rows+13, col)
+        start_range = xl_rowcol_to_cell(13, col)
+        end_range = xl_rowcol_to_cell(number_rows+12, col)
         formula = "=SUM({:s}:{:s})".format(start_range, end_range)
         worksheet.write_formula(cell_location, formula, full_border)
 
@@ -191,6 +191,7 @@ def common_summary():
 
 
     worksheet.write_string(number_rows+13, 0, "Total", full_border)
+    worksheet.set_zoom(80)
     worksheet.set_column("A:AE", None, alignment)
     worksheet.set_column("A:A", 30)
     worksheet.set_column("B:B", 78)
@@ -204,8 +205,7 @@ def common_summary():
     worksheet.set_column("Y:AE", 20, money_fmt)
     worksheet.conditional_format("A14:AE{}".format(number_cols),{"type":"no_blanks","format":data_border_style})
     worksheet.conditional_format("A13:AE13", {"type": "no_blanks","format": border_style})
-    writer.save()
-    writer.close()
+
 
 def main():
     common_columns()
@@ -218,6 +218,7 @@ def main():
     adding_column_Spend()
     write_summary()
     common_summary()
+    writer.close()
 
 if __name__ == "__main__":
     main ()

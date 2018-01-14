@@ -202,7 +202,7 @@ def common_summary():
     worksheet.set_column("K:Q", 20)
     worksheet.set_column("R:X", 20, percent_fmt)
     worksheet.set_column("Y:AE", 20, money_fmt)
-    worksheet.conditional_format("A14:AE{}".format(number_cols),{"type":"no_blanks","format":data_border_style})
+    worksheet.conditional_format("A14:AE{}".format(number_cols),{"type": "no_blanks","format": data_border_style})
     worksheet.conditional_format("A13:AE13", {"type": "no_blanks","format": border_style})
     writer.save()
     writer.close()
