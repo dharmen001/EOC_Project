@@ -1,158 +1,212 @@
 import pandas as pd
-import  cx_Oracle
+import cx_Oracle
 import numpy as np
+from xlsxwriter.utility import xl_rowcol_to_cell
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-writer = pd.ExcelWriter("Daily Performance({}).xlsx".format(IO_ID), engine="xlsxwriter", datetime_format="YYYY-MM-DD")
+writer = pd.ExcelWriter("Daily Peformance({}).xlsx".format(IO_ID), engine="xlsxwriter", datetime_format="MM-DD-YYYY")
 
-def common_columns():
+def common_Columns():
     read_common_columns = pd.read_csv("Eociocommoncolumn.csv")
     data_common_columns_new = read_common_columns.loc[read_common_columns.IOID == IO_ID, :]
     data_common_columns = data_common_columns_new.loc[:, ["Columns-IO", "Values-IO", "Columns-AM-Sales",
                                                           "Values-AM-Sales", "Columns-Campaign-Info",
                                                           "Values-Campaign-Info"]]
 
-    return read_common_columns, data_common_columns
+    return  read_common_columns, data_common_columns
+
 
 def connect_TFR():
-        sql_KM="select * from TFR_REP.KEY_METRIC_MV where IO_ID = {}".format(IO_ID)
-        sql_Daily_sales="select * from TFR_REP.DAILY_SALES_MV where IO_ID = {}".format(IO_ID)
+        sql_KM = "select * from TFR_REP.KEY_METRIC_MV where IO_ID = {}".format(IO_ID)
+        sql_Daily_sales = "select * from TFR_REP.DAILY_SALES_MV where IO_ID = {}".format(IO_ID)
         return sql_KM, sql_Daily_sales
 
-def read_query():
+def read_Query():
     sql_KM, sql_Daily_sales = connect_TFR()
     read_sql_KM = pd.read_sql(sql_KM, conn)
     read_sql_Daily_sales = pd.read_sql(sql_Daily_sales, conn)
     return read_sql_KM, read_sql_Daily_sales
 
-def access_data_summary():
-    read_sql_KM, read_sql_Daily_sales = read_query()
-
-    KM_pivot_first = pd.pivot_table(read_sql_KM, values=["IMPRESSIONS","ENGAGEMENTS","VWR_CLICK_THROUGHS",
-                                                         "ENG_CLICK_THROUGHS" ,"DPE_CLICK_THROUGHS",
-                                                         "VWR_VIDEO_VIEW_100_PC_COUNT","ENG_VIDEO_VIEW_100_PC_COUNT",
-                                                         "DPE_VIDEO_VIEW_100_PC_COUNT","ENG_TOTAL_TIME_SPENT",
-                                                         "DPE_TOTAL_TIME_SPENT","ENG_INTERACTIVE_ENGAGEMENTS",
-                                                         "DPE_INTERACTIVE_ENGAGEMENTS","CPCV_COUNT","DPE_ENGAGEMENTS"],
-                                    index=["PLACEMENT_ID", "PLACEMENT_DESC","METRIC_DESC","DAY_DESC"],
+def access_Data_KM_Sales():
+    read_sql_KM, read_sql_Daily_sales = read_Query()
+    KM_Data = pd.pivot_table(read_sql_KM, values=["IMPRESSIONS", "ENGAGEMENTS", "VWR_CLICK_THROUGHS",
+                                                  "ENG_CLICK_THROUGHS", "DPE_CLICK_THROUGHS",
+                                                  "VWR_VIDEO_VIEW_100_PC_COUNT",
+                                                  "ENG_VIDEO_VIEW_100_PC_COUNT",
+                                                  "DPE_VIDEO_VIEW_100_PC_COUNT",
+                                                  "ENG_TOTAL_TIME_SPENT",
+                                                  "DPE_TOTAL_TIME_SPENT",
+                                                  "ENG_INTERACTIVE_ENGAGEMENTS",
+                                                  "DPE_INTERACTIVE_ENGAGEMENTS",
+                                                  "CPCV_COUNT",
+                                                  "DPE_ENGAGEMENTS"],
+                                    index=["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC"],
                                     aggfunc=np.sum)
+    KM_reset = KM_Data.reset_index()
+    KM_Data_New = KM_reset[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC", "DAY_DESC", "IMPRESSIONS",
+                            "ENGAGEMENTS", "VWR_CLICK_THROUGHS", "ENG_CLICK_THROUGHS", "DPE_CLICK_THROUGHS",
+                            "VWR_VIDEO_VIEW_100_PC_COUNT", "ENG_VIDEO_VIEW_100_PC_COUNT", "DPE_VIDEO_VIEW_100_PC_COUNT",
+                            "ENG_TOTAL_TIME_SPENT", "DPE_TOTAL_TIME_SPENT", "ENG_INTERACTIVE_ENGAGEMENTS",
+                            "DPE_INTERACTIVE_ENGAGEMENTS", "CPCV_COUNT", "DPE_ENGAGEMENTS"]]
 
-    KM_data_daily_new = KM_pivot_first.reset_index()
-
-    KM_data_daily = KM_data_daily_new[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC", "DAY_DESC",
-                                       "IMPRESSIONS","ENGAGEMENTS",
-                                       "VWR_CLICK_THROUGHS",
-                                       "ENG_CLICK_THROUGHS","DPE_CLICK_THROUGHS",
-                                       "VWR_VIDEO_VIEW_100_PC_COUNT","ENG_VIDEO_VIEW_100_PC_COUNT",
-                                       "DPE_VIDEO_VIEW_100_PC_COUNT","ENG_TOTAL_TIME_SPENT",
-                                       "DPE_TOTAL_TIME_SPENT","ENG_INTERACTIVE_ENGAGEMENTS",
-                                       "DPE_INTERACTIVE_ENGAGEMENTS","CPCV_COUNT","DPE_ENGAGEMENTS"
-                                       ]]
-    daily_sales_pivot_first = pd.pivot_table(read_sql_Daily_sales, values=["VIEWS", "CLICKS", "CONVERSIONS"],
+    daily_Sales_Data = pd.pivot_table(read_sql_Daily_sales, values=["VIEWS", "CLICKS", "CONVERSIONS"],
                                              index=["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC"],
                                              aggfunc=np.sum)
+    sales_reset = daily_Sales_Data.reset_index()
+    daily_Sales_Data_new = sales_reset[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC",
+                                        "VIEWS", "CLICKS", "CONVERSIONS"]]
 
-    daily_sales_pivot_first_new = daily_sales_pivot_first.reset_index()
+    return KM_Data_New, daily_Sales_Data_new
 
-    daily_sales_data_daily = daily_sales_pivot_first_new[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC",
-                                                          "VIEWS", "CLICKS", "CONVERSIONS"]]
-    return KM_data_daily, daily_sales_data_daily
+def KM_Sales():
+    KM_Data_New, daily_Sales_Data_new = access_Data_KM_Sales()
 
-def access_KM_sales_daily():
+    accessing_KM_columns = KM_Data_New.loc[:, ["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC", "DAY_DESC",
+                                               "IMPRESSIONS","ENGAGEMENTS", "VWR_CLICK_THROUGHS", "ENG_CLICK_THROUGHS",
+                                               "DPE_CLICK_THROUGHS","VWR_VIDEO_VIEW_100_PC_COUNT",
+                                               "ENG_VIDEO_VIEW_100_PC_COUNT", "DPE_VIDEO_VIEW_100_PC_COUNT",
+                                               "ENG_TOTAL_TIME_SPENT", "DPE_TOTAL_TIME_SPENT",
+                                               "ENG_INTERACTIVE_ENGAGEMENTS","DPE_INTERACTIVE_ENGAGEMENTS",
+                                               "CPCV_COUNT", "DPE_ENGAGEMENTS"]]
 
-    KM_data_daily, daily_sales_data_daily = rename_col()
+    accessing_sales_columns = daily_Sales_Data_new.loc[:, ["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC",
+                                                           "VIEWS", "CLICKS", "CONVERSIONS"]]
 
-    KM_data_daily_access_data = KM_data_daily.loc[:, ["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC", "DAY_DESC",
-                                       "IMPRESSIONS","ENGAGEMENTS",
-                                       "VWR_CLICK_THROUGHS",
-                                       "ENG_CLICK_THROUGHS","DPE_CLICK_THROUGHS",
-                                       "VWR_VIDEO_VIEW_100_PC_COUNT","ENG_VIDEO_VIEW_100_PC_COUNT",
-                                       "DPE_VIDEO_VIEW_100_PC_COUNT","ENG_TOTAL_TIME_SPENT",
-                                       "DPE_TOTAL_TIME_SPENT","ENG_INTERACTIVE_ENGAGEMENTS",
-                                       "DPE_INTERACTIVE_ENGAGEMENTS","CPCV_COUNT","DPE_ENGAGEMENTS"]]
+    return accessing_KM_columns, accessing_sales_columns
 
-    daily_sales_data_daily_data = daily_sales_data_daily.loc[:, ["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC",
-                                                          "VIEWS", "CLICKS", "CONVERSIONS"]]
-    return KM_data_daily_access_data, daily_sales_data_daily_data
+def rename_KM_Sales():
+    accessing_KM_columns, accessing_sales_columns = KM_Sales()
+    rename_KM_columns = accessing_KM_columns.rename(columns={"PLACEMENT_ID": "Placement ID",
+                                                             "PLACEMENT_DESC": "Placement#",
+                                                             "METRIC_DESC": "Metric",
+                                                             "DAY_DESC": "Day",
+                                                             "IMPRESSIONS": "KM_Impressions",
+                                                             "ENGAGEMENTS": "Delivered Engagements",
+                                                             "VWR_CLICK_THROUGHS": "VWR click through",
+                                                             "ENG_CLICK_THROUGHS": "Eng click through",
+                                                             "DPE_CLICK_THROUGHS": "Deep click through",
+                                                             "VWR_VIDEO_VIEW_100_PC_COUNT": "VWR video 100 pc",
+                                                             "ENG_VIDEO_VIEW_100_PC_COUNT": "ENG video 100 pc",
+                                                             "DPE_VIDEO_VIEW_100_PC_COUNT": "Deep video 100 pc",
+                                                             "ENG_TOTAL_TIME_SPENT": "Eng total time spent",
+                                                             "DPE_TOTAL_TIME_SPENT": "Deep total time spent",
+                                                             "ENG_INTERACTIVE_ENGAGEMENTS": "Eng intractive engagement",
+                                                             "DPE_INTERACTIVE_ENGAGEMENTS": "DPE intractive engagement",
+                                                             "CPCV_COUNT": "Completions",
+                                                             "DPE_ENGAGEMENTS": "Deep Engagements"}, inplace=True)
+    rename_sales_column = accessing_sales_columns.rename(columns={"PLACEMENT_ID": "Placement ID",
+                                                                  "PLACEMENT_DESC": "Placement#",
+                                                                  "METRIC_DESC": "Metric",
+                                                                  "DAY_DESC": "Day",
+                                                                  "VIEWS": "Delivered Impressions",
+                                                                  "CLICKS": "Sales_Clicks",
+                                                                  "CONVERSIONS": "Conversions"}, inplace=True)
+    return accessing_KM_columns, accessing_sales_columns
 
-def rename_col():
-    KM_data_daily_access_data, daily_sales_data_daily_data = access_data_summary()
+"""def adding_vcr_ctr_IR_ATS():
+    accessing_KM_columns, accessing_sales_columns = rename_KM_Sales()
 
-    KM_data_daily_rename = KM_data_daily_access_data.rename(columns={"PLACEMENT_ID": "Placement ID", "PLACEMENT_DESC": "Placement#",
-                                                         "METRIC_DESC": "Metric", "DAY_DESC": "Day",
-                                                         "IMPRESSIONS": "KM_Impressions",
-                                                         "ENGAGEMENTS": "Delivered Engagements",
-                                                         "VWR_CLICK_THROUGHS": "VWR click through",
-                                                         "ENG_CLICK_THROUGHS": "Eng click through",
-                                                         "DPE_CLICK_THROUGHS": "Deep click through",
-                                                         "VWR_VIDEO_VIEW_100_PC_COUNT": "VWR video 100 pc",
-                                                         "ENG_VIDEO_VIEW_100_PC_COUNT": "ENG video 100 pc",
-                                                         "DPE_VIDEO_VIEW_100_PC_COUNT": "Deep video 100 pc",
-                                                         "ENG_TOTAL_TIME_SPENT": "Eng total time spent",
-                                                         "DPE_TOTAL_TIME_SPENT": "Deep total time spent",
-                                                         "ENG_INTERACTIVE_ENGAGEMENTS": "Eng intractive engagement",
-                                                         "DPE_INTERACTIVE_ENGAGEMENTS": "DPE intractive engagement",
-                                                         "CPCV_COUNT": "Completions",
-                                                         "DPE_ENGAGEMENTS": "Deep Engagements"}, inplace=True)
-    sales_data_Daily_rename = daily_sales_data_daily_data.rename(columns={"PLACEMENT_ID": "Placement ID",
-                                                                     "PLACEMENT_DESC": "Placement#",
-                                                                     "METRIC_DESC": "Metric",
-                                                                     "DAY_DESC": "Day",
-                                                                     "VIEWS": "Delivered Impressions",
-                                                                     "CLICKS": "Sales_Clicks",
-                                                                     "CONVERSIONS": "Conversions"}, inplace=True)
-    return KM_data_daily_access_data, daily_sales_data_daily_data
+    accessing_KM_columns["ENG VCR%"] = accessing_KM_columns["ENG video 100 pc"]/accessing_KM_columns["Delivered Engagements"]
+    accessing_KM_columns["Instream VCR%"] = accessing_KM_columns ["VWR video 100 pc"]/accessing_KM_columns["KM_Impressions"]
+    accessing_KM_columns["CPCV VCR%"] = accessing_KM_columns["Completions"]/accessing_KM_columns["KM_Impressions"]
+    accessing_KM_columns["ENG CTR%"] = accessing_KM_columns["Eng click through"]/accessing_KM_columns["Delivered Engagements"]
+    accessing_KM_columns["VWR CTR%"] = accessing_KM_columns["Eng click through"]/accessing_KM_columns["KM_Impressions"]
+    accessing_KM_columns["ENG Interaction Rate%"] = accessing_KM_columns["Eng intractive engagement"]/accessing_KM_columns["Delivered Engagements"]
+    accessing_KM_columns["DPE Interaction Rate%"] = accessing_KM_columns["DPE intractive engagement"]/accessing_KM_columns["Deep Engagements"]
+    accessing_KM_columns["ENG ATS"] = ((accessing_KM_columns["Eng total time spent"]/accessing_KM_columns["Delivered Engagements"])/1000).apply('{0:.2f}'.format)
+    accessing_KM_columns["Deep ATS"]= ((accessing_KM_columns["Deep total time spent"]/accessing_KM_columns["Deep Engagements"])/1000).apply('{0:.2f}'.format)
 
+    accessing_sales_columns["CTR%"] = ((accessing_sales_columns["Sales_Clicks"]/accessing_sales_columns
+                                        ["Delivered Impressions"])*100).apply('{0:.2f}%'.format)
 
+    return accessing_KM_columns, accessing_sales_columns"""
 
-def adding_vcr_ctr_IR_ATS():
+def write_KM_Sales():
+    data_common_columns = common_Columns()
+    accessing_KM_columns, accessing_sales_columns=rename_KM_Sales()
+    replace_blank_with_zero_KM = accessing_KM_columns.fillna(0)
+    replace_blank_with_zero_sales = accessing_sales_columns.fillna(0)
 
-    KM_data_daily_access_data, daily_sales_data_daily_data = access_KM_sales_daily()
+    for col in replace_blank_with_zero_KM.loc[:, "KM_Impressions":].columns:
+        replace_blank_with_zero_KM[col] = pd.to_numeric(replace_blank_with_zero_KM[col].copy(), errors="coerce")
 
-    KM_data_daily_access_data["ENG VCR%"] = KM_data_daily_access_data["ENG video 100 pc"]/KM_data_daily_access_data["Delivered Engagements"]
-    KM_data_daily_access_data["Instream VCR%"] = KM_data_daily_access_data["VWR video 100 pc"]/KM_data_daily_access_data["KM_Impressions"]
-    KM_data_daily_access_data["CPCV VCR%"] = KM_data_daily_access_data["Completions"]/KM_data_daily_access_data["KM_Impressions"]
-    KM_data_daily_access_data["ENG CTR%"] = KM_data_daily_access_data["Eng click through"]/KM_data_daily_access_data["Delivered Engagements"]
-    KM_data_daily_access_data["VWR CTR%"] = KM_data_daily_access_data["Eng click through"]/KM_data_daily_access_data["KM_Impressions"]
-    KM_data_daily_access_data["ENG Interaction Rate%"] = KM_data_daily_access_data["Eng intractive engagement"]/KM_data_daily_access_data["Delivered Engagements"]
-    KM_data_daily_access_data["DPE Interaction Rate%"] = KM_data_daily_access_data["DPE intractive engagement"]/KM_data_daily_access_data["Deep Engagements"]
-    KM_data_daily_access_data["ENG ATS"] = KM_data_daily_access_data["Eng total time spent"]/KM_data_daily_access_data["Delivered Engagements"]
-    KM_data_daily_access_data["Deep ATS"] = KM_data_daily_access_data["Deep total time spent"]/KM_data_daily_access_data["Deep Engagements"]
+    replace_blank_with_zero_KM_new = replace_blank_with_zero_KM.loc[:, :"Deep Engagements"].copy()
 
-    daily_sales_data_daily_data["CTR%"] = daily_sales_data_daily_data["Sales_Clicks"]/daily_sales_data_daily_data["Delivered Impressions"]
+    subs_KM = replace_blank_with_zero_KM_new.dropna().pivot_table(index=["Placement ID", "Placement#", "Metric", "Day"],
+                                                                  aggfunc="sum")
+    subs_t_KM = subs_KM.sum(level=[0, 1, 2])
+    subs_t_KM.insert(0, "Day", "Total")
+    subs_t_KM.set_index("Day", append = True, inplace=True)
+    replace_blank_with_zero_KM_new_new = pd.concat([subs_KM, subs_t_KM]).sort_index().reset_index()
+    final_KM = replace_blank_with_zero_KM_new_new.merge(replace_blank_with_zero_KM, how="outer")[replace_blank_with_zero_KM.columns]
 
-    return KM_data_daily_access_data, daily_sales_data_daily_data
+    final_KM["ENG VCR%"]=final_KM["ENG video 100 pc"]/final_KM["Delivered Engagements"]
+    final_KM["Instream VCR%"]=final_KM["VWR video 100 pc"]/final_KM["KM_Impressions"]
+    final_KM["CPCV VCR%"]=final_KM["Completions"]/final_KM["KM_Impressions"]
+    final_KM["ENG CTR%"]=final_KM["Eng click through"]/final_KM["Delivered Engagements"]
+    final_KM["VWR CTR%"]=final_KM["Eng click through"]/final_KM["KM_Impressions"]
+    final_KM["ENG Interaction Rate%"]=final_KM["Eng intractive engagement"]/final_KM["Delivered Engagements"]
+    final_KM["DPE Interaction Rate%"]=final_KM["DPE intractive engagement"]/final_KM["Deep Engagements"]
+    final_KM["ENG ATS"]=((final_KM["Eng total time spent"]/final_KM["Delivered Engagements"])/1000).apply('{0:.2f}'.format)
+    final_KM["Deep ATS"]=((final_KM["Deep total time spent"]/final_KM["Deep Engagements"])/1000).apply('{0:.2f}'.format)
 
-def write_daily():
-    data_common_columns = common_columns()
-    KM_data_daily_access_data, daily_sales_data_daily_data = adding_vcr_ctr_IR_ATS()
-    daily = data_common_columns[1].to_excel(writer, sheet_name="Daily Performance({})".format(IO_ID), startcol=0,
-                                            startrow=7, index=False, header=False)
-    KM_data_daily_final = KM_data_daily_access_data.to_excel(writer, sheet_name="Daily Performance({})".format(IO_ID), startcol=0,
-                                                             startrow=12, index=False, header=True)
-    daily_sales_data_daily_final = daily_sales_data_daily_data.to_excel(writer, sheet_name="Daily Performance({})".format(IO_ID),
-                                                                        startcol=0, startrow=len(KM_data_daily_access_data)+16,
-                                                                        index=False, header=True)
-    return daily, KM_data_daily_access_data, daily_sales_data_daily_data
+    for col in replace_blank_with_zero_sales.loc[:,"Delivered Impressions":].columns:
+        replace_blank_with_zero_sales[col] = pd.to_numeric(replace_blank_with_zero_sales[col].copy(), errors="coerce")
 
-def format_daily():
-    KM_data_daily_access_data = write_daily()
+    replace_blank_with_zero_sales_new = replace_blank_with_zero_sales.loc[:, :"Conversions"].copy()
+
+    subs_sales = replace_blank_with_zero_sales_new.pivot_table(index=["Placement ID", "Placement#", "Metric",
+                                                                      "Day"], aggfunc="sum")
+    subs_t_sales = subs_sales.sum(level=[0, 1, 2])
+    subs_t_sales.insert(0, "Day", "Total")
+    subs_t_sales.set_index("Day", append=True, inplace=True)
+    replace_blank_with_zero_sales_new_new = pd.concat([subs_sales,subs_t_sales]).sort_index().reset_index()
+    final_sales = replace_blank_with_zero_sales_new_new.merge(replace_blank_with_zero_sales, how="outer")[
+        replace_blank_with_zero_sales.columns]
+
+    final_sales["CTR%"]= ((final_sales["Sales_Clicks"]/final_sales["Delivered Impressions"])*100).apply('{0:.2f}%'.format)
+
+    writing_data_common_columns = data_common_columns[1].to_excel(writer,
+                                                                  sheet_name="Daily Performance({})".format(IO_ID),
+                                                                  startcol=0, startrow=7, index=False, header=False)
+
+    writing_KM_columns = final_KM.to_excel(writer, sheet_name="Daily Performance({})".format(IO_ID), startcol=0,
+                                           startrow=12, index=False, header=True)
+
+    writing_sales_columns = final_sales.to_excel(writer,
+                                                 sheet_name="Daily Performance({})".format(IO_ID),
+                                                 startcol=0, startrow=len(final_KM)+15,
+                                                 index=False, header=True)
+
+    return accessing_KM_columns, accessing_sales_columns
+
+def formatting():
+    final_KM,final_sales = write_KM_Sales()
+    #number_rows_KM = accessing_KM_columns.shape[0]
+    number_rows_final_KM=final_KM.shape[0]
+    #number_rows_sales = accessing_sales_columns.shape[0]
+    number_rows_final_sales=final_sales.shape[0]
     workbook=writer.book
-    worksheet= writer.sheets["Daily Performance({})".format(IO_ID)]
-    percent_fmt=workbook.add_format({"num_format":"0.00%","align":"center"})
-    alignment=workbook.add_format({"align":"center"})
+    worksheet=writer.sheets["Daily Performance({})".format(IO_ID)]
+    percent_fmt=workbook.add_format({"num_format": "0.00%", "align": "center"})
+    alignment=workbook.add_format({"align": "center"})
     worksheet.hide_gridlines(2)
     worksheet.insert_image("A1", "Exponential.png")
-    format_common_column={"header_row":False,"style":"Table Style Medium 2",'autofilter':False}
+    format_common_column={"header_row": False, "style": "Table Style Medium 2", 'autofilter': False}
     worksheet.add_table("A8:F10",format_common_column)
-    format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"left",
-                                          "fg_color":"#8EE5EE"})
-
+    format_merge_row=workbook.add_format({"bold": True, "font_color": '#FFFFFF', "align": "left",
+                                          "fg_color": "#8EE5EE"})
     worksheet.merge_range("A12:AA12", "Placement & Daily level Performance - Brand Engagement", format_merge_row)
-    worksheet.merge_range("A{}:H{}".format(len(KM_data_daily_access_data)+14, len(KM_data_daily_access_data)+14),
+    worksheet.merge_range("A{}:H{}".format(number_rows_final_KM+21, number_rows_final_KM+21),
                           "Placement & Daily level Performance - Brand Performance", format_merge_row)
 
+    full_border = workbook.add_format({"border": 1, "border_color": "#8EE5EE", "align": "center",
+                                       "fg_color": "#8EE5EE", "bold": True})
+
+    data_border_style = workbook.add_format({"border": 1, "border_color": "#8EE5EE"})
+    worksheet.freeze_panes(13, 4)
+    worksheet.set_zoom(80)
     worksheet.set_column("A:A", 15, alignment)
     worksheet.set_column("B:B", 78, alignment)
     worksheet.set_column("C:C", 20, alignment)
@@ -161,40 +215,38 @@ def format_daily():
     worksheet.set_column("F:F", 21, alignment)
     worksheet.set_column("G:G", 16, alignment)
     worksheet.set_column("H:H", 16, alignment)
-    worksheet.set_column("I:I", 16, alignment)
-    worksheet.set_column("J:J", 16, alignment)
-    worksheet.set_column("K:K", 16, alignment)
+    worksheet.set_column("I:K", 16, alignment)
     worksheet.set_column("L:L", 17, alignment)
-    worksheet.set_column("M:M", 16, alignment)
-    worksheet.set_column("N:N", 16, alignment)
+    worksheet.set_column("M:N", 16, alignment)
     worksheet.set_column("O:O", 23, alignment)
     worksheet.set_column("P:P", 24, alignment)
     worksheet.set_column("Q:Q", 11, alignment)
     worksheet.set_column("R:R", 17, alignment)
-    worksheet.set_column("S:S", 10, percent_fmt)
-    worksheet.set_column("T:T", 14, percent_fmt)
-    worksheet.set_column("U:U", 10, percent_fmt)
-    worksheet.set_column("V:V", 10, percent_fmt)
-    worksheet.set_column("W:W", 10, percent_fmt)
-    worksheet.set_column("X:X", 20, percent_fmt)
-    worksheet.set_column("Y:Y", 20, percent_fmt)
-    worksheet.set_column("Z:Z", 12, alignment)
-    worksheet.set_column("AA:AA",12, alignment)
-    writer.save
-    writer.close()
+    worksheet.set_column("S:S", 10, percent_fmt, {'level': 1,'hidden': True})
+    worksheet.set_column("T:T", 14, percent_fmt, {'level': 1,'hidden': True})
+    worksheet.set_column("U:W", 10, percent_fmt, {'level': 1,'hidden': True})
+    worksheet.set_column("X:Y", 20, percent_fmt, {'level': 1,'hidden': True})
+    worksheet.set_column("Z:Z", 12, alignment, {'level': 1,'hidden': True})
+    worksheet.set_column("AA:AA", 12, alignment, {'level': 1,'hidden': True})
+
+    worksheet.conditional_format("A14:AA{}".format(number_rows_final_KM+17),
+                                 {"type": "no_blanks", "format": data_border_style})
+    worksheet.conditional_format("A{}:H{}".format(18+number_rows_final_KM, number_rows_final_sales+number_rows_final_KM+17),
+                                 {"type": "no_blanks", "format": data_border_style})
+
+
 
 def main():
-    common_columns()
+    common_Columns()
     connect_TFR()
-    read_query()
-    access_data_summary()
-    access_KM_sales_daily()
-    rename_col()
-    adding_vcr_ctr_IR_ATS()
-    write_daily()
-    format_daily()
+    read_Query()
+    access_Data_KM_Sales()
+    KM_Sales()
+    rename_KM_Sales()
+    #adding_vcr_ctr_IR_ATS()
+    write_KM_Sales()
+    formatting()
+    writer.close()
 
 if __name__ == "__main__":
-    main ()
-
-
+    main()
