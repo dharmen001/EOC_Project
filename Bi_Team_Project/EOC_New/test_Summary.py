@@ -92,6 +92,7 @@ def rename_cols():
                                              inplace=True)
 
     return summary_new
+
 def adding_column_Delivery():
     summary_new = rename_cols()
 
@@ -112,6 +113,7 @@ def adding_column_Delivery():
     return summary_new
 
 def adding_column_Spend():
+
     summary_new = adding_column_Delivery()
     summary_new["Spend Eng"] = summary_new["Delivered Engagements"]*summary_new["Unit Cost"]
     summary_new["Spend Impression"] = summary_new["Delivered Impressions"]/1000*summary_new["Unit Cost"]
@@ -151,6 +153,8 @@ def common_summary():
     full_border = workbook.add_format({"num_format":"$#,###0.00",
                                        "border": 1, "border_color":"#8EE5EE","align":"center",
                                        "fg_color": "#8EE5EE", "bold": True})
+    full_border_total_format=workbook.add_format({"border":1,"border_color":"#8EE5EE","align":"center",
+                                                  "fg_color":"#8EE5EE","bold":True})
 
     border_style = workbook.add_format({"border": 1, "border_color":"#8EE5EE", "fg_color": "#8EE5EE"})
 
@@ -173,14 +177,21 @@ def common_summary():
     worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
-    #wrap_format=workbook.add_format({'text_wrap':True})
 
-    for col in range(7,17):
+
+    for col in range(7,9):
         cell_location = xl_rowcol_to_cell(number_rows+13,col)
         start_range = xl_rowcol_to_cell(13,col)
         end_range = xl_rowcol_to_cell(number_rows+12,col)
         formula = "=SUM({:s}:{:s})".format(start_range, end_range)
         worksheet.write_formula(cell_location, formula, full_border)
+
+    for col in range(9,17):
+        cell_location = xl_rowcol_to_cell(number_rows+13,col)
+        start_range = xl_rowcol_to_cell(13,col)
+        end_range = xl_rowcol_to_cell(number_rows+12,col)
+        formula = "=SUM({:s}:{:s})".format(start_range, end_range)
+        worksheet.write_formula(cell_location, formula, full_border_total_format)
 
     for col in range(24, 31):
         cell_location = xl_rowcol_to_cell(number_rows+13, col)
@@ -190,7 +201,7 @@ def common_summary():
         worksheet.write_formula(cell_location, formula, full_border)
 
 
-    worksheet.write_string(number_rows+13, 0, "Total", full_border)
+    worksheet.write_string(number_rows+13, 0, "Total", full_border_total_format)
     worksheet.set_column("A:AE", None, alignment)
     worksheet.set_column("A:A", 30)
     worksheet.set_column("B:B", 78)

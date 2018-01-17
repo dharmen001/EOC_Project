@@ -151,7 +151,7 @@ def write_KM_Sales():
     final_KM["ENG ATS"]=((final_KM["Eng total time spent"]/final_KM["Delivered Engagements"])/1000).apply('{0:.2f}'.format)
     final_KM["Deep ATS"]=((final_KM["Deep total time spent"]/final_KM["Deep Engagements"])/1000).apply('{0:.2f}'.format)
 
-    for col in replace_blank_with_zero_sales.loc[:,"Delivered Impressions":].columns:
+    for col in replace_blank_with_zero_sales.loc[:, "Delivered Impressions":].columns:
         replace_blank_with_zero_sales[col] = pd.to_numeric(replace_blank_with_zero_sales[col].copy(), errors="coerce")
 
     replace_blank_with_zero_sales_new = replace_blank_with_zero_sales.loc[:, :"Conversions"].copy()
@@ -182,7 +182,9 @@ def write_KM_Sales():
     return accessing_KM_columns, accessing_sales_columns
 
 def formatting():
-    final_KM,final_sales = write_KM_Sales()
+    final_KM, final_sales = write_KM_Sales()
+    writing_KM_columns = write_KM_Sales()
+
     #number_rows_KM = accessing_KM_columns.shape[0]
     number_rows_final_KM=final_KM.shape[0]
     #number_rows_sales = accessing_sales_columns.shape[0]
@@ -222,19 +224,38 @@ def formatting():
     worksheet.set_column("P:P", 24, alignment)
     worksheet.set_column("Q:Q", 11, alignment)
     worksheet.set_column("R:R", 17, alignment)
-    worksheet.set_column("S:S", 10, percent_fmt, {'level': 1,'hidden': True})
-    worksheet.set_column("T:T", 14, percent_fmt, {'level': 1,'hidden': True})
-    worksheet.set_column("U:W", 10, percent_fmt, {'level': 1,'hidden': True})
-    worksheet.set_column("X:Y", 20, percent_fmt, {'level': 1,'hidden': True})
-    worksheet.set_column("Z:Z", 12, alignment, {'level': 1,'hidden': True})
-    worksheet.set_column("AA:AA", 12, alignment, {'level': 1,'hidden': True})
+    worksheet.set_column("S:S", 10, percent_fmt, {'level': 1, 'hidden': True})
+    worksheet.set_column("T:T", 14, percent_fmt, {'level': 1, 'hidden': True})
+    worksheet.set_column("U:W", 10, percent_fmt, {'level': 1, 'hidden': True})
+    worksheet.set_column("X:Y", 20, percent_fmt, {'level': 1, 'hidden': True})
+    worksheet.set_column("Z:Z", 12, alignment, {'level': 1, 'hidden': True})
+    worksheet.set_column("AA:AA", 12, alignment, {'level': 1, 'hidden': True})
 
-    worksheet.conditional_format("A14:AA{}".format(number_rows_final_KM+17),
+    worksheet.conditional_format("A14:AA{}".format(number_rows_final_KM+21),
                                  {"type": "no_blanks", "format": data_border_style})
-    worksheet.conditional_format("A{}:H{}".format(18+number_rows_final_KM, number_rows_final_sales+number_rows_final_KM+17),
+    worksheet.conditional_format("A{}:H{}".format(21+number_rows_final_KM, number_rows_final_sales+number_rows_final_KM+28),
                                  {"type": "no_blanks", "format": data_border_style})
+    worksheet.conditional_format("A14:AA{}".format(number_rows_final_KM+21), {"type": "text", "criteria": "containing",
+                                                                              "value": "Total", "format": full_border})
+
+    worksheet.conditional_format("A{}:H{}".format(21+number_rows_final_KM, number_rows_final_sales+number_rows_final_KM+28),
+                                        {"type":"text","criteria":"containing", "value": "Total", "format": full_border})
 
 
+
+    """worksheet.set_row(13,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(14,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(15,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(16,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(17,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(18,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(19,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(20,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(21,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(22,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(23,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(24,None,None,{"level":1, "hidden":True})
+    worksheet.set_row(25,None,None,{"level":1,"hidden":True})"""
 
 def main():
     common_Columns()
@@ -243,7 +264,6 @@ def main():
     access_Data_KM_Sales()
     KM_Sales()
     rename_KM_Sales()
-    #adding_vcr_ctr_IR_ATS()
     write_KM_Sales()
     formatting()
     writer.close()

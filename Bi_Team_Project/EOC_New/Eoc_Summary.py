@@ -5,7 +5,7 @@ from xlsxwriter.utility import xl_rowcol_to_cell
 
 IO_ID = int(input("Enter the IO:"))
 conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine="xlsxwriter", datetime_format="MM-DD-YYYY")
+writer = pd.ExcelWriter("Summary({}).xlsx".format(IO_ID), engine= "xlsxwriter", datetime_format="MM-DD-YYYY")
 
 def common_columns():
     read_common_columns = pd.read_csv("Eociocommoncolumn.csv")
@@ -51,23 +51,32 @@ def access_data_summary():
                                     index=["PLACEMENT_ID", "PLACEMENT_DESC"],
                                     aggfunc=np.sum)
     KM_data_summary_new = KM_pivot_first.reset_index()
-
-    KM_data_summary = KM_data_summary_new[["PLACEMENT_ID", "PLACEMENT_DESC", "IMPRESSIONS", "ENGAGEMENTS", "CPCV_COUNT",
-                                           "DPE_ENGAGEMENTS"]]
+    try:
+        KM_data_summary = KM_data_summary_new[["PLACEMENT_ID", "PLACEMENT_DESC", "IMPRESSIONS", "ENGAGEMENTS", "CPCV_COUNT",
+                                               "DPE_ENGAGEMENTS"]]
+    except KeyError:
+        KM_data_summary=KM_data_summary_new[[]]
 
     daily_sales_pivot_first = pd.pivot_table(read_sql_Daily_sales, values=["VIEWS", "CLICKS", "CONVERSIONS"],
                                              index=["PLACEMENT_ID", "PLACEMENT_DESC"],
                                              aggfunc=np.sum)
     daily_sales_pivot_first_new = daily_sales_pivot_first.reset_index()
 
-    daily_sales_data_summary = daily_sales_pivot_first_new[["PLACEMENT_ID", "PLACEMENT_DESC", "VIEWS", "CLICKS",
-                                                            "CONVERSIONS"]]
+    try:
+        daily_sales_data_summary = daily_sales_pivot_first_new[["PLACEMENT_ID", "PLACEMENT_DESC", "VIEWS", "CLICKS",
+                                                                "CONVERSIONS"]]
+    except KeyError:
+        daily_sales_data_summary=daily_sales_pivot_first_new[[]]
+
     return summary_data_summary, KM_data_summary, daily_sales_data_summary
 
 def summary_creation():
     summary_data_summary, KM_data_summary, daily_sales_data_summary = access_data_summary()
+
+
     summary_all = summary_data_summary.merge(pd.concat([KM_data_summary, daily_sales_data_summary]), on=["PLACEMENT_ID"]
                                              , suffixes=('_right', '_left'))
+
     summary_new = summary_all.loc[:, ["PLACEMENT_ID", "PLACEMENT_DESC_right", "SDATE", "EDATE", "CREATIVE_DESC",
                                       "METRIC_DESC", "COST_TYPE_DESC", "UNIT_COST", "BUDGET", "BOOKED_QTY",
                                       "ENGAGEMENTS", "VIEWS", "IMPRESSIONS", "CLICKS", "CONVERSIONS", "CPCV_COUNT",
@@ -92,6 +101,7 @@ def rename_cols():
                                              inplace=True)
 
     return summary_new
+
 def adding_column_Delivery():
     summary_new = rename_cols()
 
@@ -112,6 +122,7 @@ def adding_column_Delivery():
     return summary_new
 
 def adding_column_Spend():
+
     summary_new = adding_column_Delivery()
     summary_new["Spend Eng"] = summary_new["Delivered Engagements"]*summary_new["Unit Cost"]
     summary_new["Spend Impression"] = summary_new["Delivered Impressions"]/1000*summary_new["Unit Cost"]
@@ -151,6 +162,8 @@ def common_summary():
     full_border = workbook.add_format({"num_format":"$#,###0.00",
                                        "border": 1, "border_color":"#8EE5EE","align":"center",
                                        "fg_color": "#8EE5EE", "bold": True})
+    full_border_total_format=workbook.add_format({"border":1,"border_color":"#8EE5EE","align":"center",
+                                                  "fg_color":"#8EE5EE","bold":True})
 
     border_style = workbook.add_format({"border": 1, "border_color":"#8EE5EE", "fg_color": "#8EE5EE"})
 
@@ -170,17 +183,24 @@ def common_summary():
                                             "fg_color": "#8EE5EE"})
 
     worksheet.merge_range("A7:AE7", "Campaign Summary", format_merge_row)
-    worksheet.set_column("M:N", 20, None, {'level': 1, 'hidden': True})
+    worksheet.set_column("M:N", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("T:X", 20, None,{'level': 1, 'hidden': True})
     worksheet.set_column("AA:AE", 20, None,{'level': 1, 'hidden': True})
-    #wrap_format=workbook.add_format({'text_wrap':True})
 
-    for col in range(7, 17):
-        cell_location = xl_rowcol_to_cell(number_rows+13, col)
-        start_range = xl_rowcol_to_cell(13, col)
-        end_range = xl_rowcol_to_cell(number_rows+12, col)
+
+    for col in range(7,9):
+        cell_location = xl_rowcol_to_cell(number_rows+13,col)
+        start_range = xl_rowcol_to_cell(13,col)
+        end_range = xl_rowcol_to_cell(number_rows+12,col)
         formula = "=SUM({:s}:{:s})".format(start_range, end_range)
         worksheet.write_formula(cell_location, formula, full_border)
+
+    for col in range(9,17):
+        cell_location = xl_rowcol_to_cell(number_rows+13,col)
+        start_range = xl_rowcol_to_cell(13,col)
+        end_range = xl_rowcol_to_cell(number_rows+12,col)
+        formula = "=SUM({:s}:{:s})".format(start_range, end_range)
+        worksheet.write_formula(cell_location, formula, full_border_total_format)
 
     for col in range(24, 31):
         cell_location = xl_rowcol_to_cell(number_rows+13, col)
@@ -190,8 +210,7 @@ def common_summary():
         worksheet.write_formula(cell_location, formula, full_border)
 
 
-    worksheet.write_string(number_rows+13, 0, "Total", full_border)
-    worksheet.set_zoom(80)
+    worksheet.write_string(number_rows+13, 0, "Total", full_border_total_format)
     worksheet.set_column("A:AE", None, alignment)
     worksheet.set_column("A:A", 30)
     worksheet.set_column("B:B", 78)
@@ -203,9 +222,10 @@ def common_summary():
     worksheet.set_column("K:Q", 20)
     worksheet.set_column("R:X", 20, percent_fmt)
     worksheet.set_column("Y:AE", 20, money_fmt)
-    worksheet.conditional_format("A14:AE{}".format(number_cols),{"type":"no_blanks","format":data_border_style})
+    worksheet.conditional_format("A14:AE{}".format(number_cols),{"type": "no_blanks","format": data_border_style})
     worksheet.conditional_format("A13:AE13", {"type": "no_blanks","format": border_style})
-
+    writer.save()
+    writer.close()
 
 def main():
     common_columns()
@@ -218,7 +238,6 @@ def main():
     adding_column_Spend()
     write_summary()
     common_summary()
-    writer.close()
 
 if __name__ == "__main__":
     main ()
