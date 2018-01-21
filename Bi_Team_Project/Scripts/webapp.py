@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, url_for
 import Eoc_Summary
 import Eoc_Daily
+import Eoc_AdSize
 from config import Config
 
 app = Flask(__name__)
@@ -26,23 +27,25 @@ def index():
     if request.method == 'GET':
         return form
     elif request.method == 'POST':
-        name=request.form['name']
-        id=request.form['id']
+        name = request.form['name']
+        id = request.form['id']
         return submit(name, id)
 
 @app.route('/submit')
 def submit():
     name = request.args.get('name')
     id = request.args.get('id')
-    c=Config(name, int(id))
+    c = Config(name, int(id))
 
     obj_summary=Eoc_Summary.Summary(c)
     obj_summary.main()
     obj_daily=Eoc_Daily.Daily(c)
     obj_daily.main()
+    obj_adSize=Eoc_AdSize.ad_Size(c)
+    obj_adSize.main()
 
     c.saveAndCloseWriter()
-    return 'done finally'
+    return 'Report Generated'
 
 if __name__ == '__main__':
     app.run()
