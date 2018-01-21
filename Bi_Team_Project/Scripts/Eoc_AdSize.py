@@ -123,9 +123,9 @@ class ad_Size():
         return accessing_KM_columns, accessing_sales_columns, replace_blank_with_zero_KM, replace_blank_with_zero_sales
 
     def formatting_ad_Size(self):
-        accessing_KM_columns,accessing_sales_columns=self.adding_vcr_ctr_ad_Size()
-        number_rows_KM=accessing_KM_columns.shape[0]
-        number_rows_sales=accessing_sales_columns.shape[0]
+        accessing_KM_columns, accessing_sales_columns = self.adding_vcr_ctr_ad_Size()
+        number_rows_KM = accessing_KM_columns.shape[0]
+        number_rows_sales = accessing_sales_columns.shape[0]
         workbook=self.config.writer.book
         worksheet=self.config.writer.sheets["Ad-Size Performance({})".format(self.config.IO_ID)]
         alignment=workbook.add_format({"align":"center"})

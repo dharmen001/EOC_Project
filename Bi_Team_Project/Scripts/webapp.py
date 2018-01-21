@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, url_for
 import Eoc_Summary
 import Eoc_Daily
 import Eoc_AdSize
+import Eoc_Video
 from config import Config
 
 app = Flask(__name__)
@@ -43,6 +44,8 @@ def submit():
     obj_daily.main()
     obj_adSize=Eoc_AdSize.ad_Size(c)
     obj_adSize.main()
+    obj_Video=Eoc_Video.Video(c)
+    obj_Video.main()
 
     c.saveAndCloseWriter()
     return 'Report Generated'
