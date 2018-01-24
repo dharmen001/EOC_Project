@@ -11,7 +11,7 @@ form = '''
 <html>
    <body>
       
-      <form action = "http://localhost:5000" method = "post">
+      <form action = "http://localhost:5000" method="post">
          <p>Enter Name:</p>
          <p><input type = "text" name = "name" /></p>
          <p>Enter id:</p>
