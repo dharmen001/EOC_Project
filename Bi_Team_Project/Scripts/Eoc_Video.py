@@ -113,34 +113,55 @@ class Video():
         KM_Data_New_eng, KM_Data_New_vwr, KM_Data_New_DPE, KM_Data_New_INT_Eng,\
         KM_Data_New_INT_vwr, KM_Data_New_INT_DPE  = self.access_Data_KM_Video()
 
-        accessing_KM_Data_New_eng_columns = KM_Data_New_eng.loc[:, ["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC",
+        try:
+
+         accessing_KM_Data_New_eng_columns = KM_Data_New_eng[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC",
                                                                         "FEV_INT_VIDEO_DESC",
                                     "ENG_VIDEO_VIEW_0_PC_COUNT", "ENG_VIDEO_VIEW_25_PC_COUNT",
                                     "ENG_VIDEO_VIEW_50_PC_COUNT", "ENG_VIDEO_VIEW_75_PC_COUNT",
                                     "ENG_VIDEO_VIEW_100_PC_COUNT"]]
 
-        accessing_KM_Data_New_vwr_columns = KM_Data_New_vwr.loc[:, ["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC","FEV_INT_VIDEO_DESC",
+        except KeyError:
+            accessing_KM_Data_New_eng_columns=KM_Data_New_eng[[]]
+
+        try:
+
+         accessing_KM_Data_New_vwr_columns = KM_Data_New_vwr[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC","FEV_INT_VIDEO_DESC",
                                           "VWR_VIDEO_VIEW_0_PC_COUNT","VWR_VIDEO_VIEW_25_PC_COUNT",
                                           "VWR_VIDEO_VIEW_50_PC_COUNT","VWR_VIDEO_VIEW_75_PC_COUNT",
                                           "VWR_VIDEO_VIEW_100_PC_COUNT"]]
+        except KeyError:
+            accessing_KM_Data_New_vwr_columns=KM_Data_New_vwr[[]]
 
-        accessing_KM_Data_New_DPE_columns = KM_Data_New_DPE.loc[:, ["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC","FEV_INT_VIDEO_DESC",
+        try:
+            accessing_KM_Data_New_DPE_columns = KM_Data_New_DPE[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC","FEV_INT_VIDEO_DESC",
                                             "DPE_VIDEO_VIEW_0_PC_COUNT","DPE_VIDEO_VIEW_25_PC_COUNT",
                                             "DPE_VIDEO_VIEW_50_PC_COUNT", "DPE_VIDEO_VIEW_75_PC_COUNT",
                                             "DPE_VIDEO_VIEW_100_PC_COUNT"]]
+        except KeyError:
+            accessing_KM_Data_New_DPE_columns=KM_Data_New_DPE[[]]
 
-        accessing_KM_Data_New_INT_Eng_columns = KM_Data_New_INT_Eng.loc[:, ["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC","FEV_INT_VIDEO_DESC",
+        try:
+            accessing_KM_Data_New_INT_Eng_columns = KM_Data_New_INT_Eng[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC","FEV_INT_VIDEO_DESC",
                                                     "ENG_MUTE", "ENG_UNMUTE", "ENG_PAUSE", "ENG_RESUME",
                                                     "ENG_REWIND", "ENG_REPLAY", "ENG_FULL_SCREEN"]]
+        except KeyError:
+            accessing_KM_Data_New_INT_Eng_columns=KM_Data_New_INT_Eng[[]]
 
-        accessing_KM_Data_New_INT_vwr_columns = KM_Data_New_INT_vwr.loc[:, ["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "FEV_INT_VIDEO_DESC",
+        try:
+            accessing_KM_Data_New_INT_vwr_columns = KM_Data_New_INT_vwr[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "FEV_INT_VIDEO_DESC",
                                                   "VWR_MUTE", "VWR_UNMUTE", "VWR_PAUSE", "VWR_RESUME",
                                                   "VWR_REWIND", "VWR_REPLAY","VWR_FULL_SCREEN"]]
+        except KeyError:
+            accessing_KM_Data_New_INT_vwr_columns=KM_Data_New_INT_vwr[[]]
 
-        accessing_KM_Data_New_INT_DPE_columns = KM_Data_New_INT_DPE.loc[:, ["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC",
+        try:
+         accessing_KM_Data_New_INT_DPE_columns = KM_Data_New_INT_DPE[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC",
                                                     "FEV_INT_VIDEO_DESC",
                                                     "DPE_MUTE", "DPE_UNMUTE", "DPE_PAUSE", "DPE_RESUME",
                                                     "DPE_REWIND", "DPE_REPLAY", "DPE_FULL_SCREEN"]]
+        except KeyError:
+            accessing_KM_Data_New_INT_DPE_columns=KM_Data_New_INT_DPE[[]]
 
         return accessing_KM_Data_New_eng_columns, accessing_KM_Data_New_vwr_columns, accessing_KM_Data_New_DPE_columns, accessing_KM_Data_New_INT_Eng_columns, accessing_KM_Data_New_INT_vwr_columns, accessing_KM_Data_New_INT_DPE_columns
 
@@ -234,7 +255,7 @@ class Video():
                                                                       index=False,header=False)
 
         writing_accessing_KM_Data_New_eng_columns = replace_accessing_KM_Data_New_eng_columns_zero.to_excel(self.config.writer,
-                                                               sheet_name="Video Performance({})".format(
+                                                               sheet_name ="Video Performance({})".format(
                                                                self.config.IO_ID),startcol=0,startrow=12,
                                                                index=False,header=True)
 
@@ -283,11 +304,11 @@ class Video():
         alignment=workbook.add_format({"align":"center"})
         worksheet.hide_gridlines(2)
         worksheet.insert_image("A1","Exponential.png")
-        format_common_column={"header_row":False,"style":"Table Style Medium 2",'autofilter':False}
-        worksheet.add_table("A8:F10", format_common_column)
+        #format_common_column={"header_row":False,"style":"Table Style Medium 2",'autofilter':False}
+        #worksheet.add_table("A8:F10", format_common_column)
         format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"left",
-                                              "fg_color":"#8EE5EE"})
-        worksheet.merge_range("A7:I7","Video Performance",format_merge_row)
+                                              "fg_color":"#6495ED"})
+        worksheet.merge_range("A7:F7","Video Performance",format_merge_row)
         worksheet.merge_range("A12:I12","Video Performance - Engager Metrics", format_merge_row)
         worksheet.merge_range("A{}:I{}".format(number_rows_accessing_KM_Data_New_eng_columns+16,number_rows_accessing_KM_Data_New_eng_columns+16),"Video Performance - Viewer Metrics", format_merge_row)
         worksheet.merge_range("A{}:I{}".format(number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+20,number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+20),"Video Performance - Deep Engager Metrics", format_merge_row)
@@ -295,13 +316,14 @@ class Video():
         worksheet.merge_range("K{}:U{}".format(number_rows_accessing_KM_Data_New_INT_Eng_columns+16,number_rows_accessing_KM_Data_New_INT_vwr_columns+16),"Player Interactions - Viewer Metrics",format_merge_row)
         worksheet.merge_range("K{}:U{}".format(number_rows_accessing_KM_Data_New_INT_Eng_columns + number_rows_accessing_KM_Data_New_INT_vwr_columns+20,number_rows_accessing_KM_Data_New_INT_Eng_columns + number_rows_accessing_KM_Data_New_INT_vwr_columns+20),"Player Interactions - Deep Engager Metrics",format_merge_row)
 
-        full_border=workbook.add_format({"border":1,"border_color":"#8EE5EE","align":"center",
-                                         "fg_color":"#8EE5EE","bold":True})
+        full_border=workbook.add_format({"border":1,"border_color":"#000000","align":"center",
+                                         "fg_color":"#6495ED","bold":True})
+        worksheet.conditional_format("A8:F10",{"type":"no_blanks","format":full_border})
 
-        data_border_style=workbook.add_format({"border":1,"border_color":"#8EE5EE"})
+        data_border_style=workbook.add_format({"border":1,"border_color":"#000000"})
 
         worksheet.freeze_panes(13,2)
-        worksheet.set_zoom(80)
+        worksheet.set_zoom(100)
 
         for col in range(4, 9):
             cell_location = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+13, col)

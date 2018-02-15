@@ -3,6 +3,8 @@ import Eoc_Summary
 import Eoc_Daily
 import Eoc_AdSize
 import Eoc_Video
+import Eoc_Intraction
+import EOC_definition
 from config import Config
 
 app = Flask(__name__)
@@ -11,7 +13,7 @@ form = '''
 <html>
    <body>
       
-      <form action = "http://localhost:5000" method="post">
+      <form action = "http://localhost:5000" method="POST">
          <p>Enter Name:</p>
          <p><input type = "text" name = "name" /></p>
          <p>Enter id:</p>
@@ -46,9 +48,13 @@ def submit():
     obj_adSize.main()
     obj_Video=Eoc_Video.Video(c)
     obj_Video.main()
-
+    obj_Intraction=Eoc_Intraction.Intraction(c)
+    obj_Intraction.main()
+    obj_definition=EOC_definition.definition(c)
+    obj_definition.main()
     c.saveAndCloseWriter()
     return 'Report Generated'
+
 
 if __name__ == '__main__':
     app.run()

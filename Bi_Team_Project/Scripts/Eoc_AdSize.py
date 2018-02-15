@@ -53,12 +53,20 @@ class ad_Size():
 
         KM_Data_New, daily_Sales_Data_new = self.access_Data_KM_Sales_ad_Size()
 
-        accessing_KM_columns = KM_Data_New.loc[:, ["MEDIA_SIZE_DESC", "IMPRESSIONS", "ENGAGEMENTS", "DPE_ENGAGEMENTS",
+        try:
+         accessing_KM_columns = KM_Data_New[["MEDIA_SIZE_DESC", "IMPRESSIONS", "ENGAGEMENTS", "DPE_ENGAGEMENTS",
                                                    "ENG_CLICK_THROUGHS", "VWR_CLICK_THROUGHS",
                                                    "ENG_VIDEO_VIEW_100_PC_COUNT", "VWR_VIDEO_VIEW_100_PC_COUNT",
                                                    "DPE_VIDEO_VIEW_100_PC_COUNT", "CPCV_COUNT", "DPE_CLICK_THROUGHS"]]
+        except KeyError:
+            accessing_KM_columns=KM_Data_New[[]]
 
-        accessing_sales_columns = daily_Sales_Data_new.loc[:, ["MEDIA_SIZE_DESC", "VIEWS", "CLICKS", "CONVERSIONS"]]
+        try:
+
+            accessing_sales_columns = daily_Sales_Data_new[["MEDIA_SIZE_DESC", "VIEWS", "CLICKS", "CONVERSIONS"]]
+
+        except KeyError:
+            accessing_sales_columns=daily_Sales_Data_new[[]]
 
         return accessing_KM_columns, accessing_sales_columns
 
@@ -86,17 +94,40 @@ class ad_Size():
     def adding_vcr_ctr_ad_Size(self):
 
         accessing_KM_columns, accessing_sales_columns = self.rename_KM_Sales_ad_Size()
-
-        accessing_KM_columns["ENG RATE %"] = ((accessing_KM_columns["Delivered Engagements"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
-        accessing_KM_columns["DPE Rate %"] = ((accessing_KM_columns ["Deep Engagements"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
-        accessing_KM_columns["ENG CTR%"] = ((accessing_KM_columns["Eng click through"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
-        accessing_KM_columns["VWR CTR%"] = ((accessing_KM_columns["Eng click through"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
-        accessing_KM_columns["Eng VCR %"] = ((accessing_KM_columns["ENG video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
-        accessing_KM_columns["VWR VCR %"]= ((accessing_KM_columns["VWR video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
-        accessing_KM_columns["Deep VCR %"]= ((accessing_KM_columns["Deep video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
-
-        accessing_sales_columns["CTR%"] = ((accessing_sales_columns["Sales_Clicks"]/accessing_sales_columns
+        try:
+            accessing_KM_columns["ENG RATE %"] = ((accessing_KM_columns["Delivered Engagements"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["ENG RATE %"] = 0
+        try:
+            accessing_KM_columns["DPE Rate %"] = ((accessing_KM_columns ["Deep Engagements"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["DPE Rate %"] = 0
+        try:
+            accessing_KM_columns["ENG CTR%"] = ((accessing_KM_columns["Eng click through"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["ENG CTR%"] = 0
+        try:
+            accessing_KM_columns["VWR CTR%"] = ((accessing_KM_columns["Eng click through"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["VWR CTR%"] = 0
+        try:
+            accessing_KM_columns["Eng VCR %"] = ((accessing_KM_columns["ENG video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["Eng VCR %"] = 0
+        try:
+            accessing_KM_columns["VWR VCR %"] = ((accessing_KM_columns["VWR video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["VWR VCR %"] = 0
+        try:
+            accessing_KM_columns["Deep VCR %"] = ((accessing_KM_columns["Deep video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            accessing_KM_columns["Deep VCR %"] = 0
+        try:
+            accessing_sales_columns["CTR%"] = ((accessing_sales_columns["Sales_Clicks"]/accessing_sales_columns
                                             ["Delivered Impressions"])*100).apply('{0:.2f}%'.format)
+        except KeyError as e:
+            pass
+            #accessing_sales_columns["CTR%"] = 0
 
         return accessing_KM_columns, accessing_sales_columns
 
@@ -131,19 +162,20 @@ class ad_Size():
         alignment=workbook.add_format({"align":"center"})
         worksheet.hide_gridlines(2)
         worksheet.insert_image("A1","Exponential.png")
-        format_common_column={"header_row":False,"style": "Table Style Medium 2", 'autofilter': False}
-        worksheet.add_table("A8:F10", format_common_column)
+        #format_common_column={"header_row":False,"style": "Table Style Medium 2", 'autofilter': False}
+        #worksheet.add_table("A8:F10", format_common_column)
         format_merge_row=workbook.add_format({"bold": True, "font_color": '#FFFFFF',"align": "left",
-                                              "fg_color": "#8EE5EE"})
-        worksheet.merge_range("A7:R7","Ad-Size Performance", format_merge_row)
+                                              "fg_color": "#6495ED"})
+        worksheet.merge_range("A7:F7","Ad-Size Performance", format_merge_row)
         worksheet.merge_range("A12:R12", "VDX Performance - Ad Size Summary", format_merge_row)
         worksheet.merge_range("A{}:E{}".format(number_rows_KM+16, number_rows_KM+16),
                               "Standard Banner Performance - Ad Size ", format_merge_row)
 
-        full_border=workbook.add_format({"border": 1, "border_color": "#8EE5EE","align": "center",
-                                         "fg_color": "#8EE5EE", "bold":True})
+        full_border=workbook.add_format({"border": 1, "border_color": "#000000","align": "center",
+                                         "fg_color": "#6495ED", "bold":True})
+        worksheet.conditional_format("A8:F10",{"type":"no_blanks","format":full_border})
 
-        data_border_style = workbook.add_format({"border": 1, "border_color": "#8EE5EE"})
+        data_border_style = workbook.add_format({"border": 1, "border_color": "#000000"})
 
         worksheet.freeze_panes(13, 1)
 
@@ -165,7 +197,7 @@ class ad_Size():
 
         worksheet.write_string(number_rows_KM + number_rows_sales + 17, 0, "Total", full_border)
 
-        worksheet.set_zoom(80)
+        worksheet.set_zoom(100)
         worksheet.set_column("A:A", 15, alignment)
         worksheet.set_column("B:B", 25, alignment)
         worksheet.set_column("C:C", 21, alignment)

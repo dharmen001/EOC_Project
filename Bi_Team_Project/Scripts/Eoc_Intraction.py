@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import config
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 class Intraction():
@@ -16,31 +17,109 @@ class Intraction():
         return read_sql_KM
 
     def access_Data_Intraction(self):
+
         read_sql_KM = self.read_Query_Intraction()
-        KM_Data = pd.pivot_table(read_sql_KM, index=["PLACEMENT_DESC", "METRIC_DESC"], columns=["BLAZE_ACTION_TYPE_DESC",
-                                                                                                "BLAZE_TAG_NAME_DESC"],
-                                 values= ["ENG_INTERACTION"], aggfunc=np.sum)
-        KM_reset=KM_Data.reset_index()
-        print KM_reset
+
+        KM_Data_ENG = pd.pivot_table(read_sql_KM, index=["PLACEMENT_DESC", "METRIC_DESC","BLAZE_ACTION_TYPE_DESC"],
+                                     values=["ENG_INTERACTION"],columns=["BLAZE_TAG_NAME_DESC"], aggfunc=np.sum, fill_value=0, margins=True)
+
+        KM_Data_ENG.index.name = None
+        KM_Data_ENG.columns=['_'.join(col).strip() for col in KM_Data_ENG.columns.values]
+        KM_Data_ENG.columns=KM_Data_ENG.columns.get_level_values(0)
+
+        KM_Data_VWR = pd.pivot_table(read_sql_KM,index=["PLACEMENT_DESC", "METRIC_DESC", "BLAZE_ACTION_TYPE_DESC"],
+                                     columns=["BLAZE_TAG_NAME_DESC"],
+                                     values=["VWR_INTERACTION"], aggfunc=np.sum,fill_value=0, margins=True)
+        KM_Data_VWR.index.name=None
+        KM_Data_VWR.columns=['_'.join(col).strip() for col in KM_Data_VWR.columns.values]
+        KM_Data_VWR.columns=KM_Data_VWR.columns.get_level_values(0)
+        
+        KM_Data_DPE = pd.pivot_table(read_sql_KM,index=["PLACEMENT_DESC", "METRIC_DESC", "BLAZE_ACTION_TYPE_DESC"],
+                                   columns=["BLAZE_TAG_NAME_DESC"],
+                                   values=["DPE_INTERACTION"],aggfunc=np.sum,fill_value=0, margins=True)
+        KM_Data_DPE.index.name=None
+        KM_Data_DPE.columns=['_'.join(col).strip() for col in KM_Data_DPE.columns.values]
+        KM_Data_DPE.columns=KM_Data_DPE.columns.get_level_values(0)
+
+        return KM_Data_ENG, KM_Data_VWR, KM_Data_DPE
+
+    def KM_intraction(self):
+        KM_Data_ENG, KM_Data_VWR, KM_Data_DPE = self.access_Data_Intraction()
+
+
+        data_common_columns=self.config.common_columns_summary()
+
+        data_common = data_common_columns[1].to_excel(self.config.writer,
+                                                      sheet_name="Intraction Performance({})".format(self.config.IO_ID),
+                                                      startcol=0,startrow=7,index=False,header=False)
+
+        KM_ENG = KM_Data_ENG.to_excel(self.config.writer,sheet_name="Intraction Performance({})".format(self.config.IO_ID)
+                                         ,startrow=12, startcol=0, header=True)
+
+        KM_VWR = KM_Data_VWR.to_excel(self.config.writer,sheet_name="Intraction Performance({})".format(self.config.IO_ID)
+                                        , startrow=len(KM_Data_ENG)+16, startcol=0, header=True)
+
+        KM_DPE = KM_Data_DPE.to_excel(self.config.writer,sheet_name="Intraction Performance({})".format(self.config.IO_ID)
+                                      ,startrow=len(KM_Data_ENG)+len(KM_Data_VWR)+20, startcol=0, header=True)
+
+        return KM_ENG, KM_VWR, KM_DPE, KM_Data_ENG, KM_Data_VWR, KM_Data_DPE
+
+    def formatting_intraction(self):
+
+        KM_Data_ENG,KM_Data_VWR,KM_Data_DPE = self.access_Data_Intraction()
+        number_rows_KM_Data_ENG = KM_Data_ENG.shape[0]
+        number_cols_KM_Data_ENG = KM_Data_ENG.shape[1]+3
+        number_rows_KM_Data_VWR = KM_Data_VWR.shape[0]
+        number_cols_KM_Data_VWR = KM_Data_ENG.shape[1]+3
+        number_rows_KM_Data_DPE = KM_Data_DPE.shape[0]
+        number_cols_KM_Data_DPE = KM_Data_DPE.shape[1]+3
+        workbook=self.config.writer.book
+        worksheet=self.config.writer.sheets["Intraction Performance({})".format(self.config.IO_ID)]
+        worksheet.hide_gridlines(2)
+        worksheet.insert_image("A1","Exponential.png")
+        worksheet.freeze_panes(13,3)
+        worksheet.set_zoom(100)
+        format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"left",
+                                              "fg_color":"#6495ED"})
+        worksheet.merge_range("A7:F7","Intraction Performance",format_merge_row)
+        alignment=workbook.add_format({"align":"center"})
+        worksheet.merge_range("A12:C12","Engager Metrics", format_merge_row)
+        worksheet.merge_range("A{}:C{}".format(number_rows_KM_Data_ENG+16,number_rows_KM_Data_ENG+16),"Viwer Metrics",format_merge_row)
+        worksheet.merge_range("A{}:C{}".format(number_rows_KM_Data_ENG+number_rows_KM_Data_VWR+20,number_rows_KM_Data_ENG+number_rows_KM_Data_VWR+20),"Deep Metrics",format_merge_row)
+        worksheet.set_column(0,number_cols_KM_Data_ENG,35,alignment)
+        full_border=workbook.add_format({"border":1,"border_color":"#000000","align":"center",
+                                         "fg_color":"#6495ED","bold":True})
+        worksheet.conditional_format("A8:F10",{"type":"no_blanks","format":full_border})
+
+        data_border_style=workbook.add_format({"border":1,"border_color":"#000000"})
+
+        worksheet.conditional_format(13,3,number_rows_KM_Data_ENG+13,number_cols_KM_Data_ENG,
+                                     {"type":"no_blanks","format":data_border_style})
+
+
+        worksheet.conditional_format(number_rows_KM_Data_ENG+17,3,number_rows_KM_Data_VWR+number_rows_KM_Data_ENG+16,
+                                     number_cols_KM_Data_VWR,{"type":"no_blanks","format":data_border_style})
+
+        worksheet.conditional_format(number_rows_KM_Data_ENG+number_rows_KM_Data_VWR+21,3,
+                                     number_rows_KM_Data_VWR+number_rows_KM_Data_ENG+number_rows_KM_Data_DPE+20,
+                                     number_cols_KM_Data_DPE,{"type":"no_blanks","format":data_border_style})
+
 
     def main(self):
         self.config.common_columns_summary()
         self.connect_TFR_Intraction()
         self.read_Query_Intraction()
         self.access_Data_Intraction()
-        #self.KM_Sales_ad_Size()
-        #self.rename_KM_Sales_ad_Size()
-        #self.adding_vcr_ctr_ad_Size()
-        #self.write_KM_Sales_ad_Size()
-        #self.formatting_ad_Size()
+        self.KM_intraction()
+        self.formatting_intraction()
 
-    if __name__ == "__main__":
-        pass
-        #enable it when running for individual file
-        #c=config.Config('dial',565337)
-        #o = ad_Size(c)
-        #o.main()
-        #c.saveAndCloseWriter()
+if __name__ == "__main__":
+    pass
+    #enable it when running for individual file
+    #c=config.Config('dial',565337)
+    #o = Intraction(c)
+    #o.main()
+    #c.saveAndCloseWriter()
 
 
 
