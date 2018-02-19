@@ -20,7 +20,5 @@ class Config():
                                                               "Values-AM-Sales", "Columns-Campaign-Info",
                                                               "Values-Campaign-Info"]]
 
-
-
         return read_common_columns, data_common_columns
 

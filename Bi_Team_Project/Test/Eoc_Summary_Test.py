@@ -19,10 +19,12 @@ class Summary():
         sql_summary,sql_KM,sql_Daily_sales=self.connect_TFR_summary()
         read_sql_summary=pd.read_sql(sql_summary,self.config.conn)
         read_sql_KM=pd.read_sql(sql_KM,self.config.conn)
+        print  'alok',read_sql_KM.iloc[0]["IO_ID"]
+        exit()
         read_sql_Daily_sales=pd.read_sql(sql_Daily_sales,self.config.conn)
         return read_sql_summary,read_sql_KM,read_sql_Daily_sales
 
-    def access_data_summary(self):
+    """def access_data_summary(self):
         read_sql_summary,read_sql_KM,read_sql_Daily_sales=self.read_query_summary()
 
         summary_pivot_first=pd.pivot_table(read_sql_summary,values=["BUDGET"],index=["PLACEMENT_ID",
@@ -280,26 +282,26 @@ class Summary():
         worksheet.set_column("R:X",20,percent_fmt)
         worksheet.set_column("Y:AE",20,money_fmt)
         worksheet.conditional_format("A14:AE{}".format(number_cols),{"type":"no_blanks","format":data_border_style})
-        worksheet.conditional_format("A13:AE13",{"type":"no_blanks","format":border_style})
+        worksheet.conditional_format("A13:AE13",{"type":"no_blanks","format":border_style})"""
 
     def main(self):
         self.config.common_columns_summary()
         self.connect_TFR_summary()
         self.read_query_summary()
-        self.access_data_summary()
-        self.summary_creation()
-        self.rename_cols_sumary()
-        self.adding_column_Delivery_summary()
-        self.adding_column_Spend()
-        self.write_summary()
-        self.common_summary()
+        #self.access_data_summary()
+        #self.summary_creation()
+        #self.rename_cols_sumary()
+        #self.adding_column_Delivery_summary()
+        #self.adding_column_Spend()
+        #self.write_summary()
+        #self.common_summary()
 
 
 if __name__=="__main__":
-    pass
+    #pass
 
     #enable it when running for individual file
-    #c = config.Config('COE', 600447)
-    #o = Summary(c)
-    #o.main()
-    #c.saveAndCloseWriter()
+    c = config.Config('COE', 600447)
+    o = Summary(c)
+    o.main()
+    c.saveAndCloseWriter()

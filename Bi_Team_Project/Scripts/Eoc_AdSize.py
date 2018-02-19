@@ -92,42 +92,66 @@ class ad_Size():
         return accessing_KM_columns, accessing_sales_columns
 
     def adding_vcr_ctr_ad_Size(self):
-
         accessing_KM_columns, accessing_sales_columns = self.rename_KM_Sales_ad_Size()
+        read_query_summary_results=self.read_Query_adSize()
+        read_sql_KM=read_query_summary_results[0]
+        read_sql_Daily_sales=read_query_summary_results[1]
         try:
-            accessing_KM_columns["ENG RATE %"] = ((accessing_KM_columns["Delivered Engagements"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["ENG RATE %"] = accessing_KM_columns["Delivered Engagements"]/accessing_KM_columns["KM_Impressions"]
         except KeyError as e:
             accessing_KM_columns["ENG RATE %"] = 0
+        except IndexError as e:
+            pass
         try:
-            accessing_KM_columns["DPE Rate %"] = ((accessing_KM_columns ["Deep Engagements"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["DPE Rate %"] = accessing_KM_columns ["Deep Engagements"]/accessing_KM_columns["KM_Impressions"]
         except KeyError as e:
             accessing_KM_columns["DPE Rate %"] = 0
+        except IndexError as e:
+            pass
         try:
-            accessing_KM_columns["ENG CTR%"] = ((accessing_KM_columns["Eng click through"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["ENG CTR%"] = accessing_KM_columns["Eng click through"]/accessing_KM_columns["Delivered Engagements"]
         except KeyError as e:
             accessing_KM_columns["ENG CTR%"] = 0
+        except IndexError as e:
+            pass
         try:
-            accessing_KM_columns["VWR CTR%"] = ((accessing_KM_columns["Eng click through"]/accessing_KM_columns["KM_Impressions"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["VWR CTR%"] = accessing_KM_columns["Eng click through"]/accessing_KM_columns["KM_Impressions"]
         except KeyError as e:
             accessing_KM_columns["VWR CTR%"] = 0
+        except IndexError as e:
+            pass
         try:
-            accessing_KM_columns["Eng VCR %"] = ((accessing_KM_columns["ENG video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["Eng VCR %"] = accessing_KM_columns["ENG video 100 pc"]/accessing_KM_columns["Delivered Engagements"]
         except KeyError as e:
             accessing_KM_columns["Eng VCR %"] = 0
+        except IndexError as e:
+            pass
         try:
-            accessing_KM_columns["VWR VCR %"] = ((accessing_KM_columns["VWR video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["VWR VCR %"] = accessing_KM_columns["VWR video 100 pc"]/accessing_KM_columns["Delivered Engagements"]
         except KeyError as e:
             accessing_KM_columns["VWR VCR %"] = 0
+        except IndexError as e:
+            pass
         try:
-            accessing_KM_columns["Deep VCR %"] = ((accessing_KM_columns["Deep video 100 pc"]/accessing_KM_columns["Delivered Engagements"])*100).apply('{0:.2f}%'.format)
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_KM_columns["Deep VCR %"] = accessing_KM_columns["Deep video 100 pc"]/accessing_KM_columns["Delivered Engagements"]
         except KeyError as e:
             accessing_KM_columns["Deep VCR %"] = 0
-        try:
-            accessing_sales_columns["CTR%"] = ((accessing_sales_columns["Sales_Clicks"]/accessing_sales_columns
-                                            ["Delivered Impressions"])*100).apply('{0:.2f}%'.format)
-        except KeyError as e:
+        except IndexError as e:
             pass
-            #accessing_sales_columns["CTR%"] = 0
+        try:
+            if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
+                accessing_sales_columns["CTR%"] = accessing_sales_columns["Sales_Clicks"]/accessing_sales_columns["Delivered Impressions"]
+        except KeyError as e:
+            accessing_sales_columns["CTR%"]= 0
+        except IndexError as e:
+            pass
 
         return accessing_KM_columns, accessing_sales_columns
 
@@ -157,6 +181,9 @@ class ad_Size():
         accessing_KM_columns, accessing_sales_columns = self.adding_vcr_ctr_ad_Size()
         number_rows_KM = accessing_KM_columns.shape[0]
         number_rows_sales = accessing_sales_columns.shape[0]
+        read_query_summary_results=self.read_Query_adSize()
+        read_sql_KM=read_query_summary_results[0]
+        read_sql_Daily_sales=read_query_summary_results[1]
         workbook=self.config.writer.book
         worksheet=self.config.writer.sheets["Ad-Size Performance({})".format(self.config.IO_ID)]
         alignment=workbook.add_format({"align":"center"})
@@ -166,10 +193,19 @@ class ad_Size():
         #worksheet.add_table("A8:F10", format_common_column)
         format_merge_row=workbook.add_format({"bold": True, "font_color": '#FFFFFF',"align": "left",
                                               "fg_color": "#6495ED"})
+        percent_fmt=workbook.add_format({"num_format":"0.00%","align":"center"})
         worksheet.merge_range("A7:F7","Ad-Size Performance", format_merge_row)
-        worksheet.merge_range("A12:R12", "VDX Performance - Ad Size Summary", format_merge_row)
-        worksheet.merge_range("A{}:E{}".format(number_rows_KM+16, number_rows_KM+16),
+        try:
+            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                worksheet.merge_range("A12:R12", "VDX Performance - Ad Size Summary", format_merge_row)
+        except IndexError as e:
+            pass
+        try:
+            if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
+                worksheet.merge_range("A{}:E{}".format(number_rows_KM+16, number_rows_KM+16),
                               "Standard Banner Performance - Ad Size ", format_merge_row)
+        except IndexError as e:
+            pass
 
         full_border=workbook.add_format({"border": 1, "border_color": "#000000","align": "center",
                                          "fg_color": "#6495ED", "bold":True})
@@ -184,18 +220,34 @@ class ad_Size():
             start_range = xl_rowcol_to_cell(13, col)
             end_range = xl_rowcol_to_cell(number_rows_KM+12, col)
             formula = "=SUM({:s}:{:s})".format(start_range, end_range)
-            worksheet.write_formula(cell_location, formula, full_border)
-
-        worksheet.write_string(number_rows_KM+13, 0, "Total", full_border)
+            try:
+                if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                    worksheet.write_formula(cell_location, formula, full_border)
+            except IndexError as e:
+                pass
+            try:
+                if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
+                      worksheet.write_string(number_rows_KM+13, 0, "Total", full_border)
+            except IndexError as e:
+                pass
 
         for col in range(1, 4):
             cell_location = xl_rowcol_to_cell(number_rows_KM + number_rows_sales + 17, col)
             start_range = xl_rowcol_to_cell(number_rows_KM + 17, col)
             end_range = xl_rowcol_to_cell(number_rows_KM + number_rows_sales + 16, col)
             formula = "=SUM({:s}:{:s})".format(start_range, end_range)
-            worksheet.write_formula(cell_location, formula, full_border)
+            try:
+                if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
+                    worksheet.write_formula(cell_location, formula, full_border)
+            except IndexError as e:
+                pass
 
-        worksheet.write_string(number_rows_KM + number_rows_sales + 17, 0, "Total", full_border)
+            try:
+                if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
+                    worksheet.write_string(number_rows_KM + number_rows_sales + 17, 0, "Total", full_border)
+            except IndexError as e:
+                pass
+
 
         worksheet.set_zoom(100)
         worksheet.set_column("A:A", 15, alignment)
@@ -219,6 +271,11 @@ class ad_Size():
                                      {"type": "no_blanks", "format": data_border_style})
         worksheet.conditional_format("A{}:E{}".format(18+number_rows_KM,number_rows_sales+number_rows_KM+17),
                                      {"type": "no_blanks", "format": data_border_style})
+
+        worksheet.conditional_format("L14:R{}".format(number_rows_KM+13),
+                                     {"type":"no_blanks","format":percent_fmt})
+        worksheet.conditional_format("E{}:E{}".format(18+number_rows_KM,number_rows_sales+number_rows_KM+17),
+                                     {"type":"no_blanks","format":percent_fmt})
 
     def main(self):
         self.config.common_columns_summary()

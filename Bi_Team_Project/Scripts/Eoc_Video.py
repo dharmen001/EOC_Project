@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import config
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 class Video():
@@ -386,7 +387,6 @@ class Video():
         worksheet.set_column("G:G",15,alignment)
         worksheet.set_column("H:H",15,alignment)
         worksheet.set_column("I:I",15,alignment)
-
         worksheet.set_column("K:K",15,alignment)
         worksheet.set_column("L:L",80,alignment)
         worksheet.set_column("M:M",18,alignment)
@@ -417,24 +417,26 @@ class Video():
 
         worksheet.conditional_format("K{}:U{}".format(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+21,number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+number_rows_accessing_KM_Data_New_INT_DPE_columns+21),
                                      {"type":"no_blanks","format":data_border_style})
+        def sheet_hide(self):
+            read_display = pd.read_csv()
 
     def main(self):
-            self.config.common_columns_summary()
-            self.connect_TFR_Video()
-            self.read_Query_Video()
-            self.access_Data_KM_Video()
-            self.access_columns_KM_Video()
-            self.rename_KM_Data_Video()
-            self.write_video_data()
-            self.formatting_Video()
+        self.config.common_columns_summary()
+        self.connect_TFR_Video()
+        self.read_Query_Video()
+        self.access_Data_KM_Video()
+        self.access_columns_KM_Video()
+        self.rename_KM_Data_Video()
+        self.write_video_data()
+        self.formatting_Video()
 
-    if __name__=="__main__":
-        pass
-        #enable it when running for individual file
-        #c=config.Config('dial',565337)
-        #o = ad_Size(c)
-        #o.main()
-        #c.saveAndCloseWriter()
+if __name__=="__main__":
+    pass
+    #enable it when running for individual file
+    #c=config.Config('Origin',600857)
+    #o = Video(c)
+    #o.main()
+    #c.saveAndCloseWriter()
 
 
 
