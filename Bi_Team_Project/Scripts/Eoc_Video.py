@@ -326,8 +326,8 @@ class Video():
 
         data_border_style=workbook.add_format({"border":1,"border_color":"#000000"})
 
-        worksheet.freeze_panes(13,2)
-        worksheet.set_zoom(100)
+        worksheet.freeze_panes(13,0)
+        worksheet.set_zoom(80)
 
         for col in range(4, 9):
             cell_location = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+13, col)

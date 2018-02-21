@@ -18,7 +18,7 @@ class definition():
         worksheet=self.config.writer.sheets["Definition({})".format(self.config.IO_ID)]
         worksheet.insert_image("A1","Exponential.png")
         worksheet.hide_gridlines(2)
-        worksheet.set_zoom(100)
+        worksheet.set_zoom(80)
         worksheet.set_column("B:B",35)
         worksheet.set_column("C:C",255)
 

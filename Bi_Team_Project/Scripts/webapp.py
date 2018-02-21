@@ -13,7 +13,7 @@ form = '''
 <html>
    <body>
       
-      <form action = "http://localhost:5000" method="POST">
+      <form action = "http://localhost:5000/" method="POST">
          <p>Enter Name:</p>
          <p><input type = "text" name = "name" /></p>
          <p>Enter id:</p>
@@ -25,7 +25,7 @@ form = '''
 </html>
 '''
 
-@app.route("/")
+@app.route("/", methods =['GET','POST'])
 def index():
     if request.method == 'GET':
         return form

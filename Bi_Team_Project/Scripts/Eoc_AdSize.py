@@ -214,7 +214,7 @@ class ad_Size():
 
         data_border_style = workbook.add_format({"border": 1, "border_color": "#000000"})
 
-        worksheet.freeze_panes(13, 1)
+        worksheet.freeze_panes(13, 0)
 
         for col in range(1, 11):
             cell_location = xl_rowcol_to_cell(number_rows_KM+13, col)
@@ -250,7 +250,7 @@ class ad_Size():
                 pass
 
 
-        worksheet.set_zoom(100)
+        worksheet.set_zoom(80)
         worksheet.set_column("A:A", 15, alignment)
         worksheet.set_column("B:B", 25, alignment)
         worksheet.set_column("C:C", 21, alignment)

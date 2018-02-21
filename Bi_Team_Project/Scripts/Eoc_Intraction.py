@@ -135,8 +135,8 @@ class Intraction():
         worksheet=self.config.writer.sheets["Intraction Performance({})".format(self.config.IO_ID)]
         worksheet.hide_gridlines(2)
         worksheet.insert_image("A1","Exponential.png")
-        worksheet.freeze_panes(13,3)
-        worksheet.set_zoom(100)
+        worksheet.freeze_panes(13,0)
+        worksheet.set_zoom(80)
         format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"left",
                                               "fg_color":"#6495ED"})
         worksheet.merge_range("A7:F7","Intraction Performance",format_merge_row)
