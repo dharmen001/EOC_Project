@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, make_response
 import Eoc_Summary
 import Eoc_Daily
 import Eoc_AdSize
@@ -31,14 +31,14 @@ def index():
         return form
     elif request.method == 'POST':
         name = request.form['name']
-        id = request.form['id']
+        id = int(request.form['id'])
         return submit(name, id)
 
 @app.route('/submit')
-def submit():
-    name = request.args.get('name')
-    id = request.args.get('id')
-    c = Config(name, int(id))
+def submit(name,id):
+    #name = request.args.get('name')
+    #id = int(request.args.get('id'))
+    c = Config(name,id)
 
     obj_summary=Eoc_Summary.Summary(c)
     obj_summary.main()
