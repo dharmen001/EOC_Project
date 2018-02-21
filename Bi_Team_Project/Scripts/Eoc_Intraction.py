@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import config
 from xlsxwriter.utility import xl_rowcol_to_cell
+import xlsxwriter
 
 class Intraction():
     def __init__(self, config):
@@ -175,7 +176,9 @@ class Intraction():
                                      number_cols_KM_Data_DPE,{"type":"no_blanks","format":data_border_style})
         except UnboundLocalError as e:
             pass
-
+        read_display = pd.read_csv("C://BiTeam-New-ProjectPython//Bi_Team_Project//EOC_Data//DisplayIOs.csv", index_col=["IO_ID"])
+        if self.config.IO_ID in read_display.index:
+            worksheet.hide()
 
     def main(self):
         self.config.common_columns_summary()
@@ -188,7 +191,7 @@ class Intraction():
 if __name__ == "__main__":
     pass
     #enable it when running for individual file
-    #c=config.Config('dial',565337)
+    #c=config.Config('Origin',600857)
     #o = Intraction(c)
     #o.main()
     #c.saveAndCloseWriter()

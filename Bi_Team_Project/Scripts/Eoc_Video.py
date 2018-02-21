@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import config
 from xlsxwriter.utility import xl_rowcol_to_cell
+import xlsxwriter
 
 class Video():
     def __init__(self, config):
@@ -303,6 +304,8 @@ class Video():
         workbook=self.config.writer.book
         worksheet=self.config.writer.sheets["Video Performance({})".format(self.config.IO_ID)]
         alignment=workbook.add_format({"align":"center"})
+        read_display=pd.read_csv("C://BiTeam-New-ProjectPython//Bi_Team_Project//EOC_Data//DisplayIOs.csv",
+                                 index_col=["IO_ID"])
         worksheet.hide_gridlines(2)
         worksheet.insert_image("A1","Exponential.png")
         #format_common_column={"header_row":False,"style":"Table Style Medium 2",'autofilter':False}
@@ -331,7 +334,8 @@ class Video():
             start_range = xl_rowcol_to_cell(13, col)
             end_range = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+12, col)
             formula = "=SUM({:s}:{:s})".format(start_range, end_range)
-            worksheet.write_formula(cell_location, formula, full_border)
+            if not self.config.IO_ID in read_display.index:
+                worksheet.write_formula(cell_location, formula, full_border)
         worksheet.write_string(number_rows_accessing_KM_Data_New_eng_columns+13, 0, "Total",full_border)
 
         for col in range(4, 9):
@@ -339,8 +343,9 @@ class Video():
             start_range = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+17, col)
             end_range = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+16, col)
             formula = "=SUM({:s}:{:s})".format(start_range, end_range)
-            worksheet.write_formula(cell_location, formula, full_border)
-            
+            if not self.config.IO_ID in read_display.index:
+                worksheet.write_formula(cell_location, formula, full_border)
+
         worksheet.write_string(number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+17,0,"Total",full_border)
 
         for col in range(4,9):
@@ -348,7 +353,8 @@ class Video():
             start_range = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+21,col)
             end_range = xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+number_rows_accessing_KM_Data_New_DPE_columns+20,col)
             formula= "=SUM({:s}:{:s})".format(start_range,end_range)
-            worksheet.write_formula(cell_location,formula,full_border)
+            if not self.config.IO_ID in read_display.index:
+                worksheet.write_formula(cell_location,formula,full_border)
 
         worksheet.write_string(number_rows_accessing_KM_Data_New_eng_columns+number_rows_accessing_KM_Data_New_vwr_columns+number_rows_accessing_KM_Data_New_DPE_columns+21,0,"Total",full_border)
 
@@ -357,7 +363,9 @@ class Video():
             start_range=xl_rowcol_to_cell(13,col)
             end_range=xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_INT_Eng_columns+12,col)
             formula="=SUM({:s}:{:s})".format(start_range,end_range)
-            worksheet.write_formula(cell_location,formula,full_border)
+            if not self.config.IO_ID in read_display.index:
+                worksheet.write_formula(cell_location,formula,full_border)
+
         worksheet.write_string(number_rows_accessing_KM_Data_New_INT_Eng_columns+13,10,"Total",full_border)
 
         for col in range(14,21):
@@ -365,7 +373,8 @@ class Video():
             start_range=xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_INT_Eng_columns+17,col)
             end_range=xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+16,col)
             formula="=SUM({:s}:{:s})".format(start_range,end_range)
-            worksheet.write_formula(cell_location,formula,full_border)
+            if not self.config.IO_ID in read_display.index:
+                worksheet.write_formula(cell_location,formula,full_border)
 
         worksheet.write_string(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+17,10,"Total",full_border)
 
@@ -374,7 +383,8 @@ class Video():
             start_range=xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+21,col)
             end_range=xl_rowcol_to_cell(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+number_rows_accessing_KM_Data_New_INT_DPE_columns+20,col)
             formula="=SUM({:s}:{:s})".format(start_range,end_range)
-            worksheet.write_formula(cell_location,formula,full_border)
+            if not self.config.IO_ID in read_display.index:
+                worksheet.write_formula(cell_location,formula,full_border)
 
         worksheet.write_string(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+number_rows_accessing_KM_Data_New_INT_DPE_columns+21,10,"Total",full_border)
 
@@ -417,8 +427,10 @@ class Video():
 
         worksheet.conditional_format("K{}:U{}".format(number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+21,number_rows_accessing_KM_Data_New_INT_Eng_columns+number_rows_accessing_KM_Data_New_INT_vwr_columns+number_rows_accessing_KM_Data_New_INT_DPE_columns+21),
                                      {"type":"no_blanks","format":data_border_style})
-        def sheet_hide(self):
-            read_display = pd.read_csv()
+
+
+        if self.config.IO_ID in read_display.index:
+            worksheet.hide()
 
     def main(self):
         self.config.common_columns_summary()
@@ -429,6 +441,7 @@ class Video():
         self.rename_KM_Data_Video()
         self.write_video_data()
         self.formatting_Video()
+
 
 if __name__=="__main__":
     pass

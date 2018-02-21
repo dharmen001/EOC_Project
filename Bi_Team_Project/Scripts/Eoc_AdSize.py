@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell
+import xlsxwriter
 
 class ad_Size():
     def __init__(self, config):
