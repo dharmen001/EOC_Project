@@ -39,7 +39,6 @@ def submit(name,id):
     #name = request.args.get('name')
     #id = int(request.args.get('id'))
     c = Config(name,id)
-
     obj_summary=Eoc_Summary.Summary(c)
     obj_summary.main()
     obj_daily=Eoc_Daily.Daily(c)
