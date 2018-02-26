@@ -304,7 +304,7 @@ class Video():
         workbook=self.config.writer.book
         worksheet=self.config.writer.sheets["Video Performance({})".format(self.config.IO_ID)]
         alignment=workbook.add_format({"align":"center"})
-        read_display=pd.read_csv("C://BiTeam-New-ProjectPython//Bi_Team_Project//EOC_Data//DisplayIOs.csv",
+        read_display=pd.read_csv("C://EOC_Project//Bi_Team_Project//EOC_Data//DisplayIOs.csv",
                                  index_col=["IO_ID"])
         worksheet.hide_gridlines(2)
         worksheet.insert_image("A1","Exponential.png")

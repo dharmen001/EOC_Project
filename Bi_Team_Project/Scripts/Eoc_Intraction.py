@@ -176,7 +176,7 @@ class Intraction():
                                      number_cols_KM_Data_DPE,{"type":"no_blanks","format":data_border_style})
         except UnboundLocalError as e:
             pass
-        read_display = pd.read_csv("C://BiTeam-New-ProjectPython//Bi_Team_Project//EOC_Data//DisplayIOs.csv", index_col=["IO_ID"])
+        read_display = pd.read_csv("C://EOC_Project//Bi_Team_Project//EOC_Data//DisplayIOs.csv", index_col=["IO_ID"])
         if self.config.IO_ID in read_display.index:
             worksheet.hide()
 
@@ -189,12 +189,12 @@ class Intraction():
         self.formatting_intraction()
 
 if __name__ == "__main__":
-    pass
+    #pass
     #enable it when running for individual file
-    #c=config.Config('Origin',600857)
-    #o = Intraction(c)
-    #o.main()
-    #c.saveAndCloseWriter()
+    c=config.Config('Dial',565337)
+    o = Intraction(c)
+    o.main()
+    c.saveAndCloseWriter()
 
 
 
