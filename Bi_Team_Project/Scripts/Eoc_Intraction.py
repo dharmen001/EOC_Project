@@ -189,12 +189,12 @@ class Intraction():
         self.formatting_intraction()
 
 if __name__ == "__main__":
-    #pass
+    pass
     #enable it when running for individual file
-    c=config.Config('Dial',565337)
-    o = Intraction(c)
-    o.main()
-    c.saveAndCloseWriter()
+    #c=config.Config('Dial',565337)
+    #o = Intraction(c)
+    #o.main()
+    #c.saveAndCloseWriter()
 
 
 

@@ -205,7 +205,7 @@ class Summary():
 
         summary = data_common_columns[1].to_excel(self.config.writer,sheet_name="Summary({})".format(self.config.IO_ID),
                                                 startcol=0,
-                                                startrow=7,index=False,header=False)
+                                                startrow=1,index=False,header=False)
 
         final_summary_km = summary_new_KM.to_excel(self.config.writer,sheet_name="Summary({})".format(self.config.IO_ID),
                                                startcol=0,startrow=12,
@@ -240,28 +240,31 @@ class Summary():
         full_border=workbook.add_format({"num_format":"$#,###0.00",
                                          "border":1,"border_color":"#000000","align":"center",
                                          "fg_color":"#6495ED","bold":True})
-        full_border_total_format=workbook.add_format({"border":1,"border_color":"#000000","align":"center",
+        full_border_total_format=workbook.add_format({"border":1,"border_color":"#000000","align":"left",
                                                       "fg_color":"#6495ED","bold":True})
 
         border_style=workbook.add_format({"border":1,"border_color":"#000000","fg_color":"#8EE5EE"})
 
         data_border_style=workbook.add_format({"border":1,"border_color":"#000000"})
+        forge_colour = workbook.add_format()
+        forge_colour.set_bg_color('#F0F8FF')
 
         alignment=workbook.add_format({"align":"center"})
 
         worksheet.hide_gridlines(2)
-        worksheet.insert_image("A1","Exponential.png")
+        worksheet.insert_image("G1","Exponential.png")
+        worksheet.insert_image("I1","Client_Logo.png")
         worksheet.freeze_panes(13,0)
 
         #format_common_column = {"header_row": False, "style": "Table Style Medium 2", 'autofilter': False}
 
         #worksheet.add_table("A8:F10", format_common_column)
-        worksheet.conditional_format("A8:F10",{"type":"no_blanks","format":full_border_total_format})
+        worksheet.conditional_format("A2:F5",{"type":"no_blanks","format":forge_colour})
 
-        format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"left",
+        format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"centre",
                                               "fg_color":"#6495ED"})
 
-        worksheet.merge_range("A7:F7","Campaign Summary",format_merge_row)
+        worksheet.merge_range("A1:F1","Campaign Summary",format_merge_row)
         try:
             if read_sql_KM.iloc[0]["IO_ID"] == self.config.IO_ID:
                 worksheet.merge_range("A12:V12","VDX Summary",format_merge_row)
@@ -389,10 +392,10 @@ class Summary():
         self.common_summary()
 
 if __name__=="__main__":
-    pass
+    #pass
 
     #enable it when running for individual file
-    #c = config.Config('COE', 600447)
-    #o = Summary(c)
-    #o.main()
-    #c.saveAndCloseWriter()
+    c = config.Config('Origin', 600857)
+    o = Summary(c)
+    o.main()
+    c.saveAndCloseWriter()
