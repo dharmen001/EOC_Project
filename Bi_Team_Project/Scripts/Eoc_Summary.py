@@ -204,7 +204,7 @@ class Summary():
         summary_new_sal = summary_new_sales.fillna(0)
 
         summary = data_common_columns[1].to_excel(self.config.writer,sheet_name="Summary({})".format(self.config.IO_ID),
-                                                startcol=0,
+                                                startcol=1,
                                                 startrow=1,index=False,header=False)
 
         final_summary_km = summary_new_KM.to_excel(self.config.writer,sheet_name="Summary({})".format(self.config.IO_ID),
