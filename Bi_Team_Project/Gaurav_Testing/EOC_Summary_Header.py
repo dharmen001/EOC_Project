@@ -21,12 +21,10 @@ class Summary_Header():
 
 
     def main(self):
-        df=self.read_query_summary()
-        print(df)
-
+        self.read_query_summary()
 
 if __name__=="__main__":
-    #pass
+    pass
 
     #enable it when running for individual file
     c = config.Config('Origin', 565337)

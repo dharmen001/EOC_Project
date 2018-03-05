@@ -4,7 +4,7 @@ from xlsxwriter.utility import xl_rowcol_to_cell
 import config
 
 
-class Summary_Header():
+class Summary_Detail():
     def __init__(self,config):
         self.config=config
 
@@ -39,6 +39,6 @@ if __name__=="__main__":
 
     #enable it when running for individual file
     c = config.Config('Origin', 565337)
-    o = Summary_Header(c)
+    o = Summary_Detail(c)
     o.main()
     c.saveAndCloseWriter()

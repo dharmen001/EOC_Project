@@ -34,6 +34,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="tuple.*" />
+          <option value="EOC_Summary_Header" />
         </list>
       </option>
     </inspection_tool>

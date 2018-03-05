@@ -16,7 +16,7 @@ class Daily_Sales():
 
     def read_query_summary(self,pl):
         read_sql_Daily_sales = self.connect_TFR_DailySales()
-        read_sql_Daily_sales.sort_values(by="DAY_DESC", ascending=True)
+        #read_sql_Daily_sales.sort_values(by="DAY_DESC", ascending=True)
         df_by_placement = read_sql_Daily_sales[read_sql_Daily_sales["PLACEMENT_ID"] == pl]
         #print(df_by_placement)
         return df_by_placement
