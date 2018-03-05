@@ -253,7 +253,7 @@ class Summary():
 
         worksheet.hide_gridlines(2)
         worksheet.insert_image("G1","Exponential.png")
-        worksheet.insert_image("I1","Client_Logo.png")
+        #worksheet.insert_image("I1","Client_Logo.png")
         worksheet.freeze_panes(13,0)
 
         #format_common_column = {"header_row": False, "style": "Table Style Medium 2", 'autofilter': False}
