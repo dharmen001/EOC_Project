@@ -1,6 +1,4 @@
 import pandas as pd
-import numpy as np
-from xlsxwriter.utility import xl_rowcol_to_cell
 import config
 
 
@@ -24,7 +22,7 @@ class Summary_Header():
 
 
 if __name__=="__main__":
-    #pass
+    pass
 
     #enable it when running for individual file
     c = config.Config('Origin', 565337)

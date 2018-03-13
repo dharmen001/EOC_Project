@@ -25,4 +25,4 @@ if __name__ == '__main__':
     obj_definition = EOC_definition.definition(c)
     obj_definition.main()
     c.saveAndCloseWriter()
-
+    o=Eoc_Summary.Summary

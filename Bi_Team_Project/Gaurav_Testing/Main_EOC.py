@@ -1,11 +1,13 @@
 import xlsxwriter
+import pandas as pd
 import EOC_Summary_Header
-
+import EOC_Summary_Detail
+from config import Config
 
 class EocWorkbook():
-    def __init__(self,rowN,colN):
-        self.rowN = rowN
-        self.colN = colN
+    def __init__(self, r, c):
+        self.rowN = r
+        self.colN = c
 
     def CreateWorkbook(self):
         workbook = xlsxwriter.Workbook('C:\zPersonal_Gaurav\EOC Template.xlsx')
@@ -15,21 +17,27 @@ class EocWorkbook():
         worksheet = workbook.add_worksheet(sheetName)
         return worksheet
 
-    def PrintData(self, ws):
-        ws.write(self.rowN, self.colN, "Hello Test")
+    def PrintData(self, ws, pd):
+        ws.write(self.rowN, self.colN, pd)
+
 
     def CloseWorkbook(self, workbook):
         print('Report Created')
         workbook.close()
 
 if __name__=="__main__":
-    EocWorkbook.rowN=1
-    EocWorkbook.colN=1
+    IO_Name = input("Enter IO Name:")
+    IO_ID = int(input("Enter the IO:"))
 
-    wb_Object = EocWorkbook.CreateWorkbook(EocWorkbook)
-    ws_Object = EocWorkbook.CreateWorksheet(EocWorkbook,wb_Object,"Summary")
-    #EOC_Summary_Header.printData()
-    EocWorkbook.PrintData(EocWorkbook, ws_Object)
-    EocWorkbook.CloseWorkbook(EocWorkbook,wb_Object)
+    c = Config(IO_Name, IO_ID)
+    obj = EOC_Summary_Header.Summary_Header(c)
+    df_header = EOC_Summary_Header.Summary_Header.read_query_summary(obj)
+    #print(df_header)
 
+    obj = EOC_Summary_Detail.Summary_Detail(c)
+    df_km = EOC_Summary_Detail.Summary_Detail.read_summary_KM(obj)
+    #print(df_km)
+
+    df_sales = EOC_Summary_Detail.Summary_Detail.read_summary_Sales(obj)
+    print(df_sales)
 
