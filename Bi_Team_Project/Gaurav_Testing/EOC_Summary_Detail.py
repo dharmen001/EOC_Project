@@ -35,7 +35,7 @@ class Summary_Detail():
 
 
 if __name__=="__main__":
-    #pass
+    pass
 
     #enable it when running for individual file
     c = config.Config('Origin', 565337)

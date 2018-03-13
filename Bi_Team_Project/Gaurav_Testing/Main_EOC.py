@@ -1,26 +1,35 @@
+import xlsxwriter
 import EOC_Summary_Header
-#import EOC_Summary_Detail
-#import EOC_Daily_Sales
-from config import Config
 
 
-if __name__ == '__main__':
-    IO_Name = input("Enter IO Name:")
-    IO_ID = int(input("Enter the IO:"))
+class EocWorkbook():
+    def __init__(self,rowN,colN):
+        self.rowN = rowN
+        self.colN = colN
 
-    c = Config(IO_Name, IO_ID)
-    obj_summary = EOC_Summary_Header.Summary_Header(c)
-    obj_summary.main()
+    def CreateWorkbook(self):
+        workbook = xlsxwriter.Workbook('C:\zPersonal_Gaurav\EOC Template.xlsx')
+        return workbook
 
-    """obj_daily = Eoc_Daily.Daily(c)
-    obj_daily.main()
-    obj_adSize = Eoc_AdSize.ad_Size(c)
-    obj_adSize.main()
-    obj_Video = Eoc_Video.Video(c)
-    obj_Video.main()
-    obj_Intraction = Eoc_Intraction.Intraction(c)
-    obj_Intraction.main()
-    obj_definition = EOC_definition.definition(c)
-    obj_definition.main()"""
-    c.saveAndCloseWriter()
+    def CreateWorksheet(self, workbook, sheetName):
+        worksheet = workbook.add_worksheet(sheetName)
+        return worksheet
+
+    def PrintData(self, ws):
+        ws.write(self.rowN, self.colN, "Hello Test")
+
+    def CloseWorkbook(self, workbook):
+        print('Report Created')
+        workbook.close()
+
+if __name__=="__main__":
+    EocWorkbook.rowN=1
+    EocWorkbook.colN=1
+
+    wb_Object = EocWorkbook.CreateWorkbook(EocWorkbook)
+    ws_Object = EocWorkbook.CreateWorksheet(EocWorkbook,wb_Object,"Summary")
+    #EOC_Summary_Header.printData()
+    EocWorkbook.PrintData(EocWorkbook, ws_Object)
+    EocWorkbook.CloseWorkbook(EocWorkbook,wb_Object)
+
 

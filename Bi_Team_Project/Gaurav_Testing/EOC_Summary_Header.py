@@ -14,20 +14,19 @@ class Summary_Header():
         read_sql_Summary=pd.read_sql(sql_qry,self.config.conn)
         return read_sql_Summary
 
-
     def read_query_summary(self):
         read_sql_Summary = self.connect_TFR_Summary()
         return read_sql_Summary
 
+    def printData(self):
+        df=self.read_query_summary()
+        print(df)
 
-    def main(self):
-        self.read_query_summary()
 
 if __name__=="__main__":
-    pass
+    #pass
 
     #enable it when running for individual file
     c = config.Config('Origin', 565337)
     o = Summary_Header(c)
-    o.main()
-    c.saveAndCloseWriter()
+    o.printData()
