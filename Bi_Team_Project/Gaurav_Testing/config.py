@@ -3,7 +3,7 @@ import cx_Oracle
 from cx_Oracle import DatabaseError
 
 class Config():
-    def __init__(self, IO_Name, IO_ID):
+    def __init__(self, IO_Name="Test", IO_ID=565337):
         self.IO_Name=IO_Name
         self.IO_ID= IO_ID
         try:
@@ -11,6 +11,7 @@ class Config():
         except DatabaseError as D:
             print ("TNS:Connect timeout occurred")
             print ("Enter the Name and ID again")
-        self.path=("C://EOC_Project//Bi_Team_Project//Reports//{}({}).xlsx".format(self.IO_Name,self.IO_ID))
+        #self.path=("C://EOC_Project//Bi_Team_Project//Reports//{}({}).xlsx".format(self.IO_Name,self.IO_ID))
+
 
 
