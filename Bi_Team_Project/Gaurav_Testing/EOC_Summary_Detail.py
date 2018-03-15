@@ -9,7 +9,7 @@ class Summary_Detail():
         self.config=config
 
     def connect_TFR_Summary(self):
-        sql_qry = "select PLACEMENT_ID, CREATIVE_DESC, SDATE, LDATE, BUDGET, UNIT_COST, BOOKED_QTY, COST_TYPE_DESC, DATA_SOURCE from TFR_REP.SUMMARY_MV where IO_ID = {} order by PLACEMENT_ID".format(self.config.IO_ID)
+        sql_qry = "select PLACEMENT_ID, SUBSTR(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.',1)-1) AS P_No, SDATE, LDATE, CREATIVE_DESC, COST_TYPE_DESC, UNIT_COST, BUDGET, BOOKED_QTY, DATA_SOURCE from TFR_REP.SUMMARY_MV where IO_ID = {} order by PLACEMENT_ID".format(self.config.IO_ID)
         read_sql_Summary=pd.read_sql(sql_qry,self.config.conn)
         return read_sql_Summary
 
