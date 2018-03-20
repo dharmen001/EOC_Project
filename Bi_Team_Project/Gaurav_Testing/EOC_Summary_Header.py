@@ -2,13 +2,12 @@ import pandas as pd
 import config
 
 
-class Summary_Header():
-    def __init__(self,config):
+class Summary_Header:
+    def __init__(self, config):
         self.config=config
 
     def connect_TFR_Summary(self):
         sql_qry = "select min(SDATE), (CASE WHEN max(EDATE) < trunc(sysdate-1) THEN max(EDATE) ELSE trunc(sysdate-1) END) AS LASTDATE, IO_DESC, CLIENT_DESC, ACCOUNT_MGR, SALES_REP from TFR_REP.SUMMARY_MV where IO_ID = {} group by IO_DESC, CLIENT_DESC, ACCOUNT_MGR, SALES_REP".format(self.config.IO_ID)
-        #sql_qry = "select PLACEMENT_ID, PLACEMENT_DESC, SDATE, EDATE, LDATE, IO_ID, IO_DESC, CLIENT_ID, CLIENT_DESC, BUDGET, COST_PER_UNIT AS UNIT_COST, QUANTITY AS BOOKED_QTY, CREATIVE_DESC, METRIC_DESC, COST_TYPE_DESC, PRODUCT_DIVISION, DATA_SOURCE, ACCOUNT_MGR, SALES_REP from TFR_REP.DAILY_SALES_MV where IO_ID = {} order by PLACEMENT_ID, DAY_DESC".format(self.config.IO_ID)
         read_sql_Summary=pd.read_sql(sql_qry,self.config.conn)
         return read_sql_Summary
 
@@ -17,11 +16,11 @@ class Summary_Header():
         return read_sql_Summary
 
     def printData(self):
-        df=self.read_query_summary()
+        df = self.read_query_summary()
         print(df)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     pass
 
     #enable it when running for individual file
