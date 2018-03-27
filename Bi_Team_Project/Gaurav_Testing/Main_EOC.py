@@ -17,7 +17,6 @@ class EocWorkbook():
         self.path = 'C:\zPersonal_Gaurav\EOC Template.xlsx'
         self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter")
 
-
     def CreateWorkbook(self):
         workbook = xlsxwriter.Workbook(self.path)
         self.date_format = workbook.add_format({'num_format': 'mm-dd-yyyy'})
@@ -27,7 +26,7 @@ class EocWorkbook():
         worksheet = workbook.add_worksheet(sheetName)
         return worksheet
 
-#Summary and other tabs Header
+#**************** Summary and other tabs Header
     def Print_Summary_Header(self, ws, df):
         self.rowN = 1
         self.colN = 1
@@ -68,7 +67,7 @@ class EocWorkbook():
         ws.write(self.rowN + 1, self.colN + 7, status)
         return self.rowN + 6
 
-#Summary tab - print Standard Banner and Key Metric Placement wise Table
+#**************** Summary tab - print Standard Banner and Key Metric Placement wise Table
     def Print_Summary_Table(self, ws, df, rowN, df_daily, creativetype):
         self.colN = 3
         self.rowN =  rowN
@@ -164,7 +163,7 @@ class EocWorkbook():
 
         return self.rowN + df_rows + 3
 
-#Standard Banner tab - Table 1 -- Summary
+#**************** Standard Banner tab - Table 1 -- Summary
     def Print_StandardBanner_Table1_summary(self, wsSales, df, rowN, df_daily, tableHeader):
         self.colN = 1
         self.rowN = rowN
@@ -264,7 +263,7 @@ class EocWorkbook():
         self.Formula_CTR(wsSales, self.rowN, self.colN + 10, cell_1, cell_2)
         return self.rowN + 1
 
-# Standard Banner tab - Table 2 -- Ad-Size
+#**************** Standard Banner tab - Table 2 -- Ad-Size
     def Print_StandardBanner_Table2_adSize(self, wsSales, df, r1, df_adSize, tableHeader):
         self.colN = 1
         self.rowN = r1
@@ -283,14 +282,13 @@ class EocWorkbook():
         wsSales.write(self.rowN, self.colN + 7, "eCPA")
 
         self.rowN = self.rowN + 1
-        placement_list = df_adSize.PLACEMENT_ID.unique()
         startRow = self.rowN
         endRow = 0
 
         #********************** apply Look-up of UNIT_COST from summary DF to ad-size DF
         df_adSize['UNIT_PRICE'] = (df_adSize['PLACEMENT_ID']).map(df.set_index('PLACEMENT_ID')['UNIT_COST'])
         df_adSize['SPEND'] = df_adSize['UNIT_PRICE'] / 1000 * df_adSize['VIEWS']
-        print(df_adSize)
+        #print(df_adSize)
 
         #********************** Group By dataframe dataset by AD-SIZE
         ad_list = df_adSize.MEDIA_SIZE_DESC.unique()
@@ -327,6 +325,7 @@ class EocWorkbook():
             self.rowN = self.rowN + 1
 
         #Add Totals
+        wsSales.write(self.rowN, self.colN, "Total")
         self.rowN = self.rowN - 1
         cell_1 = xl_rowcol_to_cell(startRow, self.colN + 1)
         cell_2 = xl_rowcol_to_cell(self.rowN, self.colN + 1)
@@ -356,11 +355,95 @@ class EocWorkbook():
         cell_2 = xl_rowcol_to_cell(self.rowN + 1, self.colN + 4)
         self.Formula_CTR(wsSales, self.rowN + 1, self.colN + 7, cell_1, cell_2)
 
+        return self.rowN + 2
+
+# **************** Standard Banner tab - Table 3 --Day-wise
+    def Print_StandardBanner_Table3_daywise(self, wsSales, df_summary, rowN, df_sales, tableHeader):
+        self.rowN = rowN
+        self.colN = 1
+
+        cell_1 = xl_rowcol_to_cell(self.rowN + 3, self.colN)
+        cell_2 = xl_rowcol_to_cell(self.rowN + 3, self.colN + 10)
+        self.Merge_myCells(wsSales,cell_1, cell_2, tableHeader)
+
+        placement_list = df_sales.PLACEMENT_ID.unique()
+
+        #unique placement loop and dataframe filter
+        for pl in placement_list:
+            df = df_summary[(df_summary['PLACEMENT_ID'] == pl)]
+            unit_price = df.iloc[0,6]
+            cost_type = df.iloc[0, 5]
+
+            self.rowN = self.rowN + 4
+            wsSales.write(self.rowN, self.colN, df.iloc[0,1] + ' - ' + df.iloc[0,4])
+
+            self.rowN = self.rowN + 1
+            wsSales.write(self.rowN, self.colN, "Date")
+            wsSales.write(self.rowN, self.colN + 1, "Impressions")
+            wsSales.write(self.rowN, self.colN + 2, "Clicks")
+            wsSales.write(self.rowN, self.colN + 3, "CTR")
+            wsSales.write(self.rowN, self.colN + 4, "Conversions")
+            wsSales.write(self.rowN, self.colN + 5, "CPA")
+            wsSales.write(self.rowN, self.colN + 6, "Spend")
+
+            # For each placement, daily dataframe loop
+            df2 = df_sales[df_sales['PLACEMENT_ID'] == pl]
+            startRow = self.rowN + 1
+            endRow = 0
+
+            for r in range(df2.shape[0]):
+                self.rowN = self.rowN + 1
+                wsSales.write_datetime(self.rowN, self.colN, df2.iloc[r, 1], self.date_format)
+                wsSales.write(self.rowN, self.colN + 1, df2.iloc[r, 2])
+                wsSales.write(self.rowN, self.colN + 2, df2.iloc[r, 3])
+                wsSales.write(self.rowN, self.colN + 4, df2.iloc[r, 4])
+
+                cell_1 = xl_rowcol_to_cell(self.rowN, self.colN + 2)
+                cell_2 = xl_rowcol_to_cell(self.rowN, self.colN + 1)
+                self.Formula_CTR(wsSales, self.rowN, self.colN + 3, cell_1, cell_2)
+
+                cell_1 = xl_rowcol_to_cell(self.rowN, self.colN + 1)
+                self.Formula_Spend(wsSales, cost_type , self.rowN, self.colN + 6, cell_1, str(unit_price))
+
+                cell_1 = xl_rowcol_to_cell(self.rowN, self.colN + 6)
+                cell_2 = xl_rowcol_to_cell(self.rowN, self.colN + 4)
+                self.Formula_CTR(wsSales, self.rowN, self.colN + 5, cell_1, cell_2)
+
+                endRow = self.rowN
+
+            #Add each placement-day table TOTALS
+            wsSales.write(self.rowN + 1, self.colN, "Total")
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 1)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 1)
+            self.Formula_Sum(wsSales, endRow + 1, self.colN + 1, cell_1, cell_2)
+
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 2)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 2)
+            self.Formula_Sum(wsSales, endRow + 1, self.colN + 2, cell_1, cell_2)
+
+            cell_1 = xl_rowcol_to_cell(endRow + 1, self.colN + 2)
+            cell_2 = xl_rowcol_to_cell(endRow + 1, self.colN + 1)
+            self.Formula_CTR(wsSales, endRow + 1, self.colN + 3, cell_1, cell_2)
+
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 4)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 4)
+            self.Formula_Sum(wsSales, endRow + 1, self.colN + 4, cell_1, cell_2)
+
+            cell_1 = xl_rowcol_to_cell(endRow + 1, self.colN + 6)
+            cell_2 = xl_rowcol_to_cell(endRow + 1, self.colN + 4)
+            self.Formula_CTR(wsSales, endRow + 1, self.colN + 5, cell_1, cell_2)
+
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 6)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 6)
+            self.Formula_Sum(wsSales, endRow + 1, self.colN + 6, cell_1, cell_2)
+
         return 0
 
 
 
 
+
+#*************** FORMULAS AND FUNCTIONS
     #Formula for CTR and Conversion Rate
     def Formula_CTR(self, ws, rowN, colN, cell_1, cell_2):
         ws.write_formula(rowN, colN, "=IFERROR({:s}/{:s},0)".format(cell_1, cell_2))
@@ -445,9 +528,8 @@ if __name__=="__main__":
     if df_sales_summary.shape[0] != 0:
         r2 = myObj.Print_StandardBanner_Table1_summary(wsSales, df_sales_summary, r1, df_sales, 'Standard Banner Performance - Summary')
         r3 = myObj.Print_StandardBanner_Table2_adSize(wsSales, df_sales_summary, r2 + 2, df_adSzie_sales, 'Standard Banner Performance - Ad Size Summary')
+        r4 = myObj.Print_StandardBanner_Table3_daywise(wsSales, df_sales_summary, r3, df_sales, 'Breakdown By Day + Placement')
 
-
-
-    print(r2)
+    print(r3)
     myObj.CloseWorkbook(wb)
 

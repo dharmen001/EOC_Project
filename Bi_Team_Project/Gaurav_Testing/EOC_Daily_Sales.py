@@ -9,7 +9,7 @@ class Daily_Sales():
         self.config=config
 
     def connect_TFR_DailySales(self):
-        sql_qry = "select PLACEMENT_ID, DAY_DESC, VIEWS, CLICKS, CONVERSIONS from TFR_REP.DAILY_SALES_MV where IO_ID = {} order by PLACEMENT_ID, DAY_DESC".format(self.config.IO_ID)
+        sql_qry = "select PLACEMENT_ID, TO_DATE(DAY_DESC, 'MM-DD-YYYY') AS DAY_DESC, VIEWS, CLICKS, CONVERSIONS from TFR_REP.DAILY_SALES_MV where IO_ID = {} order by PLACEMENT_ID, DAY_DESC".format(self.config.IO_ID)
         read_sql_Daily_sales = pd.read_sql(sql_qry,self.config.conn)
         return read_sql_Daily_sales
 
