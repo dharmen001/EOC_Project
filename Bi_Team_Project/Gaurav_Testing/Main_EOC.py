@@ -16,14 +16,11 @@ class EocWorkbook():
         self.colN = c
         self.path = 'C:\zPersonal_Gaurav\EOC Template.xlsx'
         self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter")
+        self.workbook = xlsxwriter.Workbook(self.path)
+        self.date_format = self.workbook.add_format({'num_format': 'mm-dd-yyyy'})
 
-    def CreateWorkbook(self):
-        workbook = xlsxwriter.Workbook(self.path)
-        self.date_format = workbook.add_format({'num_format': 'mm-dd-yyyy'})
-        return workbook
-
-    def CreateWorksheet(self, workbook, sheetName):
-        worksheet = workbook.add_worksheet(sheetName)
+    def CreateWorksheet(self, sheetName):
+        worksheet = self.workbook.add_worksheet(sheetName)
         return worksheet
 
 #**************** Summary and other tabs Header
@@ -437,6 +434,28 @@ class EocWorkbook():
             cell_2 = xl_rowcol_to_cell(endRow, self.colN + 6)
             self.Formula_Sum(wsSales, endRow + 1, self.colN + 6, cell_1, cell_2)
 
+            #Add Charts
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 0)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 0)
+            category_series = "='" + wsSales.name + "'!" + cell_1 + ':' + cell_2
+
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 1)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 1)
+            chart_series = "='" + wsSales.name + "'!" + cell_1 + ':' + cell_2
+            print(chart_series)
+
+
+            column_chart = self.workbook.add_chart({'type': 'column'})
+            column_chart.add_series({
+                'categories': category_series,
+                'values': chart_series
+            })
+
+            chart_pos = xl_rowcol_to_cell(startRow, self.colN + 9)
+            wsSales.insert_chart(chart_pos, column_chart)
+
+
+
         return 0
 
 
@@ -464,12 +483,11 @@ class EocWorkbook():
         ws.merge_range(cell_1 + ':' + cell_2, creativetype)
         return 0
 
-
-    def CloseWorkbook(self, workbook):
+    def CloseWorkbook(self):
         print('Report Created')
         self.writer.save()
         self.writer.close()
-        workbook.close()
+        self.workbook.close()
 
 
 if __name__=="__main__":
@@ -504,11 +522,12 @@ if __name__=="__main__":
     df_km = EOC_Daily_KM.Daily_KeyMetric.read_query_summary(obj)
     #print(df_km)
 
+    #Class object, create a workbook and retrieve workbook object into myObj
     myObj = EocWorkbook(1,1)
-    wb = myObj.CreateWorkbook()
-    ws = myObj.CreateWorksheet(wb, "Summary")
-    r1 = myObj.Print_Summary_Header(ws,df_header)
+    #create worksheet using workbook object
+    ws = myObj.CreateWorksheet("Summary")
 
+    r1 = myObj.Print_Summary_Header(ws,df_header)
 
     if df_sales_summary.shape[0] != 0 and df_km_summary.shape[0] != 0:
         r2 = myObj.Print_Summary_Table(ws, df_sales_summary, r1, df_sales, 'Standard Banners (Performance/Brand)')
@@ -521,7 +540,7 @@ if __name__=="__main__":
 
 
     #add daily sales worksheet
-    wsSales = myObj.CreateWorksheet(wb, "Standard banner Campaign detail")
+    wsSales = myObj.CreateWorksheet("Standard banner Campaign detail")
     wsSales.activate()
     r1 = myObj.Print_Summary_Header(wsSales, df_header)
 
@@ -530,6 +549,6 @@ if __name__=="__main__":
         r3 = myObj.Print_StandardBanner_Table2_adSize(wsSales, df_sales_summary, r2 + 2, df_adSzie_sales, 'Standard Banner Performance - Ad Size Summary')
         r4 = myObj.Print_StandardBanner_Table3_daywise(wsSales, df_sales_summary, r3, df_sales, 'Breakdown By Day + Placement')
 
-    print(r3)
-    myObj.CloseWorkbook(wb)
+
+    myObj.CloseWorkbook()
 
