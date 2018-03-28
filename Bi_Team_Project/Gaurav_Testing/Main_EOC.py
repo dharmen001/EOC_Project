@@ -447,10 +447,13 @@ class EocWorkbook():
 
             column_chart = self.workbook.add_chart({'type': 'column'})
             column_chart.add_series({
+                'name': 'Impressions',
                 'categories': category_series,
                 'values': chart_series
             })
 
+            column_chart.set_size({'width': 700})
+            column_chart.set_title({'name': 'Impressions vs CTR'})
             chart_pos = xl_rowcol_to_cell(startRow, self.colN + 9)
             wsSales.insert_chart(chart_pos, column_chart)
 
