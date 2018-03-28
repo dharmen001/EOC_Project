@@ -65,7 +65,7 @@ class Video():
         except KeyError:
             KM_Data_New_DPE = KM_reset_DPE[[]]
 
-        KM_Data_INT_Eng = pd.pivot_table(read_sql_KM,values=["ENG_MUTE", "ENG_UNMUTE",
+        KM_Data_INT_Eng = pd.pivot_table(read_sql_KM, values=["ENG_MUTE", "ENG_UNMUTE",
                                                              "ENG_PAUSE", "ENG_RESUME",
                                                              "ENG_REWIND", "ENG_REPLAY", "ENG_FULL_SCREEN"],
                                     index =["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "FEV_INT_VIDEO_DESC"],
@@ -444,12 +444,12 @@ class Video():
 
 
 if __name__=="__main__":
-    pass
+    #pass
     #enable it when running for individual file
-    #c=config.Config('Origin',600857)
-    #o = Video(c)
-    #o.main()
-    #c.saveAndCloseWriter()
+    c=config.Config('Origin',600857)
+    o = Video(c)
+    o.main()
+    c.saveAndCloseWriter()
 
 
 

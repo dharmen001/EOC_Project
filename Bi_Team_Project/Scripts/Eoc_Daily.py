@@ -1,391 +1,986 @@
+#import matplotlib
+#import matplotlib.pyplot as plt
+import xlrd
 import pandas as pd
 import numpy as np
 import config
 from xlsxwriter.utility import xl_rowcol_to_cell
-
-class Daily():
-    def __init__(self, config):
-        self.config = config
-
-    def connect_TFR_daily(self):
-            sql_KM = "select * from TFR_REP.KEY_METRIC_MV where IO_ID = {}".format(self.config.IO_ID)
-            sql_Daily_sales = "select * from TFR_REP.DAILY_SALES_MV where IO_ID = {}".format(self.config.IO_ID)
-            return sql_KM, sql_Daily_sales
-
-    def read_Query_daily(self):
-        sql_KM, sql_Daily_sales = self.connect_TFR_daily()
-        read_sql_KM = pd.read_sql(sql_KM, self.config.conn)
-        read_sql_Daily_sales = pd.read_sql(sql_Daily_sales, self.config.conn)
-        return read_sql_KM, read_sql_Daily_sales
-
-    def access_Data_KM_Sales_daily(self):
-        read_sql_KM, read_sql_Daily_sales = self.read_Query_daily()
-        KM_Data = pd.pivot_table(read_sql_KM, values=["IMPRESSIONS", "ENGAGEMENTS", "VWR_CLICK_THROUGHS",
-                                                      "ENG_CLICK_THROUGHS", "DPE_CLICK_THROUGHS",
-                                                      "VWR_VIDEO_VIEW_100_PC_COUNT",
-                                                      "ENG_VIDEO_VIEW_100_PC_COUNT",
-                                                      "DPE_VIDEO_VIEW_100_PC_COUNT",
-                                                      "ENG_TOTAL_TIME_SPENT",
-                                                      "DPE_TOTAL_TIME_SPENT",
-                                                      "ENG_INTERACTIVE_ENGAGEMENTS",
-                                                      "DPE_INTERACTIVE_ENGAGEMENTS",
-                                                      "CPCV_COUNT",
-                                                      "DPE_ENGAGEMENTS"],
-                                        index=["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC"],
-                                        aggfunc=np.sum)
-        KM_reset = KM_Data.reset_index()
-
-        try:
-            KM_Data_New = KM_reset[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC", "DAY_DESC", "IMPRESSIONS",
-                                "ENGAGEMENTS", "VWR_CLICK_THROUGHS", "ENG_CLICK_THROUGHS", "DPE_CLICK_THROUGHS",
-                                "VWR_VIDEO_VIEW_100_PC_COUNT", "ENG_VIDEO_VIEW_100_PC_COUNT", "DPE_VIDEO_VIEW_100_PC_COUNT",
-                                "ENG_TOTAL_TIME_SPENT", "DPE_TOTAL_TIME_SPENT", "ENG_INTERACTIVE_ENGAGEMENTS",
-                                "DPE_INTERACTIVE_ENGAGEMENTS", "CPCV_COUNT", "DPE_ENGAGEMENTS"]]
-        except KeyError:
-            KM_Data_New = KM_reset[[]]
-
-        daily_Sales_Data = pd.pivot_table(read_sql_Daily_sales, values=["VIEWS", "CLICKS", "CONVERSIONS"],
-                                                 index=["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC"],
-                                                 aggfunc=np.sum)
-        sales_reset = daily_Sales_Data.reset_index()
-        try:
-            daily_Sales_Data_new = sales_reset[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC",
-                                            "VIEWS", "CLICKS", "CONVERSIONS"]]
-        except KeyError:
-            daily_Sales_Data_new = sales_reset[[]]
-
-        return KM_Data_New, daily_Sales_Data_new
-
-    def KM_Sales_daily(self):
-        KM_Data_New, daily_Sales_Data_new = self.access_Data_KM_Sales_daily()
-
-        try:
-
-            accessing_KM_columns = KM_Data_New[["PLACEMENT_ID","PLACEMENT_DESC","METRIC_DESC", "DAY_DESC", "IMPRESSIONS",
-                                "ENGAGEMENTS", "VWR_CLICK_THROUGHS", "ENG_CLICK_THROUGHS", "DPE_CLICK_THROUGHS",
-                                "VWR_VIDEO_VIEW_100_PC_COUNT", "ENG_VIDEO_VIEW_100_PC_COUNT", "DPE_VIDEO_VIEW_100_PC_COUNT",
-                                "ENG_TOTAL_TIME_SPENT", "DPE_TOTAL_TIME_SPENT", "ENG_INTERACTIVE_ENGAGEMENTS",
-                                "DPE_INTERACTIVE_ENGAGEMENTS", "CPCV_COUNT", "DPE_ENGAGEMENTS"]]
-        except KeyError:
-
-            accessing_KM_columns = KM_Data_New[[]]
-
-        try:
-           accessing_sales_columns = daily_Sales_Data_new[["PLACEMENT_ID", "PLACEMENT_DESC", "METRIC_DESC", "DAY_DESC",
-                                                               "VIEWS", "CLICKS", "CONVERSIONS"]]
-        except KeyError:
-            accessing_sales_columns=daily_Sales_Data_new[[]]
-
-        return accessing_KM_columns, accessing_sales_columns
-
-    def rename_KM_Sales_daily(self):
-        accessing_KM_columns, accessing_sales_columns = self.KM_Sales_daily()
-        rename_KM_columns = accessing_KM_columns.rename(columns={"PLACEMENT_ID": "Placement ID",
-                                                                 "PLACEMENT_DESC": "Placement#",
-                                                                 "METRIC_DESC": "Metric",
-                                                                 "DAY_DESC": "Day",
-                                                                 "IMPRESSIONS": "KM_Impressions",
-                                                                 "ENGAGEMENTS": "Delivered Engagements",
-                                                                 "VWR_CLICK_THROUGHS": "VWR click through",
-                                                                 "ENG_CLICK_THROUGHS": "Eng click through",
-                                                                 "DPE_CLICK_THROUGHS": "Deep click through",
-                                                                 "VWR_VIDEO_VIEW_100_PC_COUNT": "VWR video 100 pc",
-                                                                 "ENG_VIDEO_VIEW_100_PC_COUNT": "ENG video 100 pc",
-                                                                 "DPE_VIDEO_VIEW_100_PC_COUNT": "Deep video 100 pc",
-                                                                 "ENG_TOTAL_TIME_SPENT": "Eng total time spent",
-                                                                 "DPE_TOTAL_TIME_SPENT": "Deep total time spent",
-                                                                 "ENG_INTERACTIVE_ENGAGEMENTS": "Eng intractive engagement",
-                                                                 "DPE_INTERACTIVE_ENGAGEMENTS": "DPE intractive engagement",
-                                                                 "CPCV_COUNT": "Completions",
-                                                                 "DPE_ENGAGEMENTS": "Deep Engagements"}, inplace=True)
-        rename_sales_column = accessing_sales_columns.rename(columns={"PLACEMENT_ID": "Placement ID",
-                                                                      "PLACEMENT_DESC": "Placement#",
-                                                                      "METRIC_DESC": "Metric",
-                                                                      "DAY_DESC": "Day",
-                                                                      "VIEWS": "Delivered Impressions",
-                                                                      "CLICKS": "Sales_Clicks",
-                                                                      "CONVERSIONS": "Conversions"}, inplace=True)
-        return accessing_KM_columns, accessing_sales_columns
-
-    def adding_vcr_ctr_IR_ATS_daily(self):
-        accessing_KM_columns, accessing_sales_columns = self.rename_KM_Sales_daily()
-        read_query_summary_results=self.read_Query_daily()
-        read_sql_KM=read_query_summary_results[0]
-        read_sql_Daily_sales=read_query_summary_results[1]
-
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["ENG VCR%"] = accessing_KM_columns["ENG video 100 pc"]/accessing_KM_columns["Delivered Engagements"]
-        except KeyError as e:
-            accessing_KM_columns["ENG VCR%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["Instream VCR%"] = accessing_KM_columns ["VWR video 100 pc"]/accessing_KM_columns["KM_Impressions"]
-        except KeyError as e:
-            accessing_KM_columns["Instream VCR%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["CPCV VCR%"] = accessing_KM_columns["Completions"]/accessing_KM_columns["KM_Impressions"]
-        except KeyError as e:
-            accessing_KM_columns["CPCV VCR%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["ENG CTR%"] = accessing_KM_columns["Eng click through"]/accessing_KM_columns["Delivered Engagements"]
-        except KeyError as e:
-            accessing_KM_columns["ENG CTR%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["VWR CTR%"] = accessing_KM_columns["Eng click through"]/accessing_KM_columns["KM_Impressions"]
-        except KeyError as e:
-            accessing_KM_columns["VWR CTR%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["ENG Interaction Rate%"] = accessing_KM_columns["Eng intractive engagement"]/accessing_KM_columns["Delivered Engagements"]
-        except KeyError as e:
-            accessing_KM_columns["ENG Interaction Rate%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["DPE Interaction Rate%"] = accessing_KM_columns["DPE intractive engagement"]/accessing_KM_columns["Deep Engagements"]
-        except KeyError as e:
-            accessing_KM_columns["DPE Interaction Rate%"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["ENG ATS"] = ((accessing_KM_columns["Eng total time spent"]/accessing_KM_columns["Delivered Engagements"])/1000).apply('{0:.2f}'.format)
-        except KeyError as e:
-            accessing_KM_columns["ENG ATS"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_KM_columns["Deep ATS"] = ((accessing_KM_columns["Deep total time spent"]/accessing_KM_columns["Deep Engagements"])/1000).apply('{0:.2f}'.format)
-        except KeyError as e:
-            accessing_KM_columns["Deep ATS"] = 0
-        except IndexError as e:
-            pass
-        try:
-            if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
-                accessing_sales_columns["CTR%"] = accessing_sales_columns["Sales_Clicks"]/accessing_sales_columns["Delivered Impressions"]
-        except KeyError as e:
-            accessing_sales_columns["CTR%"] = 0
-        except IndexError as e:
-            pass
-
-        return accessing_KM_columns, accessing_sales_columns
-
-    def write_KM_Sales_summary(self):
-        data_common_columns = self.config.common_columns_summary()
-        accessing_KM_columns, accessing_sales_columns = self.adding_vcr_ctr_IR_ATS_daily()
-        replace_blank_with_zero_KM = accessing_KM_columns.fillna(0)
-        replace_blank_with_zero_sales = accessing_sales_columns.fillna(0)
-
-        writing_data_common_columns = data_common_columns[1].to_excel(self.config.writer, sheet_name="Daily Performance({})".format(self.config.IO_ID), startcol=0, startrow=7, index=False, header=False)
-
-        writing_KM_columns = replace_blank_with_zero_KM.to_excel(self.config.writer, sheet_name="Daily Performance({})".format(self.config.IO_ID), startcol=0, startrow=12, index=False, header=True)
-
-        writing_sales_columns = replace_blank_with_zero_sales.to_excel(self.config.writer, sheet_name="Daily Performance({})".format(self.config.IO_ID),
-                                                                 startcol=0, startrow=len(accessing_KM_columns)+16,
-                                                                 index=False, header=True)
-
-        return accessing_KM_columns, accessing_sales_columns, replace_blank_with_zero_KM, replace_blank_with_zero_sales
-
-    def formatting_daily(self):
-        accessing_KM_columns, accessing_sales_columns = self.adding_vcr_ctr_IR_ATS_daily()
-        number_rows_KM = accessing_KM_columns.shape[0]
-        #number_cols_KM = accessing_KM_columns.shape[1]
-        number_rows_sales = accessing_sales_columns.shape[0]
-        #number_cols_sales = accessing_sales_columns.shape[1]
-        read_query_summary_results = self.read_Query_daily()
-        read_sql_KM=read_query_summary_results[0]
-        read_sql_Daily_sales=read_query_summary_results[1]
-        workbook= self.config.writer.book
-        worksheet=self.config.writer.sheets["Daily Performance({})".format(self.config.IO_ID)]
-        percent_fmt=workbook.add_format({"num_format": "0.00%", "align": "center"})
-        alignment=workbook.add_format({"align": "center"})
-        worksheet.hide_gridlines(2)
-        worksheet.insert_image("A1", "Exponential.png")
-        #format_common_column={"header_row": False, "style": "Table Style Medium 2", 'autofilter': False}
-        #worksheet.add_table("A8:F10",format_common_column)
-        format_merge_row=workbook.add_format({"bold":True,"font_color":'#FFFFFF',"align":"left",
-                                              "fg_color":"#6495ED"})
-        worksheet.merge_range("A7:F7", "Daily Performance", format_merge_row)
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"] == self.config.IO_ID:
-                worksheet.merge_range("A12:AA12","Placement & Daily level Performance - Brand Engagement",
-                                      format_merge_row)
-        except IndexError as e:
-            pass
-
-        try:
-            if read_sql_Daily_sales.iloc[0]["IO_ID"] == self.config.IO_ID:
-                worksheet.merge_range("A{}:H{}".format(number_rows_KM+16,number_rows_KM+16),
-                              "Placement & Daily level Performance - Brand Performance", format_merge_row)
-        except IndexError as e:
-            pass
-
-        full_border=workbook.add_format({"border": 1, "border_color": "#000000", "align":"center",
-                                         "fg_color": "#6495ED", "bold": True})
-        worksheet.conditional_format("A8:F10",{"type":"no_blanks","format":full_border})
+import pandas.io.formats.excel
+pandas.io.formats.excel.header_style = None
+import datetime
 
 
-        data_border_style= workbook.add_format({"border": 1, "border_color": "#000000"})
+class Daily ( ):
+	def __init__ (self , config):
+		self.config = config
+	
+	def connect_TFR_daily (self):
+		sql_sales_summary = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'"," \
+		                    "CREATIVE_DESC  as "'Placement_Name'", COST_TYPE_DESC as "'Cost_type'",UNIT_COST as " \
+		                    ""'Unit_Cost'", BOOKED_QTY as "'Booked_Imp#Booked_Eng'" FROM TFR_REP.SUMMARY_MV where " \
+		                    "IO_ID = {} AND DATA_SOURCE = 'SalesFile' ORDER BY PLACEMENT_ID".format (
+			self.config.IO_ID )
+		sql_sales_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", " \
+		               "sum(VIEWS) " \
+		               "as "'Delivered_Impresion'", sum(CLICKS) as "'Clicks'", sum(CONVERSIONS) as "'Conversion'" from " \
+		               "" \
+		               "" \
+		               "" \
+		               "" \
+		               "" \
+		               "" \
+		               "" \
+		               "" \
+		               "TFR_REP.DAILY_SALES_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY " \
+		               "PLACEMENT_ID".format (
+			self.config.IO_ID )
+		sql_sales_adsize_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", " \
+		                      "MEDIA_SIZE_DESC as "'Adsize'", sum(VIEWS) as "'Delivered_Impresion'", sum(CLICKS) as " \
+		                      ""'Clicks'", sum(CONVERSIONS) as "'Conversion'" from TFR_REP.ADSIZE_SALES_MV WHERE IO_ID " \
+		                      "" \
+		                      "" \
+		                      "" \
+		                      "" \
+		                      "" \
+		                      "" \
+		                      "" \
+		                      "" \
+		                      "= {} GROUP BY PLACEMENT_ID,PLACEMENT_DESC, MEDIA_SIZE_DESC ORDER BY " \
+		                      "PLACEMENT_ID".format (
+			self.config.IO_ID )
+		sql_sales_daily_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", " \
+		                     "DAY_DESC as "'Day'", sum(VIEWS) as "'Delivered_Impresion'", sum(CLICKS) as "'Clicks'", " \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "sum(CONVERSIONS) as "'Conversion'" from TFR_REP.DAILY_SALES_MV WHERE IO_ID = {} GROUP BY " \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "" \
+		                     "PLACEMENT_ID,PLACEMENT_DESC, DAY_DESC ORDER BY PLACEMENT_ID".format (
+			self.config.IO_ID )
+		
+		return sql_sales_summary , sql_sales_mv , sql_sales_adsize_mv , sql_sales_daily_mv
+	
+	def read_Query_daily (self):
+		sql_sales_summary , sql_sales_mv , sql_sales_adsize_mv , sql_sales_daily_mv = self.connect_TFR_daily ( )
+		
+		read_sql_sales = pd.read_sql ( sql_sales_summary , self.config.conn )
+		read_sql_sales_mv = pd.read_sql ( sql_sales_mv , self.config.conn )
+		read_sql_adsize_mv = pd.read_sql ( sql_sales_adsize_mv , self.config.conn )
+		read_sql_daily_mv = pd.read_sql ( sql_sales_daily_mv , self.config.conn )
+		
+		return read_sql_sales , read_sql_sales_mv , read_sql_adsize_mv , read_sql_daily_mv
+	
+	def access_Data_KM_Sales_daily (self):
+		
+		read_sql_sales , read_sql_sales_mv , read_sql_adsize_mv , read_sql_daily_mv = self.read_Query_daily ( )
+		
+		standard_sales_first_table = read_sql_sales.merge ( read_sql_sales_mv , on = "PLACEMENT#" , how = "inner" )
+		display_sales_first_table = standard_sales_first_table [
+			[ "PLACEMENT#" , "PLACEMENT_NAME" , "COST_TYPE" , "UNIT_COST" ,
+			  "BOOKED_IMP#BOOKED_ENG" , "DELIVERED_IMPRESION" , "CLICKS" ,
+			  "CONVERSION" ] ]
+		
+		standard_sales_second_table = read_sql_sales.merge ( read_sql_adsize_mv , on = "PLACEMENT#" , how = "inner" )
+		adsize_sales_second_table = standard_sales_second_table [
+			[ "PLACEMENT#" , "PLACEMENT_NAME" , "COST_TYPE" , "UNIT_COST" ,
+			  "BOOKED_IMP#BOOKED_ENG" , "ADSIZE" , "DELIVERED_IMPRESION" ,
+			  "CLICKS" , "CONVERSION" ] ]
+		
+		standard_sales_third_table = read_sql_sales.merge ( read_sql_daily_mv , on = "PLACEMENT#" , how = "inner" )
+		daily_sales_third_table = standard_sales_third_table [ [ "PLACEMENT#" , "PLACEMENT_NAME" , "COST_TYPE" ,
+		                                                         "UNIT_COST" , "BOOKED_IMP#BOOKED_ENG" , "DAY" ,
+		                                                         "DELIVERED_IMPRESION" , "CLICKS" , "CONVERSION" ] ]
+		
+		return display_sales_first_table , adsize_sales_second_table , daily_sales_third_table
+	
+	def KM_Sales_daily (self):
+		
+		display_sales_first_table , adsize_sales_second_table , daily_sales_third_table = \
+			self.access_Data_KM_Sales_daily ( )
+		
+		display_sales_first_table [ "PLACEMENTNAME" ] = display_sales_first_table [
+			[ "PLACEMENT#" , "PLACEMENT_NAME" ] ].apply (
+			lambda x: ".".join ( x ) , axis = 1 )
+		
+		adsize_sales_second_table [ "PLACEMENTNAME" ] = adsize_sales_second_table [
+			[ "PLACEMENT#" , "PLACEMENT_NAME" ] ].apply (
+			lambda x: ".".join ( x ) , axis = 1 )
+		
+		daily_sales_third_table [ "PLACEMENTNAME" ] = daily_sales_third_table [
+			[ "PLACEMENT#" , "PLACEMENT_NAME" ] ].apply (
+			lambda x: ".".join ( x ) , axis = 1 )
+		
+		choices_display_CTR = display_sales_first_table [ "CLICKS" ] / display_sales_first_table [
+			"DELIVERED_IMPRESION" ]
+		choices_display_Conversion = display_sales_first_table [ "CONVERSION" ] / display_sales_first_table [
+			"DELIVERED_IMPRESION" ]
+		choices_display_spend = display_sales_first_table [ "DELIVERED_IMPRESION" ] / 1000 * \
+		                        display_sales_first_table [
+			                        "UNIT_COST" ]
+		choices_display_ecpa = (display_sales_first_table [ "DELIVERED_IMPRESION" ] / 1000 *
+		                        display_sales_first_table [
+			                        "UNIT_COST" ]) / display_sales_first_table [ "CONVERSION" ]
+		
+		mask1 = display_sales_first_table [ "COST_TYPE" ].isin ( [ 'CPM' ] )
+		
+		display_sales_first_table [ "CTR%" ] = np.select ( [ mask1 ] , [ choices_display_CTR ] , default = 0.00 )
+		display_sales_first_table [ "CONVERSIONRATE%" ] = np.select ( [ mask1 ] , [ choices_display_Conversion ] ,
+		                                                              default = 0.00 )
+		display_sales_first_table [ "SPEND" ] = np.select ( [ mask1 ] , [ choices_display_spend ] , default = 0.00 )
+		display_sales_first_table [ "EPCA" ] = np.select ( [ mask1 ] , [ choices_display_ecpa ] , default = 0.00 )
+		
+		choices_adsize_CTR = adsize_sales_second_table [ "CLICKS" ] / adsize_sales_second_table [
+			"DELIVERED_IMPRESION" ]
+		choices_adsize_conversion = adsize_sales_second_table [ "CONVERSION" ] / adsize_sales_second_table [
+			"DELIVERED_IMPRESION" ]
+		choices_adsize_spend = adsize_sales_second_table [ "DELIVERED_IMPRESION" ] / 1000 * adsize_sales_second_table [
+			"UNIT_COST" ]
+		choices_adsize_ecpa = (choices_adsize_spend) / (adsize_sales_second_table [ "CONVERSION" ])
+		
+		mask2 = adsize_sales_second_table [ "COST_TYPE" ].isin ( [ "CPM" ] )
+		
+		adsize_sales_second_table [ "CTR%" ] = np.select ( [ mask2 ] , [ choices_adsize_CTR ] , default = 0.00 )
+		adsize_sales_second_table [ "CONVERSIONRATE%" ] = np.select ( [ mask2 ] , [ choices_adsize_conversion ] ,
+		                                                              default = 0.00 )
+		adsize_sales_second_table [ "SPEND" ] = np.select ( [ mask2 ] , [ choices_adsize_spend ] , default = 0.00 )
+		adsize_sales_second_table [ "ECPA" ] = np.select ( [ mask2 ] , [ choices_adsize_ecpa ] , default = 0.00 )
+		
+		choice_daily_CTR = daily_sales_third_table [ "CLICKS" ] / daily_sales_third_table [ "DELIVERED_IMPRESION" ]
+		choice_daily_spend = daily_sales_third_table [ "DELIVERED_IMPRESION" ] / 1000 * daily_sales_third_table [
+			"UNIT_COST" ]
+		choice_daily_CPA = (daily_sales_third_table [ "DELIVERED_IMPRESION" ] / 1000 * daily_sales_third_table [
+			"UNIT_COST" ]) / \
+		                   daily_sales_third_table [ "CONVERSION" ]
+		
+		mask3 = daily_sales_third_table [ "COST_TYPE" ].isin ( [ "CPM" ] )
+		
+		daily_sales_third_table [ "CTR%" ] = np.select ( [ mask3 ] , [ choice_daily_CTR ] , default = 0.00 )
+		daily_sales_third_table [ "SPEND" ] = np.select ( [ mask3 ] , [ choice_daily_spend ] , default = 0.00 )
+		daily_sales_third_table [ "ECPA" ] = np.select ( [ mask3 ] , [ choice_daily_CPA ] , default = 0.00 )
+		
+		return display_sales_first_table , adsize_sales_second_table , daily_sales_third_table
+	
+	def rename_KM_Sales_daily (self):
+		display_sales_first_table , adsize_sales_second_table , daily_sales_third_table = self.KM_Sales_daily ( )
+		
+		rename_display_sales_first_table = display_sales_first_table.rename (
+			columns = {
+				"PLACEMENT#": "Placement#" , "PLACEMENT_NAME": "Placement Name" ,
+				"COST_TYPE": "Cost Type" , "UNIT_COST": "Unit Cost" ,
+				"BOOKED_IMP#BOOKED_ENG": "Booked" , "DELIVERED_IMPRESION": "Delivered Impressions"
+				, "CLICKS": "Clicks" ,
+				"CONVERSION": "Conversion"
+				, "PLACEMENTNAME": "Placement# Name" , "CTR%": "CTR"
+				, "CONVERSIONRATE%": "Conversion Rate"
+				, "SPEND": "Spend" , "EPCA": "eCPA"
+				} , inplace = True )
+		
+		rename_adsize_sales_second_table = adsize_sales_second_table.rename (
+			columns = {
+				"PLACEMENT#": "Placement#" , "PLACEMENT_NAME": "Placement Name" ,
+				"COST_TYPE": "Cost Type" , "UNIT_COST": "Unit Cost" ,
+				"BOOKED_IMP#BOOKED_ENG": "Booked" , "ADSIZE": "Adsize"
+				, "DELIVERED_IMPRESION": "Delivered Impressions" , "CLICKS": "Clicks" , "CONVERSION": "Conversion" ,
+				"PLACEMENTNAME": "Placement# Name"
+				, "CTR%": "CTR" , "CONVERSIONRATE%": "Conversion Rate" , "SPEND": "Spend" , "ECPA": "eCPA"
+				} , inplace = True )
+		
+		rename_daily_sales_third_table = daily_sales_third_table.rename (
+			columns = {
+				"PLACEMENT#": "Placement#" , "PLACEMENT_NAME": "Placement Name" ,
+				"COST_TYPE": "Cost Type" , "UNIT_COST": "Unit Cost" , "BOOKED_IMP#BOOKED_ENG": "Booked" ,
+				"DAY": "Date" , "DELIVERED_IMPRESION": "Delivered Impressions" , "CLICKS": "Clicks" ,
+				"CONVERSION": "Conversion" , "PLACEMENTNAME": "Placement# Name" ,
+				"CTR%": "CTR" , "SPEND": "Spend" , "ECPA": "eCPA"
+				} , inplace = True )
+		
+		return display_sales_first_table , adsize_sales_second_table , daily_sales_third_table
+	
+	def accessing_nan_values (self):
+		display_sales_first_table , adsize_sales_second_table , daily_sales_third_table = self.rename_KM_Sales_daily \
+			( )
+		
+		display_sales_first_table [ "CTR" ] = display_sales_first_table [ "CTR" ].replace ( np.nan , 0.00 )
+		display_sales_first_table [ "Conversion Rate" ] = display_sales_first_table [ "Conversion Rate" ].replace (
+			np.nan , 0.00 )
+		display_sales_first_table [ "Spend" ] = display_sales_first_table [ "Spend" ].replace ( np.nan , 0.00 )
+		display_sales_first_table [ "eCPA" ] = display_sales_first_table [ "eCPA" ].replace ( np.nan , 0.00 )
+		
+		adsize_sales_second_table [ "CTR" ] = adsize_sales_second_table [ "CTR" ].replace ( np.nan , 0.00 )
+		adsize_sales_second_table [ "Conversion Rate" ] = adsize_sales_second_table [ "Conversion Rate" ].replace (
+			np.nan , 0.00 )
+		adsize_sales_second_table [ "Spend" ] = adsize_sales_second_table [ "Spend" ].replace ( np.nan , 0.00 )
+		adsize_sales_second_table [ "eCPA" ] = adsize_sales_second_table [ "eCPA" ].replace ( np.nan , 0.00 )
+		
+		daily_sales_third_table [ "CTR" ] = daily_sales_third_table [ "CTR" ].replace ( np.nan , 0.00 )
+		daily_sales_third_table [ "Spend" ] = daily_sales_third_table [ "Spend" ].replace ( np.nan , 0.00 )
+		daily_sales_third_table [ "eCPA" ] = daily_sales_third_table [ "eCPA" ].replace ( np.nan , 0.00 )
+		
+		display_sales_first_table [ "CTR" ] = display_sales_first_table [ "CTR" ].replace ( np.inf , 0.00 )
+		display_sales_first_table [ "Conversion Rate" ] = display_sales_first_table [ "Conversion Rate" ].replace (
+			np.inf , 0.00 )
+		display_sales_first_table [ "Spend" ] = display_sales_first_table [ "Spend" ].replace ( np.inf , 0.00 )
+		display_sales_first_table [ "eCPA" ] = display_sales_first_table [ "eCPA" ].replace ( np.inf , 0.00 )
+		
+		adsize_sales_second_table [ "CTR" ] = adsize_sales_second_table [ "CTR" ].replace ( np.inf , 0.00 )
+		adsize_sales_second_table [ "Conversion Rate" ] = adsize_sales_second_table [ "Conversion Rate" ].replace (
+			np.inf , 0.00 )
+		adsize_sales_second_table [ "Spend" ] = adsize_sales_second_table [ "Spend" ].replace ( np.inf , 0.00 )
+		adsize_sales_second_table [ "eCPA" ] = adsize_sales_second_table [ "eCPA" ].replace ( np.inf , 0.00 )
+		
+		daily_sales_third_table [ "CTR" ] = daily_sales_third_table [ "CTR" ].replace ( np.inf , 0.00 )
+		daily_sales_third_table [ "Spend" ] = daily_sales_third_table [ "Spend" ].replace ( np.inf , 0.00 )
+		daily_sales_third_table [ "eCPA" ] = daily_sales_third_table [ "eCPA" ].replace ( np.inf , 0.00 )
+		
+		return display_sales_first_table , adsize_sales_second_table , daily_sales_third_table
+	
+	def accessing_main_column (self):
+		
+		display_sales_first_table , adsize_sales_second_table , daily_sales_third_table = self.accessing_nan_values ( )
+		
+		"""display_sales_first_table.loc["Grand Total"]=pd.Series(
+			display_sales_first_table.loc[:,["Booked","Delivered Impressions","Clicks","Conversion","Spend"]].sum(),
+			index=["Booked","Delivered Impressions","Clicks","Conversion","Spend"])
 
+		display_sales_first_table["Placement# Name"]=display_sales_first_table["Placement# Name"].replace(np.nan,
+																										  "Grand
+																										  Total")
+		display_sales_first_table[["Cost Type","Unit Cost","CTR",
+								   "Conversion Rate","eCPA"]]=display_sales_first_table[
+			["Cost Type","Unit Cost","CTR","Conversion Rate","eCPA"]].replace(np.nan,"")"""
+		
+		placement_sales_data = display_sales_first_table [ [ "Placement# Name" , "Cost Type" , "Unit Cost" , "Booked" ,
+		                                                     "Delivered Impressions" , "Clicks" , "CTR" ,
+		                                                     "Conversion" ,
+		                                                     "Conversion Rate" , "Spend" , "eCPA" ] ]
+		
+		adsize_sales_data_new = adsize_sales_second_table.loc [ : ,
+		                    [ "Placement# Name" , "Adsize" , "Delivered Impressions" , "Clicks" ,
+		                      "CTR" , "Conversion" , "Conversion Rate" , "Spend" , "eCPA" ] ]
+		
+		adsize_sales_data_pivot = pd.pivot_table(adsize_sales_data_new, index = ["Adsize"], values = ["Delivered Impressions",
+		                                                                                        "Clicks","Conversion",
+		                                                                                        "Spend"],aggfunc = np.sum)
+		
+		adsize_sales_data_pivot_new = adsize_sales_data_pivot.reset_index()
+		
+		adsize_sales_data_pivot_new["CTR"] = adsize_sales_data_pivot_new["Clicks"]/adsize_sales_data_pivot_new["Delivered Impressions"]
+		adsize_sales_data_pivot_new["Conversion Rate"] = adsize_sales_data_pivot_new["Conversion"]/adsize_sales_data_pivot_new["Delivered Impressions"]
+		adsize_sales_data_pivot_new["eCPA"] = adsize_sales_data_pivot_new["Spend"]/adsize_sales_data_pivot_new["Conversion"]
+		
+		adsize_sales_data = adsize_sales_data_pivot_new[["Adsize", "Delivered Impressions","Clicks",
+		                                                "CTR","Conversion","Conversion Rate","Spend","eCPA"]]
+		
+		"""cols = ["Delivered Impressions", "Clicks", "Conversion", "Spend"]
+		adsize_sales_data['Placement# Name'] = adsize_sales_data['Placement# Name'].ffill()
+		grand = adsize_sales_data[cols].sum()
 
-        worksheet.freeze_panes(13, 0)
+		grand.loc['Placement# Name'] = 'Grand Total'
 
-        for col in range(4, 18):
-            cell_location = xl_rowcol_to_cell(number_rows_KM+13, col)
-            start_range = xl_rowcol_to_cell(13, col)
-            end_range = xl_rowcol_to_cell(number_rows_KM+12, col)
-            formula = "=SUM({:s}:{:s})".format(start_range, end_range)
-            try:
-                if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                    worksheet.write_formula(cell_location, formula, full_border)
-            except IndexError as e:
-                pass
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                worksheet.write_string(number_rows_KM+13, 0, "Total", full_border)
-        except IndexError as e:
-            pass
+		adsize_sales_data_new = adsize_sales_data.groupby('Placement# Name')[cols].sum()
+		adsize_sales_data_new.index = adsize_sales_data_new.index.astype(str)+'____'
+		adsize_sales_data = (pd.concat([adsize_sales_data.set_index('Placement# Name'), adsize_sales_data_new],
+		keys=('a', 'b')).sort_index(level=1).reset_index())
+		adsize_sales_data['Placement# Name'] = np.where(adsize_sales_data['level_0'] == 'a', adsize_sales_data[
+		'Placement# Name'], 'Total')
+		adsize_sales_data = adsize_sales_data.drop('level_0', axis=1)
+		adsize_sales_data.loc[len(adsize_sales_data.index)] = grand"""
+		
+		"""cols_ad=["Delivered Impressions","Clicks","Conversion","Spend"]
+		adsize_sales_data['Placement# Name']=adsize_sales_data['Placement# Name'].ffill()
+		grand=adsize_sales_data[cols_ad].sum()
+		grand.loc['Placement# Name']='Grand Total'
+		adsize_sales_data_new=adsize_sales_data.groupby('Placement# Name')[cols_ad].sum()
+		try:
+			adsize_sales_data_new.index=adsize_sales_data_new.index.astype(str)+'____'
 
-        for col in range(4, 7):
-            cell_location = xl_rowcol_to_cell(number_rows_KM + number_rows_sales+ 17, col)
-            start_range = xl_rowcol_to_cell(number_rows_KM + 17, col)
-            end_range = xl_rowcol_to_cell(number_rows_KM + number_rows_sales + 16, col)
-            formula = "=SUM({:s}:{:s})".format(start_range, end_range)
-            try:
-                if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
-                    worksheet.write_formula(cell_location, formula, full_border)
-            except IndexError as e:
-                pass
+			adsize_sales_data_new_new=pd.DataFrame(index=adsize_sales_data_new.index.astype(str)+'__')
 
-        try:
-            if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
-                worksheet.write_string(number_rows_KM + number_rows_sales + 17, 0, "Total", full_border)
-        except IndexError as e:
-            pass
+			adsize_sales_data=pd.concat([adsize_sales_data.set_index('Placement# Name'),adsize_sales_data_new,
+			adsize_sales_data_new_new],
+					keys=('a','b','c')).sort_index(level=1).reset_index()
 
-        worksheet.set_zoom(80)
-        worksheet.set_column("A:A", 15, alignment)
-        worksheet.set_column("B:B", 78, alignment)
-        worksheet.set_column("C:C", 20, alignment)
-        worksheet.set_column("D:D", 12, alignment)
-        worksheet.set_column("E:E", 19, alignment)
-        worksheet.set_column("F:F", 21, alignment)
-        worksheet.set_column("G:G", 16, alignment)
-        worksheet.set_column("H:H", 16, alignment)
-        worksheet.set_column("I:K", 16, alignment)
-        worksheet.set_column("L:L", 17, alignment)
-        worksheet.set_column("M:N", 16, alignment)
-        worksheet.set_column("O:O", 23, alignment)
-        worksheet.set_column("P:P", 24, alignment)
-        worksheet.set_column("Q:Q", 11, alignment)
-        worksheet.set_column("R:R", 17, alignment)
-        worksheet.set_column("S:S", 10, percent_fmt, {'level': 1,'hidden': True})
-        worksheet.set_column("T:T", 14, percent_fmt, {'level': 1,'hidden': True})
-        worksheet.set_column("U:W", 10, percent_fmt, {'level': 1,'hidden': True})
-        worksheet.set_column("X:Y", 20, percent_fmt, {'level': 1,'hidden': True})
-        worksheet.set_column("Z:Z", 12, alignment, {'level': 1,'hidden': True})
-        worksheet.set_column("AA:AA", 12, alignment, {'level': 1,'hidden': True})
-        #worksheet.set_row(number_rows_KM)
-        worksheet.conditional_format("A14:AA{}".format(number_rows_KM+13),
-                                     {"type": "no_blanks", "format": data_border_style})
-        worksheet.conditional_format("A{}:H{}".format(18+number_rows_KM, number_rows_sales+number_rows_KM+17),
-                                     {"type": "no_blanks", "format": data_border_style})
-        worksheet.conditional_format("H{}:H{}".format(18+number_rows_KM, number_rows_sales+number_rows_KM+17),
-                                     {"type": "no_blanks", "format": percent_fmt})
+			m1=adsize_sales_data['level_0']=='a'
+			m2=adsize_sales_data['level_0']=='c'
 
-        #VDX Performance
+			adsize_sales_data['Placement# Name']=np.select([m1,m2],[adsize_sales_data['Placement# Name'],np.nan],
+														   default='Total')
+			adsize_sales_data=adsize_sales_data.drop('level_0',axis=1)
+			adsize_sales_data.loc[len(adsize_sales_data.index)]=grand
+		except TypeError as e:
+			pass
+		except KeyError as e:
+			pass"""
+		
+		"""final_adsize=adsize_sales_data.loc[:,["Placement# Name","Adsize","Delivered Impressions","Clicks","CTR",
+											  "Conversion","Conversion Rate","Spend","eCPA"]]"""
+		
+		"""final_adsize = adsize_sales_data.loc [ : , [ "Adsize" , "Delivered Impressions" , "Clicks" , "CTR" ,
+		                                             "Conversion" , "Conversion Rate" , "Spend" , "eCPA" ] ]"""
+		
+		final_adsize = adsize_sales_data[[ "Adsize" , "Delivered Impressions" , "Clicks" , "CTR" ,
+		                                             "Conversion" , "Conversion Rate" , "Spend" , "eCPA" ]]
+		                                             
+		daily_sales_data = daily_sales_third_table.loc [ : ,
+		                   [ "Placement#" , "Placement# Name" , "Date" , "Delivered Impressions" ,
+		                     "Clicks" , "CTR" , "Conversion" , "eCPA" , "Spend" ,
+		                     "Unit Cost" ] ]
+		
+		daily_sales_remove_zero = daily_sales_data [ daily_sales_data [ 'Delivered Impressions' ] == 0 ]
+		
+		daily_sales_data = daily_sales_data.drop ( daily_sales_remove_zero.index , axis = 0 )
+		
+		# daily_sales_data [ "Date" ] = pd.to_datetime ( daily_sales_data [ "Date" ] )
+		
+		daily_sales_data [ 'Date' ] = pd.to_datetime ( daily_sales_data [ 'Date' ] ).dt.date
+		
+		excel_start_date = datetime.date ( 1899 , 12 , 30 )
+		daily_sales_data [ 'Date' ] = daily_sales_data [ 'Date' ] - excel_start_date
+		try:
+			daily_sales_data.Date = daily_sales_data.Date.dt.days
+		except AttributeError as e:
+			pass
+		
+		"""try:
+			cols_day=["Delivered Impressions","Clicks","Conversion","Spend"]
+			daily_sales_data['Placement# Name']=daily_sales_data['Placement# Name'].ffill()
+			grand=daily_sales_data[cols_day].sum()
+			grand.loc['Date']='Grand Total'
+			daily_sales_data_new=daily_sales_data.groupby('Placement# Name')[cols_day].sum()
+			daily_sales_data_new.index=daily_sales_data_new.index.astype(str)+'____'
+			daily_sales_data_new_new=pd.DataFrame(index=daily_sales_data_new.index.astype(str)+'__')
+			daily_sales_data=pd.concat([daily_sales_data.set_index('Placement# Name'),daily_sales_data_new,
+											daily_sales_data_new_new],
+										   keys=('a','b','c')).sort_index(level=1).reset_index()
 
-        column_chart_KM=workbook.add_chart({'type':'column'})
-        column_chart_KM.add_series({
-                'name':"='Daily Performance({})'!E13".format(self.config.IO_ID),
-                'categories':"='Daily Performance({})'!D14:D{}".format(self.config.IO_ID,number_rows_KM+13),
-                'values':"='Daily Performance({})'!E14:E{}".format(self.config.IO_ID,number_rows_KM+13),
-                'fill': {'color': '#6495ED'}
-            })
-        line_chart_KM = workbook.add_chart({'type': 'line'})
-        line_chart_KM.add_series({
-            'name':"='Daily Performance({})'!F13".format(self.config.IO_ID),
-            'categories':"='Daily Performance({})'!D14:D{}".format(self.config.IO_ID,number_rows_KM),
-            'values':"='Daily Performance({})'!F14:F{}".format(self.config.IO_ID,number_rows_KM+13),
-            'y2_axis':True
-        })
+			m1=daily_sales_data['level_0']=='a'
+			m2=daily_sales_data['level_0']=='c'
 
-        column_chart_KM.combine(line_chart_KM)
-        column_chart_KM.set_title({'name': 'VDX Performance'})
-        column_chart_KM.set_x_axis({'name':'Date'})
-        column_chart_KM.set_y_axis({'name':'Impression'})
-        line_chart_KM.set_y2_axis({'name':'Engegements'})
-        column_chart_KM.set_size({'width':1000,'height':500})
+			daily_sales_data['Placement# Name']=np.select([m1,m2],[daily_sales_data['Placement# Name'],np.nan],
+														  default='Subtotal')
 
+			daily_sales_data=daily_sales_data.drop('level_0',axis=1)
 
-        #Sales Performance
-        column_chart_sales=workbook.add_chart({'type':'column'})
-        column_chart_sales.add_series({
-            'name':"='Daily Performance({})'!E{}".format(self.config.IO_ID,number_rows_KM+17),
-            'categories':"='Daily Performance({})'!D{}:D{}".format(self.config.IO_ID,number_rows_KM+18,number_rows_KM+number_rows_sales+17),
-            'values':"='Daily Performance({})'!E{}:E{}".format(self.config.IO_ID,number_rows_KM+18,number_rows_KM+number_rows_sales+17),
-            'fill':{'color':'#6495ED'}
-        })
-        line_chart_sales=workbook.add_chart({'type':'line'})
-        line_chart_sales.add_series({
-            'name':"='Daily Performance({})'!F{}".format(self.config.IO_ID,number_rows_KM+17),
-            'categories':"='Daily Performance({})'!D{}:D{}".format(self.config.IO_ID,number_rows_KM+18,number_rows_KM +number_rows_sales+17),
-            'values':"='Daily Performance({})'!F{}:F{}".format(self.config.IO_ID,number_rows_KM+18,number_rows_KM + number_rows_sales+17),
-            'y2_axis':True
-        })
+			daily_sales_data.loc[len(daily_sales_data.index)]=grand
+		except TypeError as e:
+			pass
+		except KeyError as e:
+			pass"""
+		
+		final_day_wise = daily_sales_data.loc [ : ,
+		                 [ 'Placement#' , "Placement# Name" , "Date" , "Delivered Impressions" , "Clicks" , "CTR" ,
+		                   "Conversion" ,
+		                   "eCPA" , "Spend" ] ]
+		
+		
+		#final_day_wise_plot_date = final_day_wise[["Date"]]
+		#final_day_wise_plot_Imp = final_day_wise[["Delivered Impressions"]]
+		#final_day_wise_plot_ctr = final_day_wise[["CTR"]]
+		
+		#chart_bar = plt.bar(final_day_wise_plot_date,final_day_wise_plot_Imp)
+		
+		
+		# final_day_wise.apply(lambda x: x.sort_values ('Placement#',ascending = True ) )
+		
+		# final_day_wise.groupby('Placement# Name')
+		
+		# for placement, placement_df in final_day_wise.groupby('Placement# Name'):
+		
+		
+		
+		
+		# pltoyy = final_day_wise [ 'Delivered Impressions' ].value_counts ( ).plot ( kind = 'bar' )
+		
+		
+		
+		"""final_day_wise = final_day_wise.set_index("Placement# Name")
+		#final_day_wise.index = pd.Series(final_day_wise.index).fillna( method = 'ffill' )
+		final_day_wise['Date'] = final_day_wise['Date'].dt.strftime('%Y-%m-%d')
+		
+		final_day_wise_new = final_day_wise[["Delivered Impressions" , "Clicks","Conversion","Spend"]].sum(
+		level=0).assign(Date = 'Subtotal')
+		
+		final_day_wise_new['CTR'] = final_day_wise_new['Clicks']/final_day_wise_new['Delivered Impressions']
+		final_day_wise_new['eCPA'] = final_day_wise_new['Spend']/final_day_wise_new['Conversion']
+		
+		final_day_wise_new_out = pd.concat([final_day_wise, final_day_wise_new]).set_index('Date',
+		append = True).sort_index(level=0)
+		
+		
+		final_day_wise_new_out = final_day_wise_new_out[["Delivered Impressions" ,"Clicks", "CTR", "Conversion",
+		"eCPA" , "Spend" ]]
+		
+		final_day_wise_new_out [ 'eCPA' ] = final_day_wise_new_out [ 'eCPA' ].replace ( np.inf , 0.00 )"""
+		
+		return placement_sales_data , final_adsize , final_day_wise
+	
+	# final_day_wise,final_day_wise_new_out
+	
+	def write_KM_Sales_summary (self):
+		
+		data_common_columns = self.config.common_columns_summary ( )
+		
+		placement_sales_data , final_adsize , final_day_wise = self.accessing_main_column ( )
+		
+		# final_day_wise, final_day_wise_new_out
+		
+		writing_data_common_columns = data_common_columns [ 1 ].to_excel ( self.config.writer ,
+		                                                                   sheet_name = "Standard banner({})".format
+		                                                                   ( self.config.IO_ID ) , startcol = 1 ,
+		                                                                   startrow = 1 ,
+		                                                                   index = False , header = False )
+		
+		check_placement_sales_data = placement_sales_data.empty
+		
+		if check_placement_sales_data == True:
+			pass
+		else:
+			writing_placement_data = placement_sales_data.to_excel ( self.config.writer ,
+			                                                         sheet_name = "Standard banner({})".format (
+				                                                         self.config.IO_ID ) ,
+			                                                         startcol = 1 , startrow = 8 , index = False ,
+			                                                         header = True )
+		
+		check_adsize_sales_data = final_adsize.empty
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			writing_adsize_data = final_adsize.to_excel ( self.config.writer ,
+			                                              sheet_name = "Standard banner({})".format (
+				                                              self.config.IO_ID ) ,
+			                                              startcol = 1 , startrow = len ( placement_sales_data ) + 13 ,
+			                                              index = False ,
+			                                              header = True )
+		
+		check_daily_sales_data = final_day_wise.empty
+		# check_daily_sales_data = final_day_wise_new_out.empty
+		if check_daily_sales_data == True:
+			pass
+		else:
+			"""startline = len ( placement_sales_data ) + len ( final_adsize ) + 18
+			for n,g in final_day_wise_new_out.groupby(level=0):
+				writing_daily_data = g.to_excel ( self.config.writer , sheet_name = "Standard banner({})".format (
+					                                               self.config.IO_ID ) , startcol = 1 ,
+				                                               startrow = startline,index = True,
+				                                               header = True, merge_cells = False )
+				startline += len(g)+4"""
+			"""writing_daily_data = final_day_wise.to_excel (self.config.writer ,
+			                                                       sheet_name = "Standard banner({})".format (
+				                                                       self.config.IO_ID ) , startcol = 1 ,
+			                                                       startrow = len ( placement_sales_data ) + len (
+				                                                       final_adsize ) + 18 , index = False ,
+			                                                       header = True )"""
+			
+			startline = len ( placement_sales_data ) + len ( final_adsize ) + 18
+			
+			for placement , placement_df in final_day_wise.groupby ( 'Placement# Name', as_index = False ):
+				
+				
+				writing_daily_data = placement_df.to_excel ( self.config.writer ,
+				                                             sheet_name = "Standard banner({})".format (
+					                                             self.config.IO_ID ) , encoding = 'UTF-8' ,
+				                                             startcol = 1 ,
+				                                             startrow = startline , columns = [ "Placement# Name" ] ,
+				                                             index = False ,
+				                                             header = False , merge_cells = False)
+				writing_daily_data_new = placement_df.to_excel ( self.config.writer ,
+				                                                 sheet_name = "Standard banner({})".format (
+					                                                 self.config.IO_ID ) , startcol = 1 ,
+				                                                 startrow = startline + 1 ,
+				                                                 columns = [ "Date" , "Delivered Impressions" ,
+				                                                             "Clicks" , "CTR" ,
+				                                                             "Conversion" , "eCPA" , "Spend" ] ,
+				                                                 index = False , header = True , merge_cells = False )
+				
+				startline += len ( placement_df ) + 5
 
-        column_chart_sales.combine(line_chart_sales)
-        column_chart_sales.set_title({'name':'Sales Performance'})
-        column_chart_sales.set_x_axis({'name':'Date'})
-        column_chart_sales.set_y_axis({'name':'Impression'})
-        line_chart_sales.set_y2_axis({'name':'Clicks'})
-        column_chart_sales.set_size({'width':1000,'height':500})
-        #column_chart_sales.set_plotarea({'layout':{'x':0.20,'y':0.25,'width':0.75,'height':0.60,}})"""
+		
+		return placement_sales_data , final_adsize , final_day_wise
+	
+	def formatting_daily (self):
+		placement_sales_data , final_adsize , final_day_wise = self.write_KM_Sales_summary ( )
+		
+		unqiue_final_day_wise = final_day_wise [ 'Placement# Name' ].nunique ()
+		unqiue_final_day_wise_date = final_day_wise ['Date'].nunique()
+		
+		placement_count = final_day_wise['Placement# Name'].value_counts()
+		
+		print type(placement_count)
+		
+		# final_day_wise, final_day_wise_new_out
+		
+		data_common_columns = self.config.common_columns_summary ()
+		
+		number_rows_placement = placement_sales_data.shape [ 0 ]
+		number_cols_placement = placement_sales_data.shape [ 1 ]
+		number_rows_adsize = final_adsize.shape [ 0 ]
+		number_cols_adsize = final_adsize.shape [ 1 ]
+		number_rows_daily = final_day_wise.shape [ 0 ]
+		number_cols_daily = final_day_wise.shape [ 1 ]
+		
+		# number_rows_daily = final_day_wise_new_out.shape [ 0 ]
+		# number_cols_daily = final_day_wise_new_out.shape [ 1 ]
+		
+		workbook = self.config.writer.book
+		worksheet = self.config.writer.sheets [ "Standard banner({})".format ( self.config.IO_ID ) ]
+		
+		worksheet.hide_gridlines ( 2 )
+		worksheet.set_row ( 0 , 6 )
+		worksheet.set_column ( "A:A" , 2 )
+		
+		alignment = workbook.add_format ( { "align": "center" } )
+		
+		check_placement_sales_data = placement_sales_data.empty
+		check_adsize_sales_data = final_adsize.empty
+		# check_daily_sales_data = final_day_wise_new_out.empty
+		check_daily_sales_data = final_day_wise.empty
+		worksheet.insert_image ( "H2" , "Exponential.png" , { "url": "https://www.tribalfusion.com" } )
+		worksheet.insert_image ( "I2" , "Client_Logo.png" )
+		
+		# column b2 to O5 formatting
+		format_campaign_info = workbook.add_format ( { "bg_color": '#F0F8FF' , "align": "left" } )
+		
+		# column headers formatting
+		format_col = workbook.add_format (
+			{ "bg_color": '#E7E6E6' , "bold": True , "align": "center" , "bottom": 1 , "top": 1 } )
+		
+		format_left_col = workbook.add_format ( { "left": 1 } )
+		format_right_col = workbook.add_format ( { "right": 1 } )
+		format_bottom_col = workbook.add_format ( { "bottom": 1 } )
+		
+		# values of subtotal and last column needs to be colour
+		format_last_row = workbook.add_format ( { "bg_color": '#E7E6E6' , "bold": True , "align": "center" } )
+		
+		# format the placement by date table
+		
+		format_placement_by_date_header = workbook.add_format (
+			{ "bg_color": '#595959' , 'font_color': '#FFFFFF' , "bold": True , "align": "center" } )
+		
+		format_sub = workbook.add_format ( { "bold": True , "bg_color": '#E7E6E6' } )
+		format_subtotal = workbook.add_format ( { "bold": True } )
+		format_total = workbook.add_format ( { "bg_color": '#E7E6E6' , "bold": True } )
+		
+		percent_fmt = workbook.add_format ( { "num_format": "0.00%" , "align": "center" } )
+		money_fmt = workbook.add_format ( { "num_format": "$#,###0.00" , "align": "center" } )
+		
+		format_number = workbook.add_format ( { "num_format": "#,##0" , "align": "center" } )
+		date_format = workbook.add_format ( { 'num_format': 'YYYY-MM-DD' , "align": "left" } )
+		
+		# formatting campaign info
+		worksheet.conditional_format ( "B2:L5" , { "type": "blanks" , "format": format_campaign_info } )
+		worksheet.conditional_format ( "B2:L5" , { "type": "no_blanks" , "format": format_campaign_info } )
+		
+		# adding formula in bottom rows:
+		if check_placement_sales_data == True:
+			pass
+		else:
+			worksheet.write_formula ( number_rows_placement + 9 , 4 ,
+			                          '=sum(E{}:E{})'.format ( 10 , number_rows_placement + 9 ) , format_number )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 5 ,
+			                          '=sum(F{}:F{})'.format ( 10 , number_rows_placement + 9 ) , format_number )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 6 ,
+			                          '=sum(G{}:G{})'.format ( 10 , number_rows_placement + 9 ) , format_number )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 7 ,
+			                          '=IFERROR(sum(G{}:G{})/sum(F{}:F{}),0)'.format ( 10 ,
+			                                                                           number_rows_placement + 9 , 10 ,
+			                                                                           number_rows_placement + 9 ) ,
+			                          percent_fmt )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 8 ,
+			                          '=sum(I{}:I{})'.format ( 10 , number_rows_placement + 9 ) , format_number )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 9 ,
+			                          '=IFERROR(sum(I{}:I{})/sum(F{}:F{}),0)'.format ( 10 , number_rows_placement + 9 ,
+			                                                                           10 ,
+			                                                                           number_rows_placement + 9 ) ,
+			                          percent_fmt )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 10 ,
+			                          '=sum(K{}:K{})'.format ( 10 , number_rows_placement + 9 ) , money_fmt )
+			
+			worksheet.write_formula ( number_rows_placement + 9 , 11 ,
+			                          '=IFERROR(sum(K{}:K{})/sum(I{}:I{}),0)'.format ( 10 , number_rows_placement + 9 ,
+			                                                                           10 , number_rows_placement + 9 )
+			                          , money_fmt )
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 2 ,
+			                          '=sum(C{}:C{})'.format ( number_rows_placement + 15 ,
+			                                                   number_rows_placement + number_rows_adsize + 14 ) ,
+			                          format_number )
+			
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 3 ,
+			                          '=sum(D{}:D{})'.format ( number_rows_placement + 15 ,
+			                                                   number_rows_placement + number_rows_adsize + 14 ) ,
+			                          format_number )
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 4 ,
+			                          '=IFERROR(sum(D{}:D{})/sum(C{}:C{}),0)'.format ( number_rows_placement + 15 ,
+			                                                                           number_rows_placement +
+			                                                                           number_rows_adsize + 14 ,
+			                                                                           number_rows_placement + 15 ,
+			                                                                           number_rows_placement +
+			                                                                           number_rows_adsize + 14 ) ,
+			                          percent_fmt )
+			
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 5 ,
+			                          '=sum(F{}:F{})'.format ( number_rows_placement + 15 ,
+			                                                   number_rows_placement + number_rows_adsize + 14 ) ,
+			                          format_number )
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 6 ,
+			                          '=IFERROR(sum(F{}:F{})/sum(C{}:C{}),0)'.format ( number_rows_placement + 15 ,
+			                                                                           number_rows_placement +
+			                                                                           number_rows_adsize + 14 ,
+			                                                                           number_rows_placement + 15 ,
+			                                                                           number_rows_placement +
+			                                                                           number_rows_adsize + 14 ) ,
+			                          percent_fmt )
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 7 ,
+			                          '=sum(H{}:H{})'.format ( number_rows_placement + 15 ,
+			                                                   number_rows_placement + number_rows_adsize + 14 ) ,
+			                          money_fmt )
+			
+			worksheet.write_formula ( number_rows_placement + number_rows_adsize + 14 , 8 ,
+			                          '=IFERROR(sum(H{}:H{})/sum(F{}:F{}),0)'.format ( number_rows_placement + 15 ,
+			                                                                           number_rows_placement +
+			                                                                           number_rows_adsize + 14 ,
+			                                                                           number_rows_placement + 15 ,
+			                                                                           number_rows_placement +
+			                                                                           number_rows_adsize + 14 ) ,
+			                          money_fmt )
+		
+		# Colour formatting for Columns
+		if check_placement_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( 8 , 1 , 8 , number_cols_placement + 1 ,
+			                               { "type": "no_blanks" , "format": format_col } )
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( number_rows_placement + 13 , 1 , number_rows_placement + 13 ,
+			                               number_cols_adsize + 1 ,
+			                               { "type": "no_blanks" , "format": format_col } )
+		
+		# Values_for_daily = 'Date','Delivered Impressions','Clicks','CTR','Conversion','eCPA','Spend'
+		
+		if check_daily_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 19 , 1 ,
+			                               number_rows_placement + number_rows_adsize + 19 ,
+			                               number_cols_daily + 1 ,
+			                               { "type": "no_blanks" , "format": format_placement_by_date_header } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 , number_cols_daily - 2 ,
+			                               {
+				                               "type": "text" , 'criteria': 'containing' , 'value': 'Date' ,
+				                               'format': format_placement_by_date_header
+				                               } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               number_cols_daily - 2 , {
+				                               "type": "text" , 'criteria': 'containing' ,
+				                               'value': 'Delivered Impressions' ,
+				                               'format': format_placement_by_date_header
+				                               } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               number_cols_daily - 2 , {
+				                               "type": "text" , 'criteria': 'containing' ,
+				                               'value': 'Clicks' , 'format': format_placement_by_date_header
+				                               } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               number_cols_daily - 2 , {
+				                               "type": "text" , 'criteria': 'containing' ,
+				                               'value': 'CTR' ,
+				                               'format': format_placement_by_date_header
+				                               } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               number_cols_daily - 2 , {
+				                               "type": "text" , 'criteria': 'containing' ,
+				                               'value': 'Conversion' ,
+				                               'format': format_placement_by_date_header
+				                               } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               number_cols_daily - 2 , {
+				                               "type": "text" , 'criteria': 'containing' ,
+				                               'value': 'eCPA' ,
+				                               'format': format_placement_by_date_header
+				                               } )
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               number_cols_daily - 2 , {
+				                               "type": "text" , 'criteria': 'containing' ,
+				                               'value': 'Spend' ,
+				                               'format': format_placement_by_date_header
+				                               } )
+		
+		# Money and Percet Formatting
+		if check_placement_sales_data == True:
+			pass
+		else:
+			
+			worksheet.conditional_format ( 8 , 3 , number_rows_placement + 8 , 3 ,
+			                               { "type": "no_blanks" , "format": money_fmt } )
+			
+			worksheet.conditional_format ( 8 , 10 , number_rows_placement + 8 , 11 ,
+			                               { "type": "no_blanks" , "format": money_fmt } )
+			
+			worksheet.conditional_format ( 8 , 7 , number_rows_placement + 8 , 7 ,
+			                               { "type": "no_blanks" , "format": percent_fmt } )
+			
+			worksheet.conditional_format ( 8 , 9 , number_rows_placement + 8 , 9 ,
+			                               { "type": "no_blanks" , "format": percent_fmt } )
+			
+			worksheet.conditional_format ( 8 , 4 , number_rows_placement + 8 , 6 ,
+			                               { "type": "no_blanks" , "format": format_number } )
+			worksheet.conditional_format ( 8 , 8 , number_rows_placement + 8 , 8 ,
+			                               { "type": "no_blanks" , "format": format_number } )
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			
+			# Value = final_adsize.loc[final_adsize["Placement# Name"] == "Total"]
+			
+			worksheet.conditional_format ( number_rows_placement + 12 , 2 ,
+			                               number_rows_placement + number_rows_adsize + 13 , 3 ,
+			                               { "type": "no_blanks" , "format": format_number } )
+			
+			worksheet.conditional_format ( number_rows_placement + 12 , 4 ,
+			                               number_rows_placement + number_rows_adsize + 13 , 4 ,
+			                               { "type": "no_blanks" , "format": percent_fmt } )
+			
+			worksheet.conditional_format ( number_rows_placement + 12 , 5 ,
+			                               number_rows_placement + number_rows_adsize + 13 , 5 ,
+			                               { "type": "no_blanks" , "format": format_number } )
+			
+			worksheet.conditional_format ( number_rows_placement + 12 , 6 ,
+			                               number_rows_placement + number_rows_adsize + 13 , 6 ,
+			                               { "type": "no_blanks" , "format": percent_fmt } )
+			
+			worksheet.conditional_format ( number_rows_placement + 12 , 7 ,
+			                               number_rows_placement + number_rows_adsize + 13 , 8 ,
+			                               { "type": "no_blanks" , "format": money_fmt } )
+		
+		if check_daily_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 2 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               2 , { "type": "no_blanks" , "format": format_number } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 3 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               3 , { "type": "no_blanks" , "format": format_number } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 4 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               4 , { "type": "no_blanks" , "format": percent_fmt } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 5 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               5 , { "type": "no_blanks" , "format": format_number } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 6 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               7 , { "type": "no_blanks" , "format": money_fmt } )
+		
+		print ("Dhare" , number_rows_placement + number_rows_adsize + number_rows_daily)
+		print ("Gau" , number_rows_placement + number_rows_adsize + number_rows_daily + unqiue_final_day_wise * 5 + 15)
+		
+		# addting subtotal and adding formatting for subtotal
+		if check_placement_sales_data == True:
+			pass
+		else:
+			worksheet.write ( number_rows_placement + 9 , 1 , "Subtotal" , format_subtotal )
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			worksheet.write ( number_rows_placement + number_rows_adsize + 14 , 1 , "Subtotal" ,
+			                  format_subtotal )
+		
+		row_start = number_rows_placement + number_rows_adsize + 20
+		row_end = number_rows_placement + number_rows_adsize + number_rows_daily + unqiue_final_day_wise * 5 + 16
+		
+		if check_daily_sales_data == True:
+			pass
+		else:
+			for col in range(1,2):
+				for row in range(row_start, row_end):
+					worksheet.write_string(row + unqiue_final_day_wise, col, "Subtotal" , format_subtotal)
+					row +=5
+		# border format
+		if check_placement_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( number_rows_placement + 9 , 1 , number_rows_placement + 9 ,
+			                               number_cols_placement ,
+			                               { "type": "no_blanks" , "format": format_bottom_col } )
+			
+			worksheet.conditional_format ( number_rows_placement + 9 , 1 , number_rows_placement + 9 ,
+			                               number_cols_placement ,
+			                               { "type": "blanks" , "format": format_bottom_col } )
+			
+			worksheet.conditional_format ( number_rows_placement + 9 , 1 , number_rows_placement + 9 ,
+			                               number_cols_placement ,
+			                               { "type": "no_blanks" , "format": format_sub } )
+			
+			worksheet.conditional_format ( number_rows_placement + 9 , 1 , number_rows_placement + 9 ,
+			                               number_cols_placement ,
+			                               { "type": "blanks" , "format": format_sub } )
+			
+			worksheet.conditional_format ( 8 , 1 , number_rows_placement + 9 , 1 ,
+			                               { "type": "no_blanks" , "format": format_left_col } )
+			
+			worksheet.conditional_format ( 8 , number_cols_placement , number_rows_placement + 9 ,
+			                               number_cols_placement ,
+			                               { "type": "no_blanks" , "format": format_right_col } )
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( number_rows_placement + 14 , 1 ,
+			                               number_rows_placement + number_rows_adsize + 13 , 1 ,
+			                               { "type": "no_blanks" , "format": format_left_col } )
+			
+			worksheet.conditional_format ( number_rows_placement + 14 , number_cols_adsize ,
+			                               number_rows_placement + number_rows_adsize + 13 ,
+			                               number_cols_adsize , { "type": "no_blanks" , "format": format_right_col } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 14 , 1 ,
+			                               number_rows_placement + number_rows_adsize + 14 ,
+			                               number_cols_adsize , { "type": "no_blanks" , "format": format_sub } )
+			
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 14 , 1 ,
+			                               number_rows_placement + number_rows_adsize + 14 , number_cols_adsize ,
+			                               { "type": "no_blanks" , "format": format_bottom_col } )
+		
+		"""if check_daily_sales_data == True:
+			pass
+		else:
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , 1 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 ,
+			                               1
+			                               , { "type": "no_blanks" , "format": format_left_col } )
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 20 , number_cols_daily - 2 ,
+			                               number_rows_placement + number_rows_adsize + number_rows_daily +
+			                               unqiue_final_day_wise * 5 + 15 , number_cols_daily - 2 ,
+			                               { "type": "no_blanks" , "format": format_right_col } )"""
+		
+		# Merge Row formatting
+		format_merge_row = workbook.add_format ( {
+			"bold": True , "font_color": '#FFFFFF' , "align": "centre" ,
+			"fg_color": "#00B0F0" , "border": 1 , "border_color": "#000000"
+			} )
+		
+		format_merge_row_black = workbook.add_format ( {
+			"bold": True , "font_color": '#000000' , "align": "centre" ,
+			"fg_color": "#00B0F0" , "border": 1 , "border_color": "#000000"
+			} )
+		
+		if check_placement_sales_data == True:
+			pass
+		else:
+			worksheet.merge_range ( 7 , 1 , 7 , number_cols_placement ,
+			                        "Standard Banner Performance - Summary" , format_merge_row )
+		
+		if check_adsize_sales_data == True:
+			pass
+		else:
+			worksheet.merge_range ( number_rows_placement + 12 , 1 , number_rows_placement + 12 , number_cols_adsize ,
+			                        "Standard Banner Performance - Ad Size Summary" , format_merge_row )
+		
+		if check_daily_sales_data == True:
+			pass
+		else:
+			worksheet.merge_range ( number_rows_placement + number_rows_adsize + 17 , 1 ,
+			                        number_rows_placement + number_rows_adsize + 17 , number_cols_daily - 2 ,
+			                        "Breakdown By Day + Placement" , format_merge_row_black )
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 18 , 1 ,
+			                               number_rows_placement + number_rows_adsize + 19 , number_cols_daily - 2 ,
+			                               { "type": "blanks" , "format": format_sub } )
+			worksheet.conditional_format ( number_rows_placement + number_rows_adsize + 18 , 1 ,
+			                               number_rows_placement + number_rows_adsize + 19 , number_cols_daily - 2 ,
+			                               { "type": "no_blanks" , "format": format_sub } )
+		
+		# adding Grand Total
+		if check_daily_sales_data == True:
+			pass
+		else:
+			worksheet.write (
+				number_rows_placement + number_rows_adsize + number_rows_daily + unqiue_final_day_wise * 5 + 18 , 1 ,
+				"Grand Total" , format_subtotal )
+		
+		worksheet.set_column ( "B:B" , 25 , date_format )
+		worksheet.set_column ( "C:L" , 21 , alignment )
+		worksheet.set_zoom ( 90 )
+		
+		if check_placement_sales_data == True & check_adsize_sales_data == True & check_daily_sales_data == True:
+			worksheet.hide ( )
+		else:
+			pass
+	
+	def main (self):
+		self.config.common_columns_summary ( )
+		self.connect_TFR_daily ( )
+		self.read_Query_daily ( )
+		self.access_Data_KM_Sales_daily ( )
+		self.KM_Sales_daily ( )
+		self.rename_KM_Sales_daily ( )
+		self.accessing_nan_values ( )
+		self.accessing_main_column ( )
+		self.write_KM_Sales_summary ( )
+		self.formatting_daily ( )
 
-        try:
-            if read_sql_KM.iloc[0]["IO_ID"]==self.config.IO_ID:
-                worksheet.insert_chart("AC14", column_chart_KM)
-        except IndexError as e:
-            pass
-
-        try:
-            if read_sql_Daily_sales.iloc[0]["IO_ID"]==self.config.IO_ID:
-                worksheet.insert_chart("I{}".format(number_rows_KM+18), column_chart_sales)
-        except IndexError as e:
-            pass
-
-    def main(self):
-        self.config.common_columns_summary()
-        self.connect_TFR_daily()
-        self.read_Query_daily()
-        self.access_Data_KM_Sales_daily()
-        self.KM_Sales_daily()
-        self.rename_KM_Sales_daily()
-        self.adding_vcr_ctr_IR_ATS_daily()
-        self.write_KM_Sales_summary()
-        self.formatting_daily()
 
 if __name__ == "__main__":
-    pass
-
-#enable it when running for individual file
-    #c=config.Config('Dial',565337)
-    #o=Daily(c)
-    #o.main()
-    #c.saveAndCloseWriter()
+	#pass
+	
+	# enable it when running for individual file
+	c = config.Config ( 'test' , 565337 )
+	o = Daily ( c )
+	o.main ( )
+	c.saveAndCloseWriter ( )
