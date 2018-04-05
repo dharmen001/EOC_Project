@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell
 import config
-
+import pandas.io.formats.excel
+pandas.io.formats.excel.header_style = None
 
 class Summary():
     def __init__(self,config):
@@ -300,16 +301,17 @@ class Summary():
         alignment = workbook.add_format({"align":"center"})
 
         format_border_bottom=workbook.add_format()
-        format_border_bottom.set_bottom(1)
+        format_border_bottom.set_bottom(2)
 
         format_border_right=workbook.add_format()
-        format_border_right.set_right(1)
+        format_border_right.set_right(2)
 
         format_border_left=workbook.add_format()
-        format_border_left.set_left(1)
+        format_border_left.set_left(2)
 
         format_sub=workbook.add_format({"bold":True,"align":"center","num_format":"#,##0"})
         format_subtotal=workbook.add_format({"bold":True,"align":"center"})
+        header_bold = workbook.add_format({"bold":True})
         format_sub_num_money=workbook.add_format({"bold":True,"num_format":"$#,###0.00","align":"center"})
         format_sub_num_percent=workbook.add_format({"bold":True,"num_format":"0.00%","align":"center"})
         format_col = workbook.add_format({"num_format":"#,##0"})
@@ -329,12 +331,17 @@ class Summary():
         else:
             worksheet.conditional_format(number_rows_commom+5,3,number_rows_commom+5,number_cols_display+2,
                                          {"type":"no_blanks","format":forge_colour_col})
+            worksheet.conditional_format(number_rows_commom+5,3,number_rows_commom+5,number_cols_display+2,
+                                         {"type":"no_blanks","format":header_bold})
         if check_vdx_empty==True:
             pass
         else:
             worksheet.conditional_format(number_rows_commom+number_rows_display+10,3,
                                          number_rows_commom+number_rows_display+10,number_cols_vdx+2,
                                          {"type":"no_blanks","format":forge_colour_col})
+            worksheet.conditional_format(number_rows_commom+number_rows_display+10,3,
+                                         number_rows_commom+number_rows_display+10, number_cols_vdx+2,{"type":"no_blanks","format":header_bold})
+            
         if check_preroll_empty==True:
             pass
         else:
@@ -342,6 +349,9 @@ class Summary():
                                          number_rows_commom+number_rows_display+number_rows_vdx+15,
                                          number_cols_preroll+2,
                                          {"type":"no_blanks","format":forge_colour_col})
+            worksheet.conditional_format(number_rows_commom+number_rows_display+number_rows_vdx+15,3,
+                                         number_rows_commom+number_rows_display+number_rows_vdx+15,number_cols_preroll+2,
+                                         {"type":"no_blanks","format":header_bold})
 
 
         #formatting money and percent
@@ -597,11 +607,11 @@ class Summary():
 
         #merge formatting
         format_merge_row=workbook.add_format({"bold":True,"font_color":'#000000',"align":"centre",
-                                              "fg_color":"#00B0F0","border":1,"border_color":"#000000"})
+                                              "fg_color":"#00B0F0","border":2,"border_color":"#000000"})
 
         format_merge_row_wrap=workbook.add_format(
             {"bold":True,"font_color":'#000000',"align":"centre",'valign':'vcenter',
-             "border":1,'text_wrap':True})
+             "border":2,'text_wrap':True})
 
         if check_disp_empty==True:
             pass
@@ -708,7 +718,7 @@ if __name__=="__main__":
     pass
 
     #enable it when running for individual file
-    c=config.Config("test",603387)
-    o=Summary(c)
-    o.main()
-    c.saveAndCloseWriter()
+    #c=config.Config("test",603387)
+    #o=Summary(c)
+    #o.main()
+    #c.saveAndCloseWriter()

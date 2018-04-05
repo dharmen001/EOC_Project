@@ -1,5 +1,6 @@
 import pandas as pd
 import cx_Oracle
+import openpyxl
 
 
 
@@ -10,7 +11,8 @@ class Config():
 
         self.conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
         self.path=("C://EOC_Project//Bi_Team_Project//Reports//{}({}).xlsx".format(self.IO_Name,self.IO_ID))
-        self.writer=pd.ExcelWriter(self.path,engine="xlsxwriter",datetime_format="YYYY-MM-DD")
+        self.writer = pd.ExcelWriter(self.path,engine="xlsxwriter",datetime_format="YYYY-MM-DD")
+        
 
     def saveAndCloseWriter(self):
         self.writer.save()
@@ -24,3 +26,5 @@ class Config():
                                                            "Values-Campaign-Info"]]
 
         return read_common_columns,data_common_columns
+
+   
