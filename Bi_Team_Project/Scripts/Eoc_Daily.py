@@ -358,7 +358,6 @@ class Daily():
 			endRow = 0
 			
 			for placement, placement_df in final_day_wise.groupby( 'Placement# Name', as_index=False ):
-				
 				writing_daily_data = placement_df.to_excel( self.config.writer,
 				                                            sheet_name="Standard banner({})".format(
 					                                            self.config.IO_ID ), encoding='UTF-8',
@@ -402,9 +401,9 @@ class Daily():
 				column_x = "='Standard banner({})'!B{}:B{}".format( self.config.IO_ID, startRow, endRow )
 				column_y = "='Standard banner({})'!C{}:C{}".format( self.config.IO_ID, startRow, endRow )
 				column_chart.add_series( {
-					                         'categories':column_x
-					                         , 'values':column_y, 'name':'Impressions'
-				                         } )
+					'categories':column_x
+					, 'values':column_y, 'name':'Impressions'
+					} )
 				
 				column_chart.set_title( {'name':'Impressions vs CTR'} )
 				
@@ -428,7 +427,7 @@ class Daily():
 				format_border_bottom = workbook.add_format( {"bottom":2} )
 				
 				"""worksheet.conditional_format( startRow, 1, endRow, 1,
-				                              {"type":"no_blanks", "format":format_border_left} )"""
+											  {"type":"no_blanks", "format":format_border_left} )"""
 				
 				format_placement_subtotal = workbook.add_format( {"bold":True, "bg_color":'#E7E6E6'} )
 				worksheet.conditional_format( endRow, 1, endRow, 7,
@@ -440,19 +439,19 @@ class Daily():
 				worksheet.conditional_format( endRow+3, 1, endRow+3, 7,
 				                              {"type":"blanks", "format":format_placement_subtotal} )
 				
-				worksheet.conditional_format( startRow-1, 1, endRow-1, 1,
-				                              {"type":"no_blanks", "format":format_border_left} )
+				worksheet.conditional_format( startRow-3, 0, endRow, 0,
+				                              {"type":"blanks", "format":format_border_right} )
 				
-				worksheet.conditional_format( startRow-1, 7, endRow-1, 7,
-				                              {"type":"no_blanks", "format":format_border_right} )
+				worksheet.conditional_format( startRow-3, 8, endRow, 8,
+				                              {"type":"blanks", "format":format_border_left} )
 				
-				worksheet.conditional_format( endRow, 1, endRow, 7,
-				                              {"type":"no_blanks", "format":format_border_bottom} )
-				
-				worksheet.conditional_format( startRow-3, 1, startRow-3, 7,
-				                              {"type":"no_blanks", "format":format_border_top} )
-				worksheet.conditional_format( startRow-3, 1, startRow-3, 7,
+				worksheet.conditional_format( endRow+1, 1, endRow+1, 7,
 				                              {"type":"blanks", "format":format_border_top} )
+				
+				worksheet.conditional_format( startRow-4, 1, startRow-4, 7,
+				                              {"type":"blanks", "format":format_border_bottom} )
+				"""worksheet.conditional_format(startRow - 3, 1, startRow - 3, 7,
+											 {"type": "blanks", "format": format_border_top})"""
 				
 				startline += 3
 		
@@ -780,13 +779,13 @@ class Daily():
 		if check_placement_sales_data==True:
 			pass
 		else:
-			worksheet.conditional_format( number_rows_placement+9, 1, number_rows_placement+9,
+			worksheet.conditional_format( number_rows_placement+10, 1, number_rows_placement+10,
 			                              number_cols_placement,
-			                              {"type":"no_blanks", "format":format_bottom_col} )
+			                              {"type":"blanks", "format":format_top_col} )
 			
-			worksheet.conditional_format( number_rows_placement+9, 1, number_rows_placement+9,
-			                              number_cols_placement,
-			                              {"type":"blanks", "format":format_bottom_col} )
+			"""worksheet.conditional_format(number_rows_placement + 9, 1, number_rows_placement + 9,
+										 number_cols_placement,
+										 {"type": "blanks", "format": format_bottom_col})"""
 			
 			worksheet.conditional_format( number_rows_placement+9, 1, number_rows_placement+9,
 			                              number_cols_placement,
@@ -796,31 +795,31 @@ class Daily():
 			                              number_cols_placement,
 			                              {"type":"blanks", "format":format_sub} )
 			
-			worksheet.conditional_format( 8, 1, number_rows_placement+9, 1,
-			                              {"type":"no_blanks", "format":format_left_col} )
+			worksheet.conditional_format( 8, 0, number_rows_placement+9, 0,
+			                              {"type":"blanks", "format":format_right_col} )
 			
-			worksheet.conditional_format( 8, number_cols_placement, number_rows_placement+9,
-			                              number_cols_placement,
-			                              {"type":"no_blanks", "format":format_right_col} )
+			worksheet.conditional_format( 8, number_cols_placement+1, number_rows_placement+9,
+			                              number_cols_placement+1,
+			                              {"type":"blanks", "format":format_left_col} )
 		
 		if check_adsize_sales_data==True:
 			pass
 		else:
-			worksheet.conditional_format( number_rows_placement+14, 1,
-			                              number_rows_placement+number_rows_adsize+13, 1,
-			                              {"type":"no_blanks", "format":format_left_col} )
+			worksheet.conditional_format( number_rows_placement+13, 0,
+			                              number_rows_placement+number_rows_adsize+14, 0,
+			                              {"type":"blanks", "format":format_right_col} )
 			
-			worksheet.conditional_format( number_rows_placement+14, number_cols_adsize,
-			                              number_rows_placement+number_rows_adsize+13,
-			                              number_cols_adsize, {"type":"no_blanks", "format":format_right_col} )
+			worksheet.conditional_format( number_rows_placement+13, number_cols_adsize+1,
+			                              number_rows_placement+number_rows_adsize+14,
+			                              number_cols_adsize+1, {"type":"blanks", "format":format_left_col} )
 			
 			worksheet.conditional_format( number_rows_placement+number_rows_adsize+14, 1,
 			                              number_rows_placement+number_rows_adsize+14,
 			                              number_cols_adsize, {"type":"no_blanks", "format":format_sub} )
 			
-			worksheet.conditional_format( number_rows_placement+number_rows_adsize+14, 1,
-			                              number_rows_placement+number_rows_adsize+14, number_cols_adsize,
-			                              {"type":"no_blanks", "format":format_bottom_col} )
+			worksheet.conditional_format( number_rows_placement+number_rows_adsize+15, 1,
+			                              number_rows_placement+number_rows_adsize+15, number_cols_adsize,
+			                              {"type":"blanks", "format":format_top_col} )
 		
 		# Merge Row formatting
 		format_merge_row = workbook.add_format( {
@@ -893,10 +892,10 @@ class Daily():
 			worksheet.write_formula( row_end, 6, '=H{}/F{}'.format( row_end+1, row_end+1 ), money_fmt )
 			
 			worksheet.conditional_format( row_end, 1, row_end, 7, {"type":"no_blanks", "format":format_sub} )
-			"""worksheet.conditional_format(row_end,1,row_end,1,{"type":"no_blanks","format":format_left_col})
-			worksheet.conditional_format(row_end,7,row_end,7,{"type":"no_blanks","format":format_right_col})
-			worksheet.conditional_format(row_end, 1, row_end, 7, {"type":"no_blanks", "format":format_top_col})
-			worksheet.conditional_format(row_end, 1, row_end, 7, {"type":"no_blanks", "format":format_bottom_col})"""
+			worksheet.conditional_format( row_end, 0, row_end, 0, {"type":"blanks", "format":format_right_col} )
+			worksheet.conditional_format( row_end, 8, row_end, 8, {"type":"blanks", "format":format_left_col} )
+			worksheet.conditional_format( row_end-1, 1, row_end-1, 7, {"type":"blanks", "format":format_bottom_col} )
+			worksheet.conditional_format( row_end+1, 1, row_end+1, 7, {"type":"blanks", "format":format_top_col} )
 		
 		worksheet.set_column( "B:B", 25, date_format )
 		worksheet.set_column( "C:L", 21, alignment )
@@ -918,13 +917,12 @@ class Daily():
 		self.accessing_main_column()
 		# placement_sales_data, final_adsize, final_day_wise = self.write_KM_Sales_summary()
 		self.formatting_daily()
-
-
+	
 if __name__=="__main__":
 	pass
-
-# enable it when running for individual file
-# c = config.Config( 'test', 565337 )
-# o = Daily( c )
-# o.main()
-# c.saveAndCloseWriter()
+	
+	# enable it when running for individual file
+	# c = config.Config( 'test', 565337 )
+	# o = Daily( c )
+	# o.main()
+	# c.saveAndCloseWriter()
