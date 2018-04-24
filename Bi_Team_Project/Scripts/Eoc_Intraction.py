@@ -26,7 +26,7 @@ Preroll placements Class
 TFR Quries for Preroll Placements
 		:return:
 		"""
-		self.logger.info('Reading Query for preroll placements {}'.format(self.config.ioid))
+		self.logger.info ('Starting to build Preroll Sheet for IO - {}'.format (self.config.ioid))
 		sql_preroll_summary = "select * from (select substr(PLACEMENT_DESC, 1, INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, SDATE as Start_Date, EDATE as End_Date, initcap(CREATIVE_DESC)  as Placement_Name, COST_TYPE_DESC as Cost_type, UNIT_COST as Unit_Cost, BUDGET as Planned_Cost, BOOKED_QTY as Booked_Imp_Booked_Eng from  TFR_REP.SUMMARY_MV where (IO_ID = {}) AND (DATA_SOURCE = 'KM') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + Mobile','Pre-Roll – Desktop + Mobile','Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - Mobile','Pre-Roll -Desktop','Pre-Roll - In-Stream')".format(self.config.ioid)
 		
 		sql_preroll_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, sum(IMPRESSIONS) as Impression, sum(CPCV_COUNT) as Completions,sum(VWR_CLICK_THROUGHS) as Clickthroughs , sum(VWR_VIDEO_VIEW_100_PC_COUNT) as Video_Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
@@ -45,9 +45,9 @@ TFR Quries for Preroll Placements
 Reading Queries Data directly from TFR
 		:return:
 		"""
-		sql_preroll_summary, sql_preroll_mv, sql_preroll_video_views, sql_preroll_day_mv, sql_preroll_interaction = self.connect_TFR_Intraction()
 		
-		self.logger.info('Creating TFR connection {}'.format(self.config.ioid))
+		self.logger.info ('Running Query for Preroll placements for IO {}'.format (self.config.ioid))
+		sql_preroll_summary, sql_preroll_mv, sql_preroll_video_views, sql_preroll_day_mv, sql_preroll_interaction = self.connect_TFR_Intraction()
 		
 		read_sql_preroll_summary = pd.read_sql(sql_preroll_summary,self.config.conn)
 		
@@ -69,8 +69,11 @@ Reading Queries Data directly from TFR
 Accessing Columns from Query
 		:return:
 		"""
+		
+		self.logger.info ('Query Stored for further processing of IO - {}'.format (self.config.ioid))
 		read_sql_preroll_summary, read_sql_preroll_mv, read_sql_preroll_video, read_sql_preroll_day, read_sql_preroll_interaction  = self.read_query_preroll()
 		
+		self.logger.info('Creating placement wise table of IO - {}'.format(self.config.ioid))
 		placementprerollmv = read_sql_preroll_summary.merge(read_sql_preroll_mv, on = "PLACEMENT", how= "inner")
 		
 		prerollsummarymv = placementprerollmv.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","UNIT_COST","IMPRESSION",
@@ -95,7 +98,7 @@ Accessing Columns from Query
 		prerollsummaryfinal = prerollsummary.loc[:,["Placement# Name","COST_TYPE","UNIT_COST","IMPRESSION",
 		                                            "CLICKTHROUGHS","CTR","Video Completions","Video Completion Rate"]]
 		
-		
+		self.logger.info ('Creating Video wise table of IO - {}'.format (self.config.ioid))
 		videoprerollmv = read_sql_preroll_summary.merge(read_sql_preroll_video, on="PLACEMENT", how="inner")
 		
 		videoprerollsummarymv = videoprerollmv.loc[:,["PLACEMENT","PLACEMENT_NAME","IMPRESSION", "VIEWS25","VIEWS50",
@@ -117,7 +120,7 @@ Accessing Columns from Query
 		videoprerollsummarymvfinal = videoprerollsummarymv.loc[:,["Placement# Name","IMPRESSION","VIEWS25","VIEWS50"
 		                                                          ,"VIEWS75","Video Completions","Video Completion Rate"]]
 		
-
+		self.logger.info('Creating placement by day wise table for IO - {}'.format(self.config.ioid))
 		dayprerollmv = read_sql_preroll_summary.merge(read_sql_preroll_day, on="PLACEMENT", how="inner")
 		
 		dayprerollsummarymv = dayprerollmv.loc[:,["PLACEMENT","PLACEMENT_NAME","DAY","IMPRESSION","CLICKTHROUGHS","VIDEO_COMPLETIONS",
@@ -139,7 +142,7 @@ Accessing Columns from Query
 		                                                    "Video Completions","Video Completion Rate"]]
 		
 		
-				
+		self.logger.info('Creating Intraction wise table for IO - {}'.format(self.config.ioid))
 		intractionsummarymv = read_sql_preroll_summary.merge(read_sql_preroll_interaction,on="PLACEMENT", how="inner")
 		
 		intractionclick = intractionsummarymv.loc[:,["PLACEMENT","PLACEMENT_NAME","CLICK_TAG","VWR_CLICKTHROUGH"]]
@@ -179,6 +182,7 @@ Renaming COlumns
 		"""
 		prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal = self.accessing_preroll_columns()
 		
+		self.logger.info('Renaming columns for all tables')
 		rename_preroll_summary_final = prerollsummaryfinal.rename(columns={"COST_TYPE":"Cost Type","UNIT_COST":"Cost",
 		                                                                "IMPRESSION":"Impressions",
 		                                                                "CLICKTHROUGHS":"Clickthroughs"},inplace=True)
@@ -208,16 +212,20 @@ writing to excel all data
 			check_intraction_final = intraction_final.empty
 			check_day_preroll_summary_final = dayprerollsummaryfinal.empty
 			
+			self.logger.info('Writing Campaign information on preroll for IO - {}'.format(self.config.ioid))
 			writing_data_common_columns = data_common_columns[1].to_excel(self.config.writer,sheet_name="Standard Preroll({})"
 			                                                           .format(self.config.ioid),startcol=1,startrow=1,
 			                                                                   index=False,header=False)
 			
+			self.logger.info ('Writing placement information on preroll for IO - {}'.format (self.config.ioid))
 			if check_day_preroll_summary_final is True:
 				pass
 			else:
 				writing_preroll_summary_final = prerollsummaryfinal.to_excel(self.config.writer,
 				                                                          sheet_name="Standard Preroll({})".format(self.config.ioid),
 				                                                          startcol=1,startrow=8,index=False,header=True)
+			
+			self.logger.info('Writing Video information on preroll for IO - {}'.format (self.config.ioid))
 			if check_video_preroll_summary_mv_final is True:
 				pass
 			else:
@@ -226,6 +234,8 @@ writing to excel all data
 				                                                                        startcol=1,
 				                                                                        startrow=len(prerollsummaryfinal)+13,
 				                                                                        index=False,header=True)
+			
+			self.logger.info ('Writing Intractions information on preroll for IO - {}'.format (self.config.ioid))
 			if check_intraction_final is True:
 				pass
 			else:
@@ -234,6 +244,7 @@ writing to excel all data
 				                                                  startcol=1,startrow=len(prerollsummaryfinal)+len(videoprerollsummarymvfinal)+18
 				                                                  ,index=False,header=True)
 			
+			self.logger.info('Writing placement by daya informaton on preroll for IO - {}'.format(self.config.ioid))
 			if check_day_preroll_summary_final is True:
 				pass
 			else:
@@ -353,6 +364,7 @@ Applying Formatting
 		"""
 		prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal = self.writePreroll()
 		
+		self.logger.error('Applying Formatting on preroll sheet for IO - {}'.format(self.config.ioid))
 		try:
 			workbook = self.config.writer.book
 			worksheet = self.config.writer.sheets["Standard Preroll({})".format(self.config.ioid)]
@@ -615,6 +627,7 @@ main function
 		self.connect_TFR_Intraction()
 		self.read_query_preroll()
 		if self.read_sql_preroll_day.empty:
+			self.logger.info ("No instream placements for IO - {}".format (self.config.ioid))
 			pass
 		else:
 			#self.accessing_preroll_columns()

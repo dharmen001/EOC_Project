@@ -30,8 +30,7 @@ To create display placements
 		"""
 		TFR Quries for making connection
 		"""
-		self.logger.info('Reading Query for display placements for IO {}'.format(self.config.ioid))
-		
+		self.logger.info ('Starting to build Display Sheet for IO - {}'.format (self.config.ioid))
 		sql_sales_summary = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'","\
 		                    "CREATIVE_DESC  as "'Placement_Name'", COST_TYPE_DESC as "'Cost_type'",UNIT_COST as "\
 		                    ""'Unit_Cost'", BOOKED_QTY as "'Booked_Imp#Booked_Eng'" FROM TFR_REP.SUMMARY_MV where "\
@@ -102,9 +101,10 @@ To create display placements
 
 		:return: Reading Quries Data
 		"""
+		self.logger.info ('Running Query for Display placements for IO {}'.format (self.config.ioid))
+
 		sql_sales_summary, sql_sales_mv, sql_sales_adsize_mv, sql_sales_daily_mv = self.connect_TFR_daily()
-		
-		self.logger.info('Connecting to TFR and running Query for display placements for IO {}'.format(self.config.ioid))
+
 		read_sql_sales = pd.read_sql( sql_sales_summary, self.config.conn )
 		read_sql_sales_mv = pd.read_sql( sql_sales_mv, self.config.conn )
 		read_sql_adsize_mv = pd.read_sql( sql_sales_adsize_mv, self.config.conn )
@@ -123,22 +123,24 @@ To create display placements
 
 		:return: Accessing Columns by merging with summary
 		"""
+		self.logger.info('Query Stored for further processing of IO - {}'.format(self.config.ioid))
+
 		read_sql_sales, read_sql_sales_mv, read_sql_adsize_mv, read_sql_daily_mv = self.read_Query_daily()
 		
-		self.logger.info('Adding by placement information for display placements of IO {}'.format(self.config.ioid))
+		self.logger.info('Creating by placement information of IO {}'.format(self.config.ioid))
 		
 		standard_sales_first_table = read_sql_sales.merge( read_sql_sales_mv, on="PLACEMENT#", how="inner" )
 		display_sales_first_table = standard_sales_first_table[
 			["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
 			 "CLICKS", "CONVERSION"]]
 		
-		self.logger.info('Adding by adsize information for display placements of IO {}'.format(self.config.ioid))
+		self.logger.info('Creating by adsize information for display placements of IO {}'.format(self.config.ioid))
 		standard_sales_second_table = read_sql_sales.merge( read_sql_adsize_mv, on="PLACEMENT#", how="inner" )
 		adsize_sales_second_table = standard_sales_second_table[
 			["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
 			 "ADSIZE", "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
 		
-		self.logger.info('Adding by day information for display placements of IO {}'.format(self.config.ioid))
+		self.logger.info('Creating by day information for display placements of IO {}'.format(self.config.ioid))
 		standard_sales_third_table = read_sql_sales.merge( read_sql_daily_mv, on="PLACEMENT#", how="inner" )
 		daily_sales_third_table = standard_sales_third_table[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
 		                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
@@ -159,23 +161,24 @@ To create display placements
 		display_sales_first_table, adsize_sales_second_table, daily_sales_third_table =\
 			self.access_Data_KM_Sales_daily()
 		
-		
-		self.logger.info('Merging creative with placement numbers for placement information of IO {}'.format(self.config.ioid))
+		self.logger.info(
+			'Putting creative with placement together for placement information of IO {}'.format(self.config.ioid))
 		display_sales_first_table["PLACEMENTNAME"] = display_sales_first_table[
 			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
 			lambda x:".".join( x ), axis=1 )
 		
-		self.logger.info( 'Merging creative with placement numbers for adsize information of IO {}'.format(self.config.ioid))
+		self.logger.info(
+			'Putting creative with placement together for adsize information of IO {}'.format(self.config.ioid))
 		adsize_sales_second_table["PLACEMENTNAME"] = adsize_sales_second_table[
 			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
 			lambda x:".".join( x ), axis=1 )
 		
-		self.logger.info('Merging creative with placement numbers for by day information of IO {}'.format(self.config.ioid))
+		self.logger.info('Putting creative with placement for by day information of IO {}'.format(self.config.ioid))
 		daily_sales_third_table["PLACEMENTNAME"] = daily_sales_third_table[
 			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
 			lambda x:".".join( x ), axis=1 )
 		
-		self.logger.info('Adding CTR, ConversionRate,spend,Ecpa for display placements information of IO {}'.format(self.config.ioid))
+		self.logger.info('Adding Delivery Metrices for display placements information of IO {}'.format(self.config.ioid))
 		choices_display_ctr = display_sales_first_table["CLICKS"]/display_sales_first_table[
 			"DELIVERED_IMPRESION"]
 		choices_display_conversion = display_sales_first_table["CONVERSION"]/display_sales_first_table[
@@ -193,7 +196,7 @@ To create display placements
 		display_sales_first_table["SPEND"] = np.select( [mask1], [choices_display_spend], default=0.00 )
 		display_sales_first_table["EPCA"] = np.select( [mask1], [choices_display_ecpa], default=0.00 )
 		
-		self.logger.info('Adding CTR, ConversionRate,spend,Ecpa for display placements adsize information of IO {}'.format(self.config.ioid))
+		self.logger.info('Adding Deliver Metrices for display placements adsize information of IO {}'.format(self.config.ioid))
 		choices_adsize_ctr = adsize_sales_second_table["CLICKS"]/adsize_sales_second_table[
 			"DELIVERED_IMPRESION"]
 		choices_adsize_conversion = adsize_sales_second_table["CONVERSION"]/adsize_sales_second_table[
@@ -209,7 +212,8 @@ To create display placements
 		adsize_sales_second_table["SPEND"] = np.select( [mask2], [choices_adsize_spend], default=0.00 )
 		adsize_sales_second_table["ECPA"] = np.select( [mask2], [choices_adsize_ecpa], default=0.00 )
 		
-		self.logger.info( 'Adding CTR, spend,Ecpa for display placements daily information of IO {}'.format(self.config.ioid))
+		self.logger.info(
+			'Adding Delivery Metrices for display placements daily information of IO {}'.format(self.config.ioid))
 		choice_daily_ctr = daily_sales_third_table["CLICKS"]/daily_sales_third_table["DELIVERED_IMPRESION"]
 		choice_daily_spend = daily_sales_third_table["DELIVERED_IMPRESION"]/1000*daily_sales_third_table["UNIT_COST"]
 		choice_daily_cpa = (daily_sales_third_table["DELIVERED_IMPRESION"]/1000*daily_sales_third_table[
@@ -231,7 +235,7 @@ To create display placements
 		"""Renaming The columns of Previous Functions"""
 		display_sales_first_table, adsize_sales_second_table, daily_sales_third_table = self.KM_Sales_daily()
 		
-		self.logger.info('Renaming of display placements first information of IO {}'.format(self.config.ioid))
+		self.logger.info('Renaming of display placements information of IO {}'.format(self.config.ioid))
 		rename_display_sales_first_table = display_sales_first_table.rename(
 			columns={
 				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
@@ -244,7 +248,7 @@ To create display placements
 				, "SPEND":"Spend", "EPCA":"eCPA"
 				}, inplace=True )
 		
-		self.logger.info('renaming of display placements adsize information of IO {}'.format(self.config.ioid))
+		self.logger.info('Renaming of display placements adsize information of IO {}'.format(self.config.ioid))
 		rename_adsize_sales_second_table = adsize_sales_second_table.rename(
 			columns={
 				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
@@ -255,7 +259,7 @@ To create display placements
 				, "CTR%":"CTR", "CONVERSIONRATE%":"Conversion Rate", "SPEND":"Spend", "ECPA":"eCPA"
 				}, inplace=True )
 		
-		self.logger.info( 'renaming of display placements daily information of IO {}'.format(self.config.ioid))
+		self.logger.info( 'Renaming of display placements daily information of IO {}'.format(self.config.ioid))
 		rename_daily_sales_third_table = daily_sales_third_table.rename(
 			columns={
 				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
@@ -408,11 +412,14 @@ To create display placements
 		
 		placement_sales_data, final_adsize, final_day_wise = self.accessing_main_column()
 		
+		self.logger.info("Writing Summary on Display Sheet for IO - {}".format(self.config.ioid))
 		writing_data_common_columns = data_common_columns[1].to_excel( self.config.writer,
 		                                                               sheet_name="Standard banner({})".format
 		                                                               ( self.config.ioid ), startcol=1,
 		                                                               startrow=1,
 		                                                               index=False, header=False )
+		
+		self.logger.info ("Writing Placement level information on Display Sheet for IO - {}".format (self.config.ioid))
 		try:
 			check_placement_sales_data = placement_sales_data.empty
 		
@@ -424,6 +431,9 @@ To create display placements
 					                                                        self.config.ioid ),
 				                                                        startcol=1, startrow=8, index=False,
 				                                                        header=True )
+			
+			self.logger.info (
+				"Writing ad size level information on Display Sheet for IO - {}".format (self.config.ioid))
 			check_adsize_sales_data = final_adsize.empty
 			if check_adsize_sales_data is True:
 				pass
@@ -436,6 +446,9 @@ To create display placements
 				                                             header=True )
 		
 			check_daily_sales_data = final_day_wise.empty
+			
+			self.logger.info (
+				"Writing Placement by day level information on Display Sheet for IO - {}".format (self.config.ioid))
 		
 			if check_daily_sales_data is True:
 				pass
@@ -555,7 +568,7 @@ Applying formatting on Display Sheet
 		"""
 		placement_sales_data, final_adsize, final_day_wise = self.write_KM_Sales_summary()
 		
-		self.logger.info('Apply Formatting on each label of summary sheet - {}'.format(self.config.ioid))
+		self.logger.info('Applying Formatting on each label of Display sheet - {}'.format(self.config.ioid))
 		try:
 			workbook = self.config.writer.book
 			worksheet = self.config.writer.sheets["Standard banner({})".format( self.config.ioid )]
@@ -1011,6 +1024,7 @@ Adding Main Function
 		self.connect_TFR_daily()
 		self.read_Query_daily()
 		if self.read_sql_daily_mv.empty:
+			self.logger.info("No Display placements for IO - {}".format(self.config.ioid))
 			pass
 		else:
 			#self.access_Data_KM_Sales_daily()
