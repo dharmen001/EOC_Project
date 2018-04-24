@@ -1,7 +1,5 @@
 import pandas as pd
-import numpy as np
-import config
-from xlsxwriter.utility import xl_rowcol_to_cell
+
 
 class definition():
     def __init__(self, config):
@@ -11,11 +9,11 @@ class definition():
         return read_definition
     def writing_definition(self):
         read_definition = self.reading_def()
-        write_defitntion = read_definition.to_excel(self.config.writer,sheet_name="Definition({})".format(self.config.IO_ID),index=False, header=False)
+        write_defitntion = read_definition.to_excel(self.config.writer,sheet_name="Definition({})".format(self.config.ioid),index=False, header=False)
         return write_defitntion
     def format_definition(self):
         workbook=self.config.writer.book
-        worksheet=self.config.writer.sheets["Definition({})".format(self.config.IO_ID)]
+        worksheet=self.config.writer.sheets["Definition({})".format(self.config.ioid)]
         worksheet.insert_image("A1","Exponential.png")
         worksheet.hide_gridlines(2)
         worksheet.set_zoom(80)
