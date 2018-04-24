@@ -1,12 +1,14 @@
-import pandas as pd
-import xlsxwriter
+class Test(object):
+	"""
+	HHHH
+	"""
+	def add(self, a , b):
+		self.a = a
+		self.b = b
+		print a+b
 
-
-Data = pd.read_excel("C:\\Users\\Dharmendra.Mishra\\Desktop\\Data.xlsx")
-
-for row in range(40,71):
-	print
-
+obj = Test()
+print(obj.add(10,2))
 
 
 

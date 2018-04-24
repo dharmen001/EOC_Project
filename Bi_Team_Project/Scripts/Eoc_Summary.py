@@ -1,6 +1,7 @@
 # coding=utf-8
 """
-Created by : Dharmendra
+Created by:Dharmendra
+Date:2018-03-23
 """
 from __future__ import print_function
 import pandas as pd
@@ -14,7 +15,7 @@ pandas.io.formats.excel.header_style = None
 
 
 class Summary (object):
-	"""This class in for created summary sheet"""
+	"""This class in for creating summary sheet"""
 	
 	def __init__(self, config):
 		"""
@@ -29,7 +30,8 @@ class Summary (object):
 	    :param self:Query Reading
 	    :return:Query
 	    """
-		self.logger.info ('Reading Query for Summary - {}'.format (self.config.ioid))
+		self.logger.info('Connected for IO - {}'.format(self.config.ioid))
+		self.logger.info('Starting to build Summary for IO - {}'.format (self.config.ioid))
 		
 		sqlvdxsummary = "select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', "\
 		                "1)-1) as "'Placement#'", SDATE as "'Start_Date'", EDATE as "'End_Date'", "\
@@ -88,7 +90,6 @@ class Summary (object):
 		"""
 		sqlvdxsummary, sqldisplaysummary, sqlprerollsummary, sqldisplaymv, sqlvdxmv, sqlprerollmv = self.connect_TFR_summary ()
 		
-		self.logger.info('Connecting with TFR and running Query for IO - {}'.format(self.config.ioid))
 		read_sql__v_d_x = None
 		read_sql__display = None
 		read_sql_preroll = None
@@ -96,12 +97,30 @@ class Summary (object):
 		read_sql__v_d_x_mv = None
 		read_sql_preroll_mv = None
 		try:
+			self.logger.info (
+				'Running Query on 10.29.20.76 in Summary MV for VDX placements for IO - {}'.format (self.config.ioid))
 			read_sql__v_d_x = pd.read_sql (sqlvdxsummary, self.config.conn)
+			
+			self.logger.info (
+				'Running Query on 10.29.20.76 in Summary MV for Display placements for IO - {}'.format (self.config.ioid))
 			read_sql__display= pd.read_sql (sqldisplaysummary, self.config.conn)
+			
+			self.logger.info (
+				'Running Query on 10.29.20.76 in Summary MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll = pd.read_sql (sqlprerollsummary, self.config.conn)
+			
+			self.logger.info (
+				'Running Query on 10.29.20.76 in DailySales MV for Display placements for IO - {}'.format (self.config.ioid))
 			read_sql__display_mv = pd.read_sql (sqldisplaymv, self.config.conn)
+			
+			self.logger.info(
+				'Running Query on 10.29.20.76 in KeyMetric MV for VDX placements for IO - {}'.format(self.config.ioid))
 			read_sql__v_d_x_mv = pd.read_sql (sqlvdxmv, self.config.conn)
+			
+			self.logger.info(
+				'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll_mv = pd.read_sql (sqlprerollmv, self.config.conn)
+		
 		except AttributeError as e:
 			self.logger.error(str(e)+'Connection Not established please rerun for IO - {}'.format(self.config.ioid))
 			
@@ -114,10 +133,14 @@ class Summary (object):
 		:param self:
 		:return:
 		"""
+		
+		self.logger.info('Query Stored for further processing for IO - {}'.format(self.config.ioid))
+		
 		read_sql__v_d_x, read_sql__display, read_sql_preroll, read_sql__display__m_v, read_sql__v_d_x_mv, read_sql_preroll_mv = \
 			self.read_query_summary ()
 		
-		self.logger.info('Display placements for summary sheet for IO - {}'.format(self.config.ioid))
+		self.logger.info('Display placements for IO - {}'.format(self.config.ioid))
+		
 		display_first__summary = read_sql__display.merge (read_sql__display__m_v, on="PLACEMENT#", how="inner",
 		                                                suffixes=('_1', '_2'))
 		
@@ -125,7 +148,8 @@ class Summary (object):
 		                                             "COST_TYPE", "UNIT_COST", "PLANNED_COST",
 		                                             "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION"]]
 		
-		self.logger.info ('VDX placements for summary sheet for IO - {}'.format(self.config.ioid))
+		self.logger.info ('VDX placements for IO - {}'.format(self.config.ioid))
+		
 		vdx_second_summary = read_sql__v_d_x.merge (read_sql__v_d_x_mv, on="PLACEMENT#", how="inner", suffixes=('_1', '_2'))
 		vdx_second__table = vdx_second_summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 		                                       "COST_TYPE", "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
@@ -160,7 +184,7 @@ class Summary (object):
 			self.logger.error(str(e)+'No valid placements for VDX Creative for IO - {}'.format(self.config.ioid))
 			
 		
-		self.logger.info('Preroll Placements for summary sheet')
+		self.logger.info('Preroll Placements for IO - {}'.format(self.config.ioid))
 		preroll_third_summary = read_sql_preroll.merge (read_sql_preroll_mv, on="PLACEMENT#", how="inner",
 		                                                suffixes=('_1', '_2'))
 		
@@ -187,6 +211,7 @@ class Summary (object):
 		except KeyError as e:
 			preroll_access_table = preroll_third_table[[]]
 			self.logger.error(str(e)+'No valid preroll placements for IO - {}'.format(self.config.ioid))
+		
 		return displayfirsttable, vdx_access_table, preroll_access_table
 	
 	
@@ -198,7 +223,7 @@ class Summary (object):
 		"""
 		displayfirsttable, vdx_access_table, preroll_access_table = self.access_data_summary ()
 		
-		self.logger.info('Adding Delivery, Spend for Display placement')
+		self.logger.info('Adding Delivery Metrices on Display Placements for IO - {}'.format(self.config.ioid))
 		try:
 			displayfirsttable['Delivery%'] = displayfirsttable['DELIVERED_IMPRESION']/displayfirsttable[
 				'BOOKED_IMP#BOOKED_ENG']
@@ -208,7 +233,8 @@ class Summary (object):
 		except KeyError as e:
 			self.logger.error(str(e)+'No valid display placements for IO - {}'.format(self.config.ioid))
 		
-		self.logger.info ('Adding Delivery, Spend for vdx placement')
+		self.logger.info ('Adding Delivery Metrices on VDX Placements for IO - {}'.format(self.config.ioid))
+		
 		try:
 			vdx_access_table["Delivered_Engagements"] = vdx_access_table["Delivered_Engagements"].astype (int)
 			vdx_access_table["Delivered_Impressions"] = vdx_access_table["Delivered_Impressions"].astype (int)
@@ -239,8 +265,9 @@ class Summary (object):
 			vdx_access_table['Spend'] = vdx_access_table['Spend'].replace (np.inf, 0.00)
 		except KeyError as e:
 			self.logger.error (str (e)+'No valid No valid vdx placements')
+			
 		
-		self.logger.info('Adding Delivery, Spend on Preroll Placements')
+		self.logger.info ('Adding Delivery Metrices on Preroll Placements for IO - {}'.format (self.config.ioid))
 		try:
 			preroll_access_table["PLACEMENT#"] = preroll_access_table["PLACEMENT#"].astype (int)
 		except KeyError as e:
@@ -270,6 +297,7 @@ class Summary (object):
 		:return:
 		"""
 		displayfirsttable, vdx_access_table, preroll_access_table = self.summary_creation ()
+		
 		
 		self.logger.info('Renaming Display Placements columns for IO - {}'.format(self.config.ioid))
 		display_rename = displayfirsttable.rename (columns={
@@ -312,6 +340,8 @@ class Summary (object):
 		:param self:
 		:return:
 		"""
+		
+		self.logger.info('Columns renamed for IO: {}'.format(self.config.ioid))
 		displayfirsttable, vdx_access_table, preroll_access_table = self.rename_cols_sumary ()
 		data_common_columns = self.config.common_columns_summary ()
 		
@@ -809,12 +839,12 @@ class Summary (object):
 		:param self:
 		"""
 		self.config.common_columns_summary ()
-		self.connect_TFR_summary ()
-		self.read_query_summary ()
-		self.access_data_summary ()
-		self.summary_creation ()
-		self.rename_cols_sumary ()
-		self.write_summary ()
+		#self.connect_TFR_summary ()
+		#self.read_query_summary ()
+		#self.access_data_summary ()
+		#self.summary_creation ()
+		#self.rename_cols_sumary ()
+		#self.write_summary ()
 		self.format_summary ()
 		self.logger.info('Summary Sheet Created for IO - {}'.format(self.config.ioid))
 

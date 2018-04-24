@@ -1,6 +1,9 @@
+#coding=utf-8
+"""
+This is main class running for all scripts
+"""
 import Eoc_Summary
 import Eoc_Daily
-import Eoc_AdSize
 import Eoc_Video
 import Eoc_Intraction
 import EOC_definition
@@ -15,8 +18,6 @@ if __name__ == '__main__':
     obj_summary.main()
     obj_daily = Eoc_Daily.Daily(c)
     obj_daily.main()
-    #obj_adSize = Eoc_AdSize.ad_Size(c)
-    #obj_adSize.main()
     #obj_Video = Eoc_Video.Video(c)
     #obj_Video.main()
     obj_Intraction = Eoc_Intraction.Intraction(c)

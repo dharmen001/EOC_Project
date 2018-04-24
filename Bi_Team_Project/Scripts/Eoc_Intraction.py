@@ -1,6 +1,7 @@
 #coding=utf-8
 """
-Preroll Placements Class
+Created by:Dharmendra
+Date:2018-03-23
 """
 import pandas as pd
 import numpy as np
@@ -47,6 +48,7 @@ Reading Queries Data directly from TFR
 		sql_preroll_summary, sql_preroll_mv, sql_preroll_video_views, sql_preroll_day_mv, sql_preroll_interaction = self.connect_TFR_Intraction()
 		
 		self.logger.info('Creating TFR connection {}'.format(self.config.ioid))
+		
 		read_sql_preroll_summary = pd.read_sql(sql_preroll_summary,self.config.conn)
 		
 		read_sql_preroll_mv = pd.read_sql(sql_preroll_mv,self.config.conn)
@@ -56,6 +58,8 @@ Reading Queries Data directly from TFR
 		read_sql_preroll_day = pd.read_sql(sql_preroll_day_mv, self.config.conn)
 		
 		read_sql_preroll_interaction = pd.read_sql(sql_preroll_interaction, self.config.conn)
+		
+		self.read_sql_preroll_day = read_sql_preroll_day
 	
 		return read_sql_preroll_summary, read_sql_preroll_mv, read_sql_preroll_video ,read_sql_preroll_day ,read_sql_preroll_interaction
 	
@@ -600,10 +604,6 @@ Applying Formatting
 			worksheet.set_column("B:B", 21)
 			worksheet.set_zoom(90)
 			
-			if prerollsummaryfinal.empty:
-				worksheet.hide()
-			else:
-				pass
 		except Exception as e:
 			self.logger.error(str(e)+'Not found in Intraction')
 		
@@ -614,11 +614,14 @@ main function
 		self.config.common_columns_summary()
 		self.connect_TFR_Intraction()
 		self.read_query_preroll()
-		self.accessing_preroll_columns()
-		self.renameIntraction()
-		#self.writePreroll()
-		self.formatting()
-		self.logger.info('Preroll Sheet created for IO {}'.format(self.config.ioid))
+		if self.read_sql_preroll_day.empty:
+			pass
+		else:
+			#self.accessing_preroll_columns()
+			#self.renameIntraction()
+			#self.writePreroll()
+			self.formatting()
+			self.logger.info('Preroll Sheet created for IO {}'.format(self.config.ioid))
 
 if __name__=="__main__":
 	pass

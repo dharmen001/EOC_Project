@@ -1,3 +1,8 @@
+#coding=utf-8
+"""
+Created by:Dharmendra
+Date:2018-03-23
+"""
 import datetime
 import pandas as pd
 import numpy as np
@@ -108,7 +113,7 @@ To create display placements
 		# self.read_sql_sales = read_sql_sales
 		# self.read_sql_sales_mv = read_sql_sales_mv
 		# self.read_sql_adsize_mv = read_sql_adsize_mv
-		# self.read_sql_daily_mv = read_sql_daily_mv
+		self.read_sql_daily_mv = read_sql_daily_mv
 		
 		return read_sql_sales, read_sql_sales_mv, read_sql_adsize_mv, read_sql_daily_mv
 	
@@ -1005,14 +1010,17 @@ Adding Main Function
 		self.config.common_columns_summary()
 		self.connect_TFR_daily()
 		self.read_Query_daily()
-		self.access_Data_KM_Sales_daily()
-		self.KM_Sales_daily()
-		self.rename_KM_Sales_daily()
-		self.accessing_nan_values()
-		self.accessing_main_column()
-		# placement_sales_data, final_adsize, final_day_wise = self.write_KM_Sales_summary()
-		self.formatting_daily()
-		self.logger.info('Display Sheet Created for IO {}'.format(self.config.ioid))
+		if self.read_sql_daily_mv.empty:
+			pass
+		else:
+			#self.access_Data_KM_Sales_daily()
+			#self.KM_Sales_daily()
+			#self.rename_KM_Sales_daily()
+			#self.accessing_nan_values()
+			#self.accessing_main_column()
+			# placement_sales_data, final_adsize, final_day_wise = self.write_KM_Sales_summary()
+			self.formatting_daily()
+			self.logger.info('Display Sheet Created for IO {}'.format(self.config.ioid))
 
 if __name__=="__main__":
 	pass
