@@ -129,23 +129,37 @@ To create display placements
 		
 		self.logger.info('Creating by placement information of IO {}'.format(self.config.ioid))
 		
-		standard_sales_first_table = read_sql_sales.merge( read_sql_sales_mv, on="PLACEMENT#", how="inner" )
-		display_sales_first_table = standard_sales_first_table[
-			["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
-			 "CLICKS", "CONVERSION"]]
+		display_sales_first_table = None
+		try:
+			standard_sales_first_table = read_sql_sales.merge( read_sql_sales_mv, on="PLACEMENT#", how="inner" )
+			display_sales_first_table = standard_sales_first_table[
+				["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
+				 "CLICKS", "CONVERSION"]]
+		except (KeyError,ValueError,AttributeError) as e:
+			self.logger.error(str(e) +' No Placement Information Display Placements IO - {}'.format(self.config.ioid))
+			
+		self.logger.info (
+			'Creating by adsize information for display placements of IO {}'.format (self.config.ioid))
 		
-		self.logger.info('Creating by adsize information for display placements of IO {}'.format(self.config.ioid))
-		standard_sales_second_table = read_sql_sales.merge( read_sql_adsize_mv, on="PLACEMENT#", how="inner" )
-		adsize_sales_second_table = standard_sales_second_table[
-			["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
-			 "ADSIZE", "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+		adsize_sales_second_table= None
+		try:
+			standard_sales_second_table = read_sql_sales.merge( read_sql_adsize_mv, on="PLACEMENT#", how="inner" )
+			adsize_sales_second_table = standard_sales_second_table[
+				["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
+				 "ADSIZE", "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+		except (KeyError,ValueError,AttributeError) as e:
+			self.logger.error(str(e)+ ' No adSize information found for Display placement IO - {}'.format(self.config.ioid))
 		
-		self.logger.info('Creating by day information for display placements of IO {}'.format(self.config.ioid))
-		standard_sales_third_table = read_sql_sales.merge( read_sql_daily_mv, on="PLACEMENT#", how="inner" )
-		daily_sales_third_table = standard_sales_third_table[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
-		                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
-		                                                      "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
-		
+		daily_sales_third_table = None
+		try:
+			self.logger.info('Creating by day information for display placements of IO {}'.format(self.config.ioid))
+			standard_sales_third_table = read_sql_sales.merge( read_sql_daily_mv, on="PLACEMENT#", how="inner" )
+			daily_sales_third_table = standard_sales_third_table[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
+			                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
+			                                                      "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+			
+		except (KeyError,ValueError,AttributeError) as e:
+			self.logger.error(str(e) + ' No placement by day information found for Display placement IO - {}'.format(self.config.ioid))
 		# self.display_sales_first_table = display_sales_first_table
 		# self.adsize_sales_second_table = adsize_sales_second_table
 		# self.daily_sales_third_table = daily_sales_third_table
@@ -162,18 +176,18 @@ To create display placements
 			self.access_Data_KM_Sales_daily()
 		
 		self.logger.info(
-			'Putting creative with placement together for placement information of IO {}'.format(self.config.ioid))
+			'Putting creative and placement together for placement information of IO {}'.format(self.config.ioid))
 		display_sales_first_table["PLACEMENTNAME"] = display_sales_first_table[
 			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
 			lambda x:".".join( x ), axis=1 )
 		
 		self.logger.info(
-			'Putting creative with placement together for adsize information of IO {}'.format(self.config.ioid))
+			'Putting creative and placement together for adsize information of IO {}'.format(self.config.ioid))
 		adsize_sales_second_table["PLACEMENTNAME"] = adsize_sales_second_table[
 			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
 			lambda x:".".join( x ), axis=1 )
 		
-		self.logger.info('Putting creative with placement for by day information of IO {}'.format(self.config.ioid))
+		self.logger.info('Putting creative and placement for by day information of IO {}'.format(self.config.ioid))
 		daily_sales_third_table["PLACEMENTNAME"] = daily_sales_third_table[
 			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
 			lambda x:".".join( x ), axis=1 )
@@ -351,6 +365,8 @@ To create display placements
 		
 		adsize_sales_data_pivot_new = adsize_sales_data_pivot.reset_index()
 		
+		adsize_sales_data = None
+		final_adsize = None
 		try:
 			adsize_sales_data_pivot_new["CTR"] = adsize_sales_data_pivot_new["Clicks"]/adsize_sales_data_pivot_new[
 					"Delivered Impressions"]
@@ -360,13 +376,7 @@ To create display placements
 
 			adsize_sales_data_pivot_new["eCPA"] = adsize_sales_data_pivot_new["Spend"]/adsize_sales_data_pivot_new[
 				"Conversion"]
-			
-		except KeyError as e:
-			self.logger.error(str(e)+'Not found in adsize Display Placements Data')
-			
-		adsize_sales_data = None
-		final_adsize = None
-		try:
+		
 			adsize_sales_data = adsize_sales_data_pivot_new[["Adsize", "Delivered Impressions", "Clicks", "CTR",
 		                                                     "Conversion", "Conversion Rate", "Spend", "eCPA"]]
 		
@@ -1012,7 +1022,8 @@ Applying formatting on Display Sheet
 			worksheet.set_column( "C:L", 21, alignment )
 			worksheet.set_zoom( 90 )
 			
-		except AttributeError:
+		except AttributeError as e:
+			self.logger.info(str(e)+ ' Not found')
 			pass
 	
 	def main(self):
@@ -1034,7 +1045,7 @@ Adding Main Function
 			#self.accessing_main_column()
 			# placement_sales_data, final_adsize, final_day_wise = self.write_KM_Sales_summary()
 			self.formatting_daily()
-			self.logger.info('Display Sheet Created for IO {}'.format(self.config.ioid))
+			self.logger.info("Display Sheet Created for IO {}".format(self.config.ioid))
 
 if __name__=="__main__":
 	pass

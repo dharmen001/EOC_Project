@@ -160,17 +160,15 @@ Accessing Columns from Query
 			intraction_click_table_new["CTR"] = intraction_click_table_new["CLICKTHROUGHS"]/intraction_click_table_new["IMPRESSION"]
 		
 			
-		#intraction_click_table_new["Total Clickthroughs"]= intraction_click_table_new.iloc[:,1:len(intraction_click_table_new)-1]
-		#print intraction_click_table_new
 			cols_drop = ["COST_TYPE","UNIT_COST","IMPRESSION","CLICKTHROUGHS","Video Completions","Video Completion Rate"]
 			intraction_new_cols = intraction_click_table_new.drop(cols_drop,axis=1)
-		#print intraction_new_cols.iloc[:,1:-1]
+		
 			intraction_new_cols["Total Clickthroughs"] = intraction_new_cols.iloc[:,1:-1].sum(axis=1)
-		#print intraction_new_cols
+		
 			intraction_final = intraction_new_cols.loc[:, :]
 		
 		except KeyError as e:
-			self.logger.error(str(e)+ 'Not found in intraction table')
+			self.logger.error(str(e)+ ' Not found in intraction table for IO - {}'.format(self.config.ioid))
 			
 			
 		return prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal
@@ -244,7 +242,7 @@ writing to excel all data
 				                                                  startcol=1,startrow=len(prerollsummaryfinal)+len(videoprerollsummarymvfinal)+18
 				                                                  ,index=False,header=True)
 			
-			self.logger.info('Writing placement by daya informaton on preroll for IO - {}'.format(self.config.ioid))
+			self.logger.info('Writing placement by day informaton on preroll for IO - {}'.format(self.config.ioid))
 			if check_day_preroll_summary_final is True:
 				pass
 			else:
@@ -353,7 +351,7 @@ writing to excel all data
 					start_line +=3
 					
 		except Exception as e:
-			self.logger.error(str(e)+'Not found in intraction')
+			self.logger.error(str(e)+' Not found in intraction')
 				
 		return prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal
 	
@@ -634,7 +632,7 @@ main function
 			#self.renameIntraction()
 			#self.writePreroll()
 			self.formatting()
-			self.logger.info('Preroll Sheet created for IO {}'.format(self.config.ioid))
+			self.logger.info('Instream Sheet created for IO {}'.format(self.config.ioid))
 
 if __name__=="__main__":
 	pass

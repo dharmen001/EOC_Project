@@ -7,7 +7,6 @@ import pandas as pd
 import cx_Oracle
 import logging
 
-
 class Config(object):
 	"""
 	This class is configuration for all classes
