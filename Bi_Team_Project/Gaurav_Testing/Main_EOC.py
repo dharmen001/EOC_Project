@@ -62,6 +62,17 @@ class EocWorkbook():
         ws.write(self.rowN, self.colN + 7, dt)
         ws.write(self.rowN + 1, self.colN + 6, "Campaign Status")
         ws.write(self.rowN + 1, self.colN + 7, status)
+
+        if ws.name == "Summary":
+            self.Set_Columns_Width(ws, 0, 0, 1)
+            self.Set_Columns_Width(ws, 1, 1, 15)
+            self.Set_Columns_Width(ws, 2, 2, 10)
+            self.Set_Columns_Width(ws, 4, 4, 21)
+            self.Set_Columns_Width(ws, 5, 5, 12)
+            self.Set_Columns_Width(ws, 6, 6, 23)
+            self.Set_Columns_Width(ws, 7, 7, 21)
+            self.Set_Columns_Width(ws, 8, 13, 12)
+
         return self.rowN + 6
 
 #**************** Summary tab - print Standard Banner and Key Metric Placement wise Table
@@ -441,27 +452,36 @@ class EocWorkbook():
 
             cell_1 = xl_rowcol_to_cell(startRow, self.colN + 1)
             cell_2 = xl_rowcol_to_cell(endRow, self.colN + 1)
-            chart_series = "='" + wsSales.name + "'!" + cell_1 + ':' + cell_2
-            print(chart_series)
+            impression_series = "='" + wsSales.name + "'!" + cell_1 + ':' + cell_2
+            #print(impression_series)
 
+            cell_1 = xl_rowcol_to_cell(startRow, self.colN + 3)
+            cell_2 = xl_rowcol_to_cell(endRow, self.colN + 3)
+            ctr_series = "='" + wsSales.name + "'!" + cell_1 + ':' + cell_2
+            #print(ctr_series)
 
             column_chart = self.workbook.add_chart({'type': 'column'})
             column_chart.add_series({
                 'name': 'Impressions',
                 'categories': category_series,
-                'values': chart_series
+                'values': impression_series
             })
 
+            line_chart = self.workbook.add_chart({'type': 'line'})
+            line_chart.add_series({
+                'name': 'CTR',
+                'categories': category_series,
+                'values': ctr_series,
+                'y2_axis': True
+            })
+
+            column_chart.combine(line_chart)
             column_chart.set_size({'width': 700})
             column_chart.set_title({'name': 'Impressions vs CTR'})
             chart_pos = xl_rowcol_to_cell(startRow, self.colN + 9)
             wsSales.insert_chart(chart_pos, column_chart)
 
-
-
         return 0
-
-
 
 
 
@@ -485,6 +505,12 @@ class EocWorkbook():
     def Merge_myCells(self, ws, cell_1, cell_2, creativetype):
         ws.merge_range(cell_1 + ':' + cell_2, creativetype)
         return 0
+
+    #function to set Column Width
+    def Set_Columns_Width(self, ws, col_1, col_2, wd):
+        ws.set_column(col_1, col_2, wd)
+        return 0
+
 
     def CloseWorkbook(self):
         print('Report Created')

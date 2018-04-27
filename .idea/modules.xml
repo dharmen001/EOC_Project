@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/BiTeam-New-ProjectPython.iml" filepath="$PROJECT_DIR$/.idea/BiTeam-New-ProjectPython.iml" />
+      <module fileurl="file://C:/Python_Project/.idea/Python_Project.iml" filepath="C:/Python_Project/.idea/Python_Project.iml" />
     </modules>
   </component>
 </project>
