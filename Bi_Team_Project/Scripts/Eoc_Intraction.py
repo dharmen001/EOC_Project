@@ -362,7 +362,7 @@ Applying Formatting
 		"""
 		prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal = self.writePreroll()
 		
-		self.logger.error('Applying Formatting on preroll sheet for IO - {}'.format(self.config.ioid))
+		self.logger.info('Applying Formatting on preroll sheet for IO - {}'.format(self.config.ioid))
 		try:
 			workbook = self.config.writer.book
 			worksheet = self.config.writer.sheets["Standard Preroll({})".format(self.config.ioid)]

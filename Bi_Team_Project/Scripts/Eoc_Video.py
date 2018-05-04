@@ -3,6 +3,7 @@
 Created by:Dharmendra
 Date:2018-03-23
 """
+
 import pandas as pd
 import numpy as np
 import config
@@ -10,6 +11,8 @@ import logging
 from xlsxwriter.utility import xl_rowcol_to_cell
 import logging
 from functools import reduce
+import pandas.io.formats.excel
+pandas.io.formats.excel.header_style = None
 
 class Video(object):
 	"""
@@ -49,7 +52,8 @@ Class for VDX Placements
 		             "sum(ENG_VIDEO_VIEW_75_PC_COUNT) as Eng75,sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100," \
 		             "sum(DPE_VIDEO_VIEW_0_PC_COUNT) as Dpe0,sum(DPE_VIDEO_VIEW_25_PC_COUNT) as Dpe25, " \
 		             "sum(DPE_VIDEO_VIEW_50_PC_COUNT) as Dpe50,sum(DPE_VIDEO_VIEW_75_PC_COUNT) as Dpe75, " \
-		             "sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100,sum(ENG_INTERACTIVE_ENGAGEMENTS) " \
+		             "sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100,sum(DPE_INTERACTIVE_ENGAGEMENTS) as DpeIntractiveEngagements," \
+		             "sum(ENG_INTERACTIVE_ENGAGEMENTS) " \
 		             "as EngIntractiveEngagements,sum(CPCV_COUNT) as completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, " \
 		             "PLACEMENT_DESC,PRODUCT ORDER BY PLACEMENT_ID".format(self.config.ioid)
 		
@@ -58,7 +62,10 @@ Class for VDX Placements
 		                "sum(ENGAGEMENTS) as Engagements, sum(DPE_ENGAGEMENTS) as DpeEngagements," \
 		                "sum(ENG_CLICK_THROUGHS) as EngClickthroughs, sum(DPE_CLICK_THROUGHS) as DpeClickthroughs," \
 		                "sum(VWR_CLICK_THROUGHS) as VwrClickthroughs,sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100," \
-		                "sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100,sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100,sum(CPCV_COUNT) as completions " \
+		                "sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100,sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100," \
+		                "sum(ENG_TOTAL_TIME_SPENT) as Engtotaltimespent,sum(DPE_TOTAL_TIME_SPENT) as Dpetotaltimespent," \
+		                "sum(ENG_INTERACTIVE_ENGAGEMENTS) as EngIntractiveEngagements," \
+		                "sum(DPE_INTERACTIVE_ENGAGEMENTS) as DpeIntractiveEngagements,sum(CPCV_COUNT) as completions " \
 		                "FROM TFR_REP.ADSIZE_KM_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC, " \
 		                "MEDIA_SIZE_DESC,PRODUCT ORDER BY PLACEMENT_ID".format(self.config.ioid)
 		
@@ -105,9 +112,16 @@ Class for VDX Placements
 		                 "TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') as Day,sum(IMPRESSIONS) as Impressions, " \
 		                 "sum(ENGAGEMENTS) as Engagements, sum(DPE_ENGAGEMENTS) as Dpeengagements," \
 		                 "sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100, sum(CPCV_COUNT) as completions," \
-		                 "sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100," \
+		                 "sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100,sum(DPE_INTERACTIVE_ENGAGEMENTS) as DpeIntractiveEngagements, " \
 		                 "sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100 FROM TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} " \
 		                 "GROUP BY PLACEMENT_ID, PLACEMENT_DESC, DAY_DESC,PRODUCT ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		
+		sql_adsize_km_rate = "SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement," \
+		                     "sum(DPE_INTERACTIVE_ENGAGEMENTS) as DpeIntractiveEngagements," \
+		                     "sum(ENG_INTERACTIVE_ENGAGEMENTS) as EngIntractiveEngagements," \
+		                     "sum(ENG_TOTAL_TIME_SPENT) as Engtotaltimespent,sum(DPE_TOTAL_TIME_SPENT) as Dpetotaltimespent " \
+		                     "from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, " \
+		                     "PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
 		
 		self.sql_vdx_summary = sql_vdx_summary
 		self.sql_vdx_km = sql_vdx_km
@@ -117,6 +131,7 @@ Class for VDX Placements
 		self.sql_ad_intraction = sql_ad_intraction
 		self.sql_click_throughs = sql_click_throughs
 		self.sql_vdx_day_km = sql_vdx_day_km
+		
 	
 	def read_query_video(self):
 		"""
@@ -133,6 +148,7 @@ Class for VDX Placements
 		read_sql_ad_intraction = pd.read_sql(self.sql_ad_intraction, self.config.conn)
 		read_sql_click_throughs = pd.read_sql(self.sql_click_throughs, self.config.conn)
 		read_sql_vdx_day_km = pd.read_sql(self.sql_vdx_day_km, self.config.conn)
+		
 	
 		self.read_sql_vdx_summary = read_sql_vdx_summary
 		self.read_sql_vdx_km = read_sql_vdx_km
@@ -142,6 +158,7 @@ Class for VDX Placements
 		self.read_sql_ad_intraction = read_sql_ad_intraction
 		self.read_sql_click_throughs = read_sql_click_throughs
 		self.read_sql_vdx_day_km = read_sql_vdx_day_km
+		
 	
 	def access_vdx_columns(self):
 		"""
@@ -150,27 +167,39 @@ Class for VDX Placements
 		"""
 		self.logger.info ('Query Stored for further processing of IO - {}'.format (self.config.ioid))
 		self.logger.info ('Creating placement wise table of IO - {}'.format (self.config.ioid))
-		#print ("Dharm",self.read_sql_vdx_summary)
-		#print ("harsh", self.read_sql_vdx_km)
 		
-		#placementvdx = None
 		placementvdxs = [self.read_sql_vdx_summary,self.read_sql_vdx_km]
+		
 		placementvdxsummary = reduce(lambda left,right: pd.merge(left,right, on='PLACEMENT'),placementvdxs)
 		
 		
 		
-		placementvdxsummaryfirst = placementvdxsummary.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","PRODUCT",
-		                                                      "UNIT_COST","IMPRESSIONS","ENGAGEMENTS","DPEENGAMENTS",
+		placementvdxsummarynew = placementvdxsummary.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","PRODUCT",
+		                                                      "IMPRESSIONS","ENGAGEMENTS","DPEENGAMENTS",
 		                                                      "ENGCLICKTHROUGH","DPECLICKTHROUGH","VWRCLICKTHROUGH",
 		                                                      "ENGTOTALTIMESPENT","DPETOTALTIMESPENT","COMPLETIONS",
-		                                                      "ENGINTRACTIVEENGAGEMENTS","VIEW100","ENG100","DPE100"]]
+		                                                      "ENGINTRACTIVEENGAGEMENTS","DPEINTRACTIVEENGAGEMENTS",
+		                                                      "VIEW100","ENG100","DPE100"]]
 		
 		
-		placementvdxsummaryfirst["Placement# Name"] = placementvdxsummaryfirst[["PLACEMENT",
+		placementvdxsummarynew["Placement# Name"] = placementvdxsummarynew[["PLACEMENT",
 		                                                                        "PLACEMENT_NAME"]].apply(lambda x:".".join(x),
 		                                                                                                 axis=1)
 		
+		placementvdxsummary = placementvdxsummarynew.loc[:,["Placement# Name","COST_TYPE","PRODUCT",
+		                                                         "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAMENTS",
+		                                                         "ENGCLICKTHROUGH", "DPECLICKTHROUGH", "VWRCLICKTHROUGH",
+		                                                         "ENGTOTALTIMESPENT", "DPETOTALTIMESPENT", "COMPLETIONS",
+		                                                         "ENGINTRACTIVEENGAGEMENTS", "DPEINTRACTIVEENGAGEMENTS",
+		                                                         "VIEW100", "ENG100", "DPE100"]]
 		
+		placementvdxsummaryfirst = placementvdxsummary.append(placementvdxsummary.sum(numeric_only=True),ignore_index=True)
+		
+		placementvdxsummaryfirst["COST_TYPE"] = placementvdxsummaryfirst["COST_TYPE"].fillna('CPE')
+		
+		placementvdxsummaryfirst["PRODUCT"] = placementvdxsummaryfirst["PRODUCT"].fillna ('Grand Total')
+		
+		placementvdxsummaryfirst["Placement# Name"] = placementvdxsummaryfirst["Placement# Name"].fillna ('Grand Total')
 		
 		mask1 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE+'])
 		choicedeepengagement = placementvdxsummaryfirst['DPEENGAMENTS']/placementvdxsummaryfirst['IMPRESSIONS']
@@ -193,8 +222,9 @@ Class for VDX Placements
 		
 		mask4 = placementvdxsummaryfirst["PRODUCT"].isin(['InStream'])
 		choicevwrvcr = placementvdxsummaryfirst['VIEW100']/placementvdxsummaryfirst['IMPRESSIONS']
-		placementvdxsummaryfirst['Viewer VCR'] = np.select([mask4 & mask3],[choicevwrvcr],default='N/A')
 		
+		placementvdxsummaryfirst['Viewer VCR'] = np.select([mask4 & mask3],[choicevwrvcr],default='N/A')
+		placementvdxsummaryfirst['Viewer VCR'] = pd.to_numeric(placementvdxsummaryfirst['Viewer VCR'],errors='coerce')
 		
 		mask5 = placementvdxsummaryfirst["PRODUCT"].isin(['Display','Mobile'])
 		mask6 = placementvdxsummaryfirst['COST_TYPE'].isin(['CPE','CPM'])
@@ -208,9 +238,222 @@ Class for VDX Placements
 		                                                                                 choiceengvcrcpe_plus,
 		                                                                                 choiceengvcrcpcv],default='N/A')
 		
-		choiceintratecpe_plus = placementvdxsummaryfirst['']/placementvdxsummaryfirst['']
-		print (placementvdxsummaryfirst)
+		#placementvdxsummaryfirst["Engager VCR"] = placementvdxsummaryfirst["Viewer VCR"].astype (object)
+		placementvdxsummaryfirst['Engager VCR'] = pd.to_numeric (placementvdxsummaryfirst['Engager VCR'], errors='coerce')
 		
+		choiceintratecpe_plus = placementvdxsummaryfirst['DPEINTRACTIVEENGAGEMENTS']/placementvdxsummaryfirst['DPEENGAMENTS']
+		choiceintrateotherthancpe_plus = placementvdxsummaryfirst['ENGINTRACTIVEENGAGEMENTS']/placementvdxsummaryfirst['ENGAGEMENTS']
+		
+		
+		placementvdxsummaryfirst['Interaction Rate'] = np.select([mask2,mask1],[choiceintrateotherthancpe_plus,
+		                                                                        choiceintratecpe_plus],default=0.00)
+		
+		choiceatscpe_plus = ((placementvdxsummaryfirst['DPETOTALTIMESPENT']/placementvdxsummaryfirst['DPEENGAMENTS'])/1000).apply('{0:.2f}'.format)
+		choiceatsotherthancpe_plus = ((placementvdxsummaryfirst['ENGTOTALTIMESPENT']/placementvdxsummaryfirst['ENGAGEMENTS'])/1000).apply('{0:.2f}'.format)
+		
+		
+		placementvdxsummaryfirst['Active Time Spent'] = np.select([mask2,mask1],[choiceatsotherthancpe_plus,
+		                                                                         choiceatscpe_plus],default=0.00)
+		
+		placementvdxsummaryfirst['Active Time Spent'] = placementvdxsummaryfirst['Active Time Spent'].astype(float)
+		
+		placementvdxsummaryfirstnew = placementvdxsummaryfirst.replace(np.nan,'N/A',regex=True)
+		
+		#d = {"N/A":" "}
+		
+		
+		#mask17 = placementvdxsummaryfirstnew["Placement# Name"].isin (["Grand Total"])
+		#cols = ["Viewer VCR","Engager VCR"]
+		#placementvdxsummaryfirstnew.update(placementvdxsummaryfirstnew.loc[mask17,cols].replace(d))
+		
+		placementvdxsummaryfirstnew.loc[placementvdxsummaryfirstnew.index[-1],["Viewer VCR","Engager VCR"]] = np.nan
+		
+		placementsummaryfinalnew = placementvdxsummaryfirstnew.loc[:,["Placement# Name","PRODUCT","Engagements Rate","Viewer CTR",
+		                                                        "Engager CTR","Viewer VCR","Engager VCR",
+		                                                        "Interaction Rate","Active Time Spent"]]
+		
+		placementsummaryfinal = placementsummaryfinalnew.loc[:,["Placement# Name","PRODUCT","Engagements Rate",
+		                                                        "Viewer CTR","Engager CTR","Viewer VCR",
+		                                                        "Engager VCR","Interaction Rate","Active Time Spent"]]
+		
+		
+		
+		unique_plc = placementsummaryfinal['Placement# Name'].nunique()
+		
+		
+		#Adsize Roll Up
+		
+		placementadsize = [self.read_sql_vdx_summary,self.read_sql_adsize_km]
+		placementadziesummary = reduce (lambda left, right:pd.merge (left, right, on='PLACEMENT'), placementadsize)
+		
+		placementadsizefirst = placementadziesummary.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","PRODUCT","ADSIZE",
+		                                                    "IMPRESSIONS","ENGAGEMENTS","DPEENGAGEMENTS",
+		                                                    "ENGCLICKTHROUGHS","DPECLICKTHROUGHS","VWRCLICKTHROUGHS",
+		                                                    "VIEW100","ENG100","DPE100","ENGTOTALTIMESPENT",
+		                                                    "DPETOTALTIMESPENT","ENGINTRACTIVEENGAGEMENTS",
+		                                                    "COMPLETIONS","DPEINTRACTIVEENGAGEMENTS"]]
+		
+		placementadsizefirst["Placement# Name"] = placementadsizefirst[["PLACEMENT",
+		                                                                        "PLACEMENT_NAME"]].apply(lambda x:".".join(x),
+		                                                                                                 axis=1)
+		
+		placementadsizetable = placementadsizefirst.loc[:,["Placement# Name","COST_TYPE","PRODUCT","ADSIZE",
+		                                                   "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
+		                                                   "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS", "VWRCLICKTHROUGHS",
+		                                                   "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
+		                                                   "DPETOTALTIMESPENT","ENGINTRACTIVEENGAGEMENTS",
+		                                                   "COMPLETIONS", "DPEINTRACTIVEENGAGEMENTS"]]
+		
+		
+		placementadsizegrouping = pd.pivot_table(placementadsizetable,index=['Placement# Name','ADSIZE','COST_TYPE'],
+		                                         values=["IMPRESSIONS","ENGAGEMENTS","DPEENGAGEMENTS",
+		                                                 "ENGCLICKTHROUGHS","DPECLICKTHROUGHS","VWRCLICKTHROUGHS",
+		                                                 "VIEW100","ENG100","DPE100","ENGTOTALTIMESPENT","DPETOTALTIMESPENT",
+		                                                 "ENGINTRACTIVEENGAGEMENTS",
+		                                                 "COMPLETIONS",
+		                                                 "DPEINTRACTIVEENGAGEMENTS"],aggfunc=np.sum)
+		
+		placementadsizegroupingnew = placementadsizegrouping.reset_index()
+		
+		placementadsizegroup = placementadsizegroupingnew.loc[:,:]
+		
+		placementadsizegroup = placementadsizegroup.append (placementadsizegroup.sum (numeric_only=True),
+		                                                       ignore_index=True)
+		
+		
+		
+		placementadsizegroup["COST_TYPE"] = placementadsizegroup["COST_TYPE"].fillna ('CPE')
+		placementadsizegroup["ADSIZE"] = placementadsizegroup["ADSIZE"].fillna ('Grand Total')
+		placementadsizegroup["Placement# Name"] = placementadsizegroup["Placement# Name"].fillna ('Grand Total')
+		
+		mask9 = placementadsizegroup["COST_TYPE"].isin(["CPE+"])
+		choiceadsizeengagementcpe_plus = placementadsizegroup["DPEENGAGEMENTS"]/placementadsizegroup["IMPRESSIONS"]
+		mask10 = placementadsizegroup["COST_TYPE"].isin(["CPE","CPM","CPCV"])
+		choiceplacementadsizegroupcpe = placementadsizegroup["ENGAGEMENTS"]/placementadsizegroup["IMPRESSIONS"]
+		placementadsizegroup["Engagements Rate"] = np.select ([mask9,mask10], [choiceadsizeengagementcpe_plus,
+		                                                                      choiceplacementadsizegroupcpe], default=0.00)
+		
+		mask11 = placementadsizegroup["COST_TYPE"].isin(["CPE","CPM","CPCV","CPE+"])
+		choiceadsizeengagementvwrctr = placementadsizegroup["VWRCLICKTHROUGHS"]/placementadsizegroup["IMPRESSIONS"]
+		
+		placementadsizegroup["Viewer CTR"] = np.select([mask11],[choiceadsizeengagementvwrctr],default=0.00)
+		
+		choiceadsizeengagementengctr = placementadsizegroup["ENGCLICKTHROUGHS"]/placementadsizegroup["ENGAGEMENTS"]
+		choiceadsizeengagementdpegctr = placementadsizegroup["DPECLICKTHROUGHS"]/placementadsizegroup["DPEENGAGEMENTS"]
+		
+		placementadsizegroup["Engager CTR"] = np.select([mask10,mask9],[choiceadsizeengagementengctr,
+		                                                                 choiceadsizeengagementdpegctr],default=0.00)
+		
+		mask12 = placementadsizegroup["ADSIZE"].isin(["1x10"])
+		mask13 = placementadsizegroup["COST_TYPE"].isin(["CPE","CPE+","CPM"])
+		mask14 = placementadsizegroup["COST_TYPE"].isin(["CPCV"])
+		choiceadsizevwrvcrcpe = placementadsizegroup["VIEW100"]/placementadsizegroup["IMPRESSIONS"]
+		choiceadsizevwrvcrcpcv = placementadsizegroup["COMPLETIONS"]/placementadsizegroup["IMPRESSIONS"]
+		placementadsizegroup["Viewer VCR"] = np.select([mask12 & mask13,mask12 & mask14],[choiceadsizevwrvcrcpe,
+		                                                                  choiceadsizevwrvcrcpcv],default='N/A')
+		
+		placementadsizegroup['Viewer VCR'] = pd.to_numeric (placementadsizegroup['Viewer VCR'], errors='coerce')
+		
+		mask15 = ~placementadsizegroup["ADSIZE"].isin(["1x10"])
+		mask16 = placementadsizegroup["COST_TYPE"].isin(["CPE","CPM"])
+		choiceadsizeengvcrcpe = placementadsizegroup["ENG100"]/placementadsizegroup["ENGAGEMENTS"]
+		choiceadsizeengvcrcpe_plus = placementadsizegroup["DPE100"]/placementadsizegroup["DPEENGAGEMENTS"]
+		choiceadsizeengvcrcpcv = placementadsizegroup["COMPLETIONS"]/placementadsizegroup["ENGAGEMENTS"]
+		
+		placementadsizegroup["Engager VCR"] = np.select([mask15 & mask16,mask15 & mask9,mask15 & mask14],
+		                                                [choiceadsizeengvcrcpe,choiceadsizeengvcrcpe_plus,
+		                                                 choiceadsizeengvcrcpcv],default='N/A')
+		
+		placementadsizegroup['Engager VCR'] = pd.to_numeric (placementadsizegroup['Engager VCR'],
+		                                                         errors='coerce')
+		
+		
+		choiceadsizeinteracratecpe = placementadsizegroup["ENGINTRACTIVEENGAGEMENTS"]/placementadsizegroup["ENGAGEMENTS"]
+		choiceadsizeinteracratecpe_plus = placementadsizegroup["DPEINTRACTIVEENGAGEMENTS"]/placementadsizegroup["DPEENGAGEMENTS"]
+		
+		placementadsizegroup["Interaction Rate"] = np.select([mask10,mask9],[choiceadsizeinteracratecpe,
+		                                                                     choiceadsizeinteracratecpe_plus],default=0.00)
+		
+		
+		choiceadsizeatscpe = ((placementadsizegroup["ENGTOTALTIMESPENT"]/placementadsizegroup["ENGAGEMENTS"])/1000).apply('{0:.2f}'.format)
+		choiceadsizeatscpe_plus = ((placementadsizegroup["DPETOTALTIMESPENT"]/placementadsizegroup["DPEENGAGEMENTS"])/1000).apply('{0:.2f}'.format)
+		
+		placementadsizegroup["Active Time Spent"] = np.select([mask10,mask14],[choiceadsizeatscpe,choiceadsizeatscpe_plus],
+		                                                      default=0.00)
+		
+		placementadsizegroup['Active Time Spent'] = placementadsizegroup['Active Time Spent'].astype (float)
+		
+		placementadsizegroupfirstnew = placementadsizegroup.replace (np.nan, 'N/A', regex=True)
+		
+		placementadsizegroupfirstnew.loc[placementadsizegroupfirstnew.index[-1],["Viewer VCR","Engager VCR"]] = np.nan
+		
+		#e = {"N/A":" "}
+		
+		#mask18 = placementadsizegroupfirstnew["Placement# Name"].isin (["Grand Total"])
+		#cols_adsize = ["Viewer VCR", "Engager VCR"]
+		#placementadsizegroupfirstnew.update(placementadsizegroupfirstnew.loc[mask18, cols_adsize].replace(e))
+		
+		placementadsizefinal = placementadsizegroupfirstnew.loc[:,["Placement# Name","ADSIZE","Engagements Rate",
+		                                                          "Viewer CTR","Engager CTR","Viewer VCR","Engager VCR",
+		                                                          "Interaction Rate","Active Time Spent"]]
+		
+		
+		#video wise roll up
+		
+		
+		
+		
+		self.placementsummaryfinal = placementsummaryfinal
+		self.unique_plc = unique_plc
+		self.placementadsizefinal = placementadsizefinal
+		
+	def write_video_data(self):
+		"""
+		
+		Writing Video Data
+		:return:
+		"""
+		startline_placement = 9
+		
+		#Writing placement Data
+		for placement, placement_df in self.placementsummaryfinal.groupby('Placement# Name'):
+			
+			write_pl = placement_df.to_excel(self.config.writer, sheet_name="vdx({})".format(self.config.ioid),
+			                                          startcol=1,startrow=startline_placement,columns=["Placement# Name"],header=False,index=False)
+			
+			if placement_df.iloc[0,0] != "Grand Total":
+				startline_placement +=1
+			
+			write_pls = placement_df.to_excel(self.config.writer,sheet_name="vdx({})".format(self.config.ioid),
+				                                           startcol=1,startrow=startline_placement,columns=["PRODUCT",
+				                                                                                    "Engagements Rate","Viewer CTR",
+				                                                                                    "Engager CTR",
+				                                                                                    "Viewer VCR","Engager VCR",
+				                                                                                    "Interaction Rate","Active Time Spent"],header=False,index=False)
+			
+			startline_placement += len (placement_df)+1
+	
+		startline_adsize = 9 + len(self.placementsummaryfinal) + self.unique_plc*2+3
+		
+		
+		#Writing adsize Data
+		for adzise, adsize_df in self.placementadsizefinal.groupby('Placement# Name'):
+			
+			write_adsize_plc = adsize_df.to_excel(self.config.writer,sheet_name="vdx({})".format(self.config.ioid),
+			                                       startcol =1, startrow =startline_adsize,columns = ["Placement# Name"],
+			                                       header=False, index=False)
+			
+			if adsize_df.iloc[0, 0]!="Grand Total":
+				startline_adsize += 1
+			
+			write_adsize = adsize_df.to_excel(self.config.writer,sheet_name ="vdx({})".format(self.config.ioid),
+			                                   startcol=1, startrow = startline_adsize,columns = ["ADSIZE","Engagements Rate",
+			                                                                                      "Viewer CTR","Engager CTR",
+			                                                                                      "Viewer VCR","Engager VCR",
+			                                                                                      "Interaction Rate","Active Time Spent"],
+			                                  header=False, index=False)
+			
+			startline_adsize += len(adsize_df)+1
 		
 	def main(self):
 		"""
@@ -225,7 +468,7 @@ Main Function
 			self.access_vdx_columns()
 			#self.access_columns_KM_Video()
 			#self.rename_KM_Data_Video()
-			#self.write_video_data()
+			self.write_video_data()
 			#self.formatting_Video()
 
 

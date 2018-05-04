@@ -19,11 +19,12 @@ class Config(object):
 		self.logger.info('Trying to connect with TFR for io: {}'.format(self.ioid))
 		try:
 			self.conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-			self.path = ("C://EOC_Project//Bi_Team_Project//Reports//{}({}).xlsx".format(self.ioname, self.ioid))
-			self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter", datetime_format="YYYY-MM-DD")
-		except cx_Oracle.DatabaseError as e:
-			self.logger.error(str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format(self.ioid))
-	
+		except :
+			self.logger.error (str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format (self.ioid))
+		self.path = ("C://EOC_Project//Bi_Team_Project//Reports//{}({}).xlsx".format(self.ioname, self.ioid))
+		self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter", datetime_format="YYYY-MM-DD")
+		
+
 	def saveAndCloseWriter(self):
 		"""
 		To finally Save and close file
@@ -31,7 +32,7 @@ class Config(object):
 		"""
 		self.writer.save()
 		self.writer.close()
-	
+		self.conn.close()
 	def common_columns_summary(self):
 		"""
 		reading data from csv file for ioid

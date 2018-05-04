@@ -30,8 +30,8 @@ class Summary (object):
 	    :param self:Query Reading
 	    :return:Query
 	    """
-		self.logger.info('Connected for IO - {}'.format(self.config.ioid))
-		self.logger.info('Starting to build Summary for IO - {}'.format (self.config.ioid))
+		
+		
 		
 		sqlvdxsummary = "select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', "\
 		                "1)-1) as "'Placement#'", SDATE as "'Start_Date'", EDATE as "'End_Date'", "\
@@ -390,6 +390,9 @@ class Summary (object):
 	Applying formatting
 		:param self:
 		"""
+		
+		self.logger.info ('Connected for IO - {}'.format (self.config.ioid))
+		self.logger.info ('Starting to build Summary for IO - {}'.format (self.config.ioid))
 		self.logger.info('Apply formatting to all labels of summary sheet for IO - {}'.format(self.config.ioid))
 		data_common_columns = self.config.common_columns_summary ()
 		
@@ -842,6 +845,7 @@ class Summary (object):
 		#self.summary_creation ()
 		#self.rename_cols_sumary ()
 		#self.write_summary ()
+		
 		self.format_summary ()
 		self.logger.info('Summary Sheet Created for IO - {}'.format(self.config.ioid))
 
