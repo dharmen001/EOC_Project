@@ -69,16 +69,24 @@ Class for VDX Placements
 		                "FROM TFR_REP.ADSIZE_KM_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC, " \
 		                "MEDIA_SIZE_DESC,PRODUCT ORDER BY PLACEMENT_ID".format(self.config.ioid)
 		
-		sql_video_km = "SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, PRODUCT, " \
-		               "sum(VWR_VIDEO_VIEW_0_PC_COUNT) as View0,sum(VWR_VIDEO_VIEW_25_PC_COUNT) as View25," \
-		               "sum(VWR_VIDEO_VIEW_50_PC_COUNT) as View50,sum(VWR_VIDEO_VIEW_75_PC_COUNT) as View75," \
-		               "sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100,sum(ENG_VIDEO_VIEW_0_PC_COUNT) as Eng0," \
-		               "sum(ENG_VIDEO_VIEW_25_PC_COUNT) as Eng25,sum(ENG_VIDEO_VIEW_50_PC_COUNT) as Eng50," \
-		               "sum(ENG_VIDEO_VIEW_75_PC_COUNT) as Eng75,sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100," \
-		               "sum(DPE_VIDEO_VIEW_0_PC_COUNT) as Dpe0,sum(DPE_VIDEO_VIEW_25_PC_COUNT) as Dpe25," \
-		               "sum(DPE_VIDEO_VIEW_50_PC_COUNT) as Dpe50,sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100 " \
-		               "FROM  TFR_REP.VIDEO_DETAIL_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC,PRODUCT ORDER BY " \
-		               "PLACEMENT_ID".format(self.config.ioid)
+		sql_video_km = "SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement," \
+		               "PRODUCT,FEV_INT_VIDEO_DESC as Videoname," \
+		               "sum(VWR_VIDEO_VIEW_0_PC_COUNT) as View0," \
+		               "sum(VWR_VIDEO_VIEW_25_PC_COUNT) as View25," \
+		               "sum(VWR_VIDEO_VIEW_50_PC_COUNT) as View50," \
+		               "sum(VWR_VIDEO_VIEW_75_PC_COUNT) as View75," \
+		               "sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100," \
+		               "sum(ENG_VIDEO_VIEW_0_PC_COUNT) as Eng0," \
+		               "sum(ENG_VIDEO_VIEW_25_PC_COUNT) as Eng25," \
+		               "sum(ENG_VIDEO_VIEW_50_PC_COUNT) as Eng50," \
+		               "sum(ENG_VIDEO_VIEW_75_PC_COUNT) as Eng75," \
+		               "sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100," \
+		               "sum(DPE_VIDEO_VIEW_0_PC_COUNT) as Dpe0," \
+		               "sum(DPE_VIDEO_VIEW_25_PC_COUNT) as Dpe25," \
+		               "sum(DPE_VIDEO_VIEW_50_PC_COUNT) as Dpe50, " \
+		               "sum(DPE_VIDEO_VIEW_75_PC_COUNT) as Dpe75," \
+		               "sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100 " \
+		               "FROM  TFR_REP.VIDEO_DETAIL_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID,PLACEMENT_DESC,PRODUCT,FEV_INT_VIDEO_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
 		
 		sql_video_player_intraction = "SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, PRODUCT, " \
 		                              "sum(VWR_MUTE) as Vwrmute,sum(VWR_UNMUTE) as Vwrunmute, " \
@@ -123,6 +131,11 @@ Class for VDX Placements
 		                     "from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, " \
 		                     "PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
 		
+		sql_km_for_video = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement," \
+		                   "sum(IMPRESSIONS) as Impressions,sum(ENGAGEMENTS) as Engagements, sum(CPCV_COUNT) as completions," \
+		                   "sum(DPE_ENGAGEMENTS) as Dpeengaments From TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY  PLACEMENT_ID".format(self.config.ioid)
+		
+		
 		self.sql_vdx_summary = sql_vdx_summary
 		self.sql_vdx_km = sql_vdx_km
 		self.sql_adsize_km = sql_adsize_km
@@ -131,7 +144,8 @@ Class for VDX Placements
 		self.sql_ad_intraction = sql_ad_intraction
 		self.sql_click_throughs = sql_click_throughs
 		self.sql_vdx_day_km = sql_vdx_day_km
-		
+		self.sql_adsize_km_rate = sql_adsize_km_rate
+		self.sql_km_for_video = sql_km_for_video
 	
 	def read_query_video(self):
 		"""
@@ -148,8 +162,11 @@ Class for VDX Placements
 		read_sql_ad_intraction = pd.read_sql(self.sql_ad_intraction, self.config.conn)
 		read_sql_click_throughs = pd.read_sql(self.sql_click_throughs, self.config.conn)
 		read_sql_vdx_day_km = pd.read_sql(self.sql_vdx_day_km, self.config.conn)
+		read_sql_km_for_video = pd.read_sql(self.sql_km_for_video, self.config.conn)
+		read_sql_adsize_km_rate = pd.read_sql(self.sql_adsize_km_rate, self.config.conn)
 		
-	
+		#print (list(read_sql_video_km))
+
 		self.read_sql_vdx_summary = read_sql_vdx_summary
 		self.read_sql_vdx_km = read_sql_vdx_km
 		self.read_sql_adsize_km = read_sql_adsize_km
@@ -158,7 +175,8 @@ Class for VDX Placements
 		self.read_sql_ad_intraction = read_sql_ad_intraction
 		self.read_sql_click_throughs = read_sql_click_throughs
 		self.read_sql_vdx_day_km = read_sql_vdx_day_km
-		
+		self.read_sql_km_for_video = read_sql_km_for_video
+		self.read_sql_adsize_km_rate = read_sql_adsize_km_rate
 	
 	def access_vdx_columns(self):
 		"""
@@ -399,9 +417,87 @@ Class for VDX Placements
 		
 		
 		#video wise roll up
+		placement_video = [self.read_sql_vdx_summary,self.read_sql_video_km,self.read_sql_km_for_video]
+		placement_video_summary = reduce (lambda left, right:pd.merge (left, right, on='PLACEMENT'), placement_video)
+		
+		placement_by_video = placement_video_summary.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","PRODUCT",
+		                                                    "VIDEONAME","IMPRESSIONS","ENGAGEMENTS","COMPLETIONS",
+		                                                    "DPEENGAMENTS","VIEW0","VIEW25","VIEW50","VIEW75","VIEW100",
+		                                                    "ENG0","ENG25","ENG50","ENG75","ENG100","DPE0","DPE25",
+		                                                    "DPE50","DPE75","DPE100"]]
+		
+		placement_by_video["Placement# Name"] = placement_by_video[["PLACEMENT",
+		                                                            "PLACEMENT_NAME"]].apply(lambda x:".".join(x),axis=1)
+		
+		placement_by_video_new = placement_by_video.loc[:,["Placement# Name","COST_TYPE","PRODUCT","VIDEONAME",
+		                                                   "VIEW0", "VIEW25", "VIEW50", "VIEW75", "VIEW100",
+		                                                   "ENG0", "ENG25", "ENG50", "ENG75", "ENG100","DPE0","DPE25",
+		                                                   "DPE50", "DPE75", "DPE100","IMPRESSIONS","ENGAGEMENTS",
+		                                                   "DPEENGAMENTS","COMPLETIONS"]]
+		
+		#print(placement_by_video_new)
+		"""Conditions for 25%view"""
+		mask17 =  placement_by_video_new["PRODUCT"].isin(['Display','Mobile'])
+		mask18 = placement_by_video_new["COST_TYPE"].isin(["CPE","CPM","CPCV"])
+		mask19 = placement_by_video_new["PRODUCT"].isin (["InStream"])
+		mask20 = placement_by_video_new["COST_TYPE"].isin (["CPE", "CPM", "CPE+", "CPCV"])
+		mask21 = placement_by_video_new["COST_TYPE"].isin(["CPE+"])
+		
+		choice25video_eng = placement_by_video_new["ENG25"]
+		choice25video_vwr = placement_by_video_new["VIEW25"]
+		choice25video_deep = placement_by_video_new["DPE25"]
+		
+		placement_by_video_new["25_pc_video"] = np.select([mask17 & mask18,mask19 & mask20,mask17 & mask21],
+		                                                  [choice25video_eng,choice25video_vwr,choice25video_deep])
 		
 		
 		
+		"""Conditions for 50%view"""
+		choice50video_eng = placement_by_video_new["ENG50"]
+		choice50video_vwr = placement_by_video_new["VIEW50"]
+		choice50video_deep = placement_by_video_new["DPE50"]
+		
+		placement_by_video_new["50_pc_video"] = np.select([mask17 & mask18,mask19 & mask20,mask17 & mask21],[choice50video_eng,
+		                                                                                      choice50video_vwr,choice50video_deep])
+		
+		
+		"""Conditions for 75%view"""
+		
+		choice75video_eng = placement_by_video_new["ENG75"]
+		choice75video_vwr = placement_by_video_new["VIEW50"]
+		choice75video_deep = placement_by_video_new["DPE75"]
+		
+		placement_by_video_new["75_pc_video"] = np.select([mask17 & mask18,mask19 & mask20,mask17 & mask21],[choice75video_eng,
+		                                                                                                     choice75video_vwr,
+		                                                                                                     choice75video_deep])
+		
+		"""Conditions for 100%view"""
+		
+		choice100video_eng = placement_by_video_new["ENG100"]
+		choice100video_vwr = placement_by_video_new["VIEW100"]
+		choice100video_deep = placement_by_video_new["DPE100"]
+		
+		placement_by_video_new["100_pc_video"] = np.select([mask17 & mask18,mask19 & mask20,mask17 & mask21],[choice100video_eng,
+		                                                                                                      choice100video_vwr,choice100video_deep])
+		
+		"""conditions for 0%view"""
+		
+		choice0video_eng = placement_by_video_new["ENG0"]
+		choice0video_vwr = placement_by_video_new["VIEW0"]
+		choice0video_deep = placement_by_video_new["DPE0"]
+		
+		placement_by_video_new["Views"] = np.select([mask17 & mask18,mask19 & mask20,mask17 & mask21],[choice0video_eng,
+		                                                                                               choice0video_vwr,
+		                                                                                               choice0video_deep])
+		
+		
+		
+		placement_by_video_summary = placement_by_video_new.loc[:,["Placement# Name","PRODUCT","VIDEONAME","COST_TYPE",
+		                                                           "Views","25_pc_video","50_pc_video","75_pc_video",
+		                                                           "100_pc_video","IMPRESSIONS","ENGAGEMENTS",
+		                                                           "DPEENGAMENTS"]]
+		
+		print (placement_by_video_summary)
 		
 		self.placementsummaryfinal = placementsummaryfinal
 		self.unique_plc = unique_plc
@@ -468,7 +564,7 @@ Main Function
 			self.access_vdx_columns()
 			#self.access_columns_KM_Video()
 			#self.rename_KM_Data_Video()
-			self.write_video_data()
+			#self.write_video_data()
 			#self.formatting_Video()
 
 
