@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, url_for, make_response, jsonify
 import flask_excel as excel
-import Eoc_Summary
+import Eoc_Summary_Old
 import Eoc_Daily
 import Eoc_AdSize
 import Eoc_Video
@@ -44,7 +44,7 @@ def submit(name, id):
     #name = request.args.get('name')
     #id = int(request.args.get('id'))
     c = Config(name, id)
-    obj_summary = Eoc_Summary.Summary(c)
+    obj_summary = Eoc_Summary_Old.Summary(c)
     obj_summary.main()
     obj_daily=Eoc_Daily.Daily(c)
     obj_daily.main()
