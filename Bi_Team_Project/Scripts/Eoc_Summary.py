@@ -6,7 +6,8 @@ Date:2018-03-23
 from __future__ import print_function
 import pandas as pd
 import numpy as np
-from xlsxwriter.utility import xl_rowcol_to_cell
+from xlsxwriter.utility import xl_range, xl_rowcol_to_cell
+
 import config
 import logging
 import pandas.io.formats.excel
@@ -129,8 +130,10 @@ class Summary (object):
 		
 		except AttributeError as e:
 			self.logger.error(str(e)+' Connection Not established please rerun for IO - {}'.format(self.config.ioid))
+			pass
 		except Exception as e:
 			self.logger.error(str(e)+' Table or view does not exist')
+			pass
 		#return read_sql__v_d_x, read_sql__display, read_sql_preroll, read_sql__display_mv, read_sql__v_d_x_mv, read_sql_preroll_mv
 		
 		self.read_sql__v_d_x = read_sql__v_d_x
@@ -168,6 +171,7 @@ class Summary (object):
 				                                             "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION"]]
 		except (KeyError,ValueError,AttributeError,TypeError) as e:
 				self.logger.error(str(e))
+				pass
 			
 		self.logger.info ('Buliding VDX placements for IO - {}'.format(self.config.ioid))
 		vdx_access_table = None
@@ -200,6 +204,7 @@ class Summary (object):
 				                                      "Delivered_Engagements","Delivered_Impressions"]]
 		except (KeyError,ValueError,AttributeError,TypeError) as e:
 			self.logger.error(str(e))
+			pass
 			
 
 		self.logger.info('Buliding Preroll Placements for IO - {}'.format(self.config.ioid))
@@ -229,6 +234,7 @@ class Summary (object):
 		
 		except (KeyError,ValueError,AttributeError, TypeError) as e:
 			self.logger.error(str(e))
+			pass
 		
 		#return displayfirsttable, vdx_access_table, preroll_access_table
 		self.displayfirsttable = displayfirsttable
@@ -260,6 +266,7 @@ class Summary (object):
 				self.displayfirsttable["PLACEMENT#"] = self.displayfirsttable["PLACEMENT#"].astype (int)
 		except (KeyError,TypeError,AttributeError,ValueError) as e:
 			self.logger.error(str(e))
+			pass
 		
 		self.logger.info ('Adding Delivery Metrices on VDX Placements for IO - {}'.format(self.config.ioid))
 		try:
@@ -287,6 +294,7 @@ class Summary (object):
 				self.vdx_access_table['Spend'] = self.vdx_access_table['Spend'].replace (np.inf, 0.00)
 		except (KeyError,TypeError,ValueError,AttributeError) as e:
 			self.logger.error (str (e))
+			pass
 			
 		
 		self.logger.info ('Adding Delivery Metrices on Preroll Placements for IO - {}'.format (self.config.ioid))
@@ -303,10 +311,11 @@ class Summary (object):
 					"UNIT_COST"]
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace (np.inf, 0.00)
-		except (KeyError,TypeError) as e:
+		except (KeyError,TypeError,AttributeError) as e:
 			self.logger.error(str(e))
+			pass
 		
-		try:
+		"""try:
 			rename_display = self.displayfirsttable.rename (columns={"PLACEMENT#":"Placement#",
 			                                                         "START_DATE":"Start Date", "END_DATE":"End Date",
 			                                                         "PLACEMENT_NAME":"Placement Name",
@@ -328,9 +337,43 @@ class Summary (object):
 			                                                      "PLANNED_COST":"Planned Cost",
 			                                                      "BOOKED_IMP#BOOKED_ENG":"Booked"},inplace=True)
 		except (TypeError, KeyError, ValueError, AttributeError):
-			pass
+			pass"""
 	
 		self.logger.info ("Writing data into Summary Sheet for IO - {}".format (self.config.ioid))
+	
+	def rename_display(self):
+		
+		"""
+		Display Placements Rename Column
+		:return:
+		"""
+		rename_display = self.displayfirsttable.rename (columns={"PLACEMENT#":"Placement#","START_DATE":"Start Date",
+		                                                         "END_DATE":"End Date","PLACEMENT_NAME":"Placement Name",
+		                                                         "COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
+		                                                         "PLANNED_COST":"Planned Cost",
+		                                                         "BOOKED_IMP#BOOKED_ENG":"Booked",
+		                                                         "DELIVERED_IMPRESION":"Delivered_Impressions"},inplace=True)
+	
+	def rename_vdx(self):
+		"""
+		VDX Placements Rename Columsn
+		:return:
+		"""
+		rename_vdx = self.vdx_access_table.rename(columns={"PLACEMENT#":"Placement#", "START_DATE":"Start Date",
+		                                                   "END_DATE":"End Date","PLACEMENT_NAME":"Placement Name",
+		                                                   "COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
+		                                                   "PLANNED_COST":"Planned Cost", "BOOKED_IMP#BOOKED_ENG":"Booked"},
+			                                      inplace=True)
+		
+	def rename_preroll(self):
+		"""
+		:return:
+		"""
+		rename_preroll = self.preroll_access_table.rename (columns={"PLACEMENT#":"Placement#", "START_DATE":"Start Date","END_DATE":"End Date", "PLACEMENT_NAME":"Placement Name",
+		                                                            "COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
+		                                                            "PLANNED_COST":"Planned Cost","BOOKED_IMP#BOOKED_ENG":"Booked"},
+		                                                   inplace=True)
+	
 	
 	def  write_campaign_info(self):
 		"""
@@ -393,6 +436,270 @@ class Summary (object):
 		workbook = self.config.writer.book
 		worksheet = self.config.writer.sheets["Delivery Summary".format (self.config.ioid)]
 		worksheet.set_zoom (75)
+		worksheet.hide_gridlines (2)
+		worksheet.set_row (0, 6)
+		worksheet.set_column ("A:A", 2)
+		format_campaign_info = workbook.add_format({"bold":True,"bg_color":'#00B0F0', "align":"left"})
+		worksheet.insert_image ("N6", "Exponential.png", {"url":"https://www.tribalfusion.com"})
+		worksheet.insert_image ("N2", "Client_Logo.png")
+		worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
+		worksheet.conditional_format ("A1:R5", {"type":"no_blanks", "format":format_campaign_info})
+		format_write = workbook.add_format ({"bold":True, "bg_color":"#00B0F0", "align":"left"})
+		format_header = workbook.add_format ({"bold":True, "bg_color":"#00B0F0"})
+		format_colour = workbook.add_format({"bg_color":"#00B0F0"})
+		format_subtotal = workbook.add_format({"bg_color":"#A5A5A5","bold":True,"align":"center"})
+		format_subtotal_row = workbook.add_format({"bg_color":"#A5A5A5","bold":True})
+		number_fmt = workbook.add_format({"num_format":"#,##0","bg_color":"#A5A5A5","bold":True})
+		number_fmt_new = workbook.add_format ({"num_format":"#,##0"})
+		percent_fmt = workbook.add_format({"num_format":"0.00%","bg_color":"#A5A5A5","bold":True})
+		percent_fmt_new = workbook.add_format ({"num_format":"0.00%"})
+		money_fmt_total = workbook.add_format ({"num_format":"$#,###0.00","bg_color":"#A5A5A5","bold":True})
+		money_fmt = workbook.add_format ({"num_format":"$#,###0.00"})
+		
+		try:
+			if self.read_sql__display.empty:
+				pass
+			else:
+				worksheet.write_string(7,2,"Standard Banners (Performance/Brand)",format_write)
+				
+				for row in range(7,8):
+					for col in range(3,13):
+						cell_reference = xl_rowcol_to_cell (row, col, row_abs=True, col_abs=True)
+						worksheet.write ('{}'.format (cell_reference), None, format_colour)
+				
+				worksheet.set_row(8,29)
+				
+				"""for row in range(8,9):
+					for col in range(2,13):
+						cell_reference = xl_rowcol_to_cell (row, col, row_abs=True, col_abs=True)
+						worksheet.write ('{}'.format (cell_reference), None, format_header)
+						#worksheet.set_column(col,None,format_header)
+						worksheet.set_row(row,29,format_header)"""
+				
+				worksheet.conditional_format(8,2,8,12,{"type":"no_blanks","format":format_header})
+				
+				worksheet.write_string(9+self.displayfirsttable.shape[0],2,"Subtotal",format_subtotal)
+				
+				for row in range (9+self.displayfirsttable.shape[0], 9+self.displayfirsttable.shape[0]+1):
+					for col in range(3,8):
+							cell_reference = xl_rowcol_to_cell(row,col,row_abs=True, col_abs=True)
+							worksheet.write('{}'.format(cell_reference),None,format_subtotal_row)
+				
+				
+				for col in range(8,9):
+					cell_location = xl_rowcol_to_cell (9+self.displayfirsttable.shape[0], col)
+					start_range = xl_rowcol_to_cell (9, col)
+					end_range = xl_rowcol_to_cell (8+self.displayfirsttable.shape[0], col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+				for col in range(9,11):
+					cell_location = xl_rowcol_to_cell(9+self.displayfirsttable.shape[0],col)
+					start_range = xl_rowcol_to_cell(9,col)
+					end_range = xl_rowcol_to_cell(8+self.displayfirsttable.shape[0],col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula(cell_location,formula,number_fmt)
+				
+				worksheet.write_formula(9+self.displayfirsttable.shape[0],self.displayfirsttable.shape[1],
+				                        '=IFERROR(K{}/J{},0)'.format(9+self.displayfirsttable.shape[0]+1,
+				                                                     9+self.displayfirsttable.shape[0]+1),percent_fmt)
+				
+				for col in range(12,13):
+					cell_location = xl_rowcol_to_cell (9+self.displayfirsttable.shape[0], col)
+					start_range = xl_rowcol_to_cell (9, col)
+					end_range = xl_rowcol_to_cell (8+self.displayfirsttable.shape[0], col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, money_fmt_total)
+				
+				"""worksheet.conditional_format(9+self.displayfirsttable.shape[0],3,9+self.displayfirsttable.shape[0],
+				                             self.displayfirsttable.shape[1]+1,{"type":"blanks","format":format_subtotal_row})
+				
+				worksheet.conditional_format(9+self.displayfirsttable.shape[0],3,9+self.displayfirsttable.shape[0],
+				                             self.displayfirsttable.shape[1]+1,{"type":"no_blanks",
+				                                                              "format":format_subtotal_row})"""
+				
+				worksheet.conditional_format(9,7,8+self.displayfirsttable.shape[0],8,{"type":"no_blanks","format":money_fmt})
+				
+				worksheet.conditional_format(9,self.displayfirsttable.shape[1]+1,8+self.displayfirsttable.shape[0],
+				                             self.displayfirsttable.shape[1]+1,{"type":"no_blanks","format":money_fmt})
+				
+				worksheet.conditional_format(9,self.displayfirsttable.shape[1],8+self.displayfirsttable.shape[0],
+				                             self.displayfirsttable.shape[1],{"type":"no_blanks","format":percent_fmt_new})
+				
+				worksheet.conditional_format(9,9,8+self.displayfirsttable.shape[0],10,
+				                             {"type":"no_blanks", "format":number_fmt_new})
+				
+		except AttributeError:
+			pass
+		
+		try:
+			if self.read_sql__v_d_x.empty:
+				pass
+			else:
+				display_row = 0
+				if self.displayfirsttable is not None:
+					display_row = self.displayfirsttable.shape[0]
+				
+				worksheet.write_string (9+display_row+3, 2, "VDX (Display, Mobile and Instream)", format_write)
+				
+				for row in range (9+display_row+3, 9+display_row+4):
+					for col in range(3,14):
+						cell_reference = xl_rowcol_to_cell (row, col, row_abs=True, col_abs=True)
+						worksheet.write ('{}'.format (cell_reference), None, format_colour)
+				
+				worksheet.set_row (9+display_row+4, 29)
+				worksheet.conditional_format (9+display_row+4, 2, 9+display_row+4, 14, {"type":"no_blanks", "format":format_header})
+				
+				worksheet.write_string (9+display_row+self.vdx_access_table.shape[0]+5, 2, "Subtotal", format_subtotal)
+				
+				for row in range (9+display_row+self.vdx_access_table.shape[0]+5, 9+display_row+self.vdx_access_table.shape[0]+6):
+					for col in range(3,8):
+						cell_reference = xl_rowcol_to_cell(row,col,row_abs=True, col_abs=True)
+						worksheet.write('{}'.format(cell_reference),None,format_subtotal_row)
+					for col in range(12,13):
+						cell_reference = xl_rowcol_to_cell (row, col, row_abs=True, col_abs=True)
+						worksheet.write ('{}'.format (cell_reference), None, format_subtotal_row)
+						
+				for col in range(8,9):
+					cell_location = xl_rowcol_to_cell (9+display_row+self.vdx_access_table.shape[0]+5, col)
+					start_range = xl_rowcol_to_cell (9+display_row+5, col)
+					end_range = xl_rowcol_to_cell (8+display_row+self.vdx_access_table.shape[0]+5, col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, money_fmt_total)
+				
+				
+				for col in range(9,12):
+					cell_location = xl_rowcol_to_cell (9+display_row+self.vdx_access_table.shape[0]+5, col)
+					start_range = xl_rowcol_to_cell (9+display_row+5, col)
+					end_range = xl_rowcol_to_cell (8+display_row+self.vdx_access_table.shape[0]+5, col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, number_fmt)
+					
+					
+				#worksheet.write_formula(9+display_row+self.vdx_access_table.shape[0]+5,12,'')
+				
+				for col in range(13,14):
+					cell_location = xl_rowcol_to_cell (9+display_row+self.vdx_access_table.shape[0]+5, col)
+					start_range = xl_rowcol_to_cell (9+display_row+5, col)
+					end_range = xl_rowcol_to_cell (8+display_row+self.vdx_access_table.shape[0]+5, col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, money_fmt_total)
+				
+				worksheet.conditional_format (9+display_row+5, 7, 8+display_row+self.vdx_access_table.shape[0]+5, 8,
+				                              {"type":"no_blanks", "format":money_fmt})
+				
+				worksheet.conditional_format (9+display_row+5, self.vdx_access_table.shape[1]+1,
+				                              8+display_row+self.vdx_access_table.shape[0]+5, self.vdx_access_table.shape[1]+1,
+				                              {"type":"no_blanks", "format":money_fmt})
+				
+				worksheet.conditional_format (9+display_row+5, 9,
+				                              8+display_row+self.vdx_access_table.shape[0]+5,
+				                              11,{"type":"no_blanks", "format":number_fmt_new})
+				
+				worksheet.conditional_format(9+display_row+5,self.vdx_access_table.shape[1],
+				                             8+display_row+self.vdx_access_table.shape[0]+5,self.vdx_access_table.shape[1],
+				                             {"type":"no_blanks", "format":percent_fmt_new})
+			
+		except AttributeError:
+			pass
+		
+		try:
+			if self.read_sql_preroll.empty:
+				pass
+			else:
+				display_row =0
+				vdx_row =0
+				if self.displayfirsttable is not None:
+					display_row = self.displayfirsttable.shape[0]
+				if self.vdx_access_table is not None:
+					vdx_row = self.vdx_access_table.shape[0]
+				
+				worksheet.write_string (9+display_row+3+vdx_row+5, 2, "Standard Pre Roll", format_write)
+				
+				for row in range (9+display_row+3+vdx_row+5, 9+display_row+3+vdx_row+6):
+					for col in range(3,13):
+						cell_reference = xl_rowcol_to_cell (row, col, row_abs=True, col_abs=True)
+						worksheet.write ('{}'.format (cell_reference), None, format_colour)
+				
+				worksheet.set_row (9+display_row+3+vdx_row+6, 29)
+				worksheet.conditional_format (9+display_row+3+vdx_row+6, 2, 9+display_row+3+vdx_row+6, 13,
+				                              {"type":"no_blanks", "format":format_header})
+				
+				worksheet.write_string (9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], 2, "Subtotal", format_subtotal)
+				
+				for row in range(9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0],9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0]+1):
+					for col in range(3,8):
+						cell_reference = xl_rowcol_to_cell (row, col, row_abs=True, col_abs=True)
+						worksheet.write ('{}'.format (cell_reference), None, format_subtotal_row)
+						
+				
+				for col in range(8,9):
+					cell_location = xl_rowcol_to_cell (9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], col)
+					start_range = xl_rowcol_to_cell (9+display_row+5+vdx_row+5, col)
+					end_range = xl_rowcol_to_cell (8+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, money_fmt_total)
+				
+				
+				for col in range(9,11):
+					cell_location = xl_rowcol_to_cell (9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], col)
+					start_range = xl_rowcol_to_cell (9+display_row+5+vdx_row+5, col)
+					end_range = xl_rowcol_to_cell (8+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, number_fmt)
+					
+					
+				worksheet.write_formula (9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0],
+				                         self.preroll_access_table.shape[1],
+				                         '=IFERROR(K{}/J{},0)'.format (9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0]+1,
+				                                                       9+display_row+5+vdx_row+5+
+				                                                       self.preroll_access_table.shape[0]+1),
+				                         percent_fmt)
+					
+				for col in range(12,13):
+					cell_location = xl_rowcol_to_cell (9+display_row+5+vdx_row+5+self.preroll_access_table.shape[0],
+					                                   col)
+					start_range = xl_rowcol_to_cell (9+display_row+5+vdx_row+5, col)
+					end_range = xl_rowcol_to_cell (8+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], col)
+					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+				
+				worksheet.conditional_format (9+display_row+5+vdx_row+5, 7,
+				                              8+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], 8,
+				                              {"type":"no_blanks", "format":money_fmt})
+				
+				
+				worksheet.conditional_format (9+display_row+5+vdx_row+5,
+				                              self.preroll_access_table.shape[1]+1, 8+display_row+5+vdx_row+5
+				                              +self.preroll_access_table.shape[0],
+				                              self.preroll_access_table.shape[1]+1,
+				                              {"type":"no_blanks", "format":money_fmt})
+				
+				
+				worksheet.conditional_format (9+display_row+5+vdx_row+5,
+				                              self.preroll_access_table.shape[1],
+				                              8+display_row+5+vdx_row+5+self.preroll_access_table.shape[0],
+				                              self.preroll_access_table.shape[1],
+				                              {"type":"no_blanks", "format":percent_fmt_new})
+				
+				worksheet.conditional_format (9+display_row+5+vdx_row+5, 9,
+				                              8+display_row+5+vdx_row+5+self.preroll_access_table.shape[0], 10,
+				                              {"type":"no_blanks", "format":number_fmt_new})
+				
+				
+					
+		except AttributeError:
+			pass
+			
+		aligment_left = workbook.add_format ({"align":"left"})
+		aligment_right = workbook.add_format({"align":"right"})
+		aligment_center = workbook.add_format ({"align":"center"})
+		worksheet.set_column("B:B",30,aligment_left)
+		worksheet.set_column("C:C",36,aligment_center)
+		worksheet.set_column("D:E",17,aligment_right)
+		worksheet.set_column("F:F",47,aligment_right)
+		worksheet.set_column("G:R",23,aligment_right)
 		try:
 			for row in range (5, 10):
 				if self.read_sql__display.empty:
@@ -401,7 +708,7 @@ class Summary (object):
 			pass
 			
 		try:
-			for row in range (5, 12):
+			for row in range (5, 15):
 				if self.read_sql__display.empty  & self.read_sql__v_d_x.empty:
 					worksheet.set_row (row, None, None, {'hidden':True})
 		except (TypeError, KeyError, ValueError, AttributeError):
@@ -424,6 +731,30 @@ class Summary (object):
 		self.read_query_summary()
 		self.access_data_summary()
 		self.summary_creation()
+		try:
+			if self.read_sql__display.empty:
+				self.logger.info ("No Display Placement found to rename columns for IO - {}".format (self.config.ioid))
+				pass
+			else:
+				self.logger.info ("Display Placements found found to rename columns for IO - {}".format (self.config.ioid))
+				self.rename_display ()
+			
+			if self.read_sql__v_d_x.empty:
+				self.logger.info ("No VDX Placement found to rename columns for IO - {}".format (self.config.ioid))
+				pass
+			else:
+				self.logger.info ("VDX Placements found to rename columns for IO - {}".format (self.config.ioid))
+				self.rename_vdx ()
+				
+			if self.read_sql_preroll.empty:
+				self.logger.info ("No Preroll Placement found to rename columns for IO - {}".format (self.config.ioid))
+				pass
+			else:
+				self.logger.info ("Preroll Placements found to rename columns for IO - {}".format (self.config.ioid))
+				self.rename_preroll()
+		except AttributeError:
+			pass
+		
 		self.write_campaign_info()
 		try:
 			if self.read_sql__display.empty:
@@ -452,10 +783,9 @@ class Summary (object):
 		self.logger.info("Summary Sheet Created for IO - {}".format(self.config.ioid))
 
 if __name__=="__main__":
-	#pass
-	
+	pass
 	# enable it when running for individual file
-	c=config.Config("test", 603637)
-	o=Summary(c)
-	o.main()
-	c.saveAndCloseWriter()
+	#c=config.Config("test", 599207)
+	#o=Summary(c)
+	#o.main()
+	#c.saveAndCloseWriter()

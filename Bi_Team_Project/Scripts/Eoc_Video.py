@@ -629,7 +629,7 @@ Class for VDX Placements
 		data_common_columns = self.config.common_columns_summary ()
 		
 		writing_data_common_columns = data_common_columns[1].to_excel (self.config.writer,
-		                                                               sheet_name="VDX Details({})".format(self.config.ioid),
+		                                                               sheet_name="VDX Details".format(self.config.ioid),
 		                                                               startcol=1, startrow=1,
 		                                                               index=False, header=False)
 		
@@ -637,13 +637,13 @@ Class for VDX Placements
 		#Writing placement Data
 		for placement, placement_df in self.placementsummaryfinal.groupby('Placement# Name'):
 			
-			write_pl = placement_df.to_excel(self.config.writer, sheet_name="VDX Details({})".format(self.config.ioid),
+			write_pl = placement_df.to_excel(self.config.writer, sheet_name="VDX Details".format(self.config.ioid),
 			                                          startcol=1,startrow=startline_placement,columns=["Placement# Name"],header=False,index=False)
 			
 			if placement_df.iloc[0,0] != "Grand Total":
 				startline_placement +=1
 			
-			write_pls = placement_df.to_excel(self.config.writer,sheet_name="VDX Details({})".format(self.config.ioid),
+			write_pls = placement_df.to_excel(self.config.writer,sheet_name="VDX Details".format(self.config.ioid),
 				                                           startcol=1,startrow=startline_placement,columns=["PRODUCT",
 				                                                                                    "Engagements Rate","Viewer CTR",
 				                                                                                    "Engager CTR",
@@ -660,14 +660,14 @@ Class for VDX Placements
 		#Writing adsize Data
 		for adzise, adsize_df in self.placementadsizefinal.groupby('Placement# Name'):
 			
-			write_adsize_plc = adsize_df.to_excel(self.config.writer,sheet_name="VDX Details({})".format(self.config.ioid),
+			write_adsize_plc = adsize_df.to_excel(self.config.writer,sheet_name="VDX Details".format(self.config.ioid),
 			                                       startcol =1, startrow =startline_adsize,columns = ["Placement# Name"],
 			                                       header=False, index=False)
 			
 			if adsize_df.iloc[0, 0]!="Grand Total":
 				startline_adsize += 1
 			
-			write_adsize = adsize_df.to_excel(self.config.writer,sheet_name ="VDX Details({})".format(self.config.ioid),
+			write_adsize = adsize_df.to_excel(self.config.writer,sheet_name ="VDX Details".format(self.config.ioid),
 			                                   startcol=1, startrow = startline_adsize,columns = ["ADSIZE","Engagements Rate",
 			                                                                                      "Viewer CTR","Engager CTR",
 			                                                                                      "Viewer VCR","Engager VCR",
@@ -682,11 +682,11 @@ Class for VDX Placements
 		
 		for video, video_df  in self.placement_by_video_final.groupby('Placement# Name'):
 			
-			write_video_plc = video_df.to_excel(self.config.writer,sheet_name="VDX Details({})".format(self.config.ioid),
+			write_video_plc = video_df.to_excel(self.config.writer,sheet_name="VDX Details".format(self.config.ioid),
 			                                    startcol=1, startrow=startline_video,columns = ["Placement# Name"],
 			                                    header =False,index=False)
 			
-			write_video = video_df.to_excel(self.config.writer,sheet_name="VDX Details({})".format(self.config.ioid),
+			write_video = video_df.to_excel(self.config.writer,sheet_name="VDX Details".format(self.config.ioid),
 			                                startcol=1, startrow=startline_video+1, columns=["PRODUCT","VIDEONAME",
 			                                                                                 "Views","25_pc_video",
 			                                                                                 "50_pc_video","75_pc_video",
@@ -697,14 +697,14 @@ Class for VDX Placements
 		
 		startline_player = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary*2+3+len(self.placementadsizefinal)+self.unique_plc_summary*2+3+len(self.placement_by_video_final)+self.unique_plc_summary*2+3
 		
-		write_player_interaction = self.video_player_final.to_excel(self.config.writer,sheet_name="VDX Details({})".format(self.config.ioid),
+		write_player_interaction = self.video_player_final.to_excel(self.config.writer,sheet_name="VDX Details".format(self.config.ioid),
 		                                                            startcol=1,startrow=startline_player,index=False)
 		
 		write_intraction_clicks = self.intractions_clicks_new.to_excel(self.config.writer,
-		                                                      sheet_name="VDX Details({})".format(self.config.ioid),
+		                                                      sheet_name="VDX Details".format(self.config.ioid),
 		                                                      startcol=9,startrow=startline_player,index=False,merge_cells=False)
 		                                                      
-		write_intraction = self.intractions_intrac_new.to_excel(self.config.writer,sheet_name="VDX Details({})".format(self.config.ioid),
+		write_intraction = self.intractions_intrac_new.to_excel(self.config.writer,sheet_name="VDX Details".format(self.config.ioid),
 		                                                        startcol=9+self.intractions_clicks_new.shape[1],
 		                                                        startrow=startline_player, index=False,
 		                                                        merge_cells=False)
@@ -716,7 +716,7 @@ Class for VDX Placements
 		"""
 		self.logger.info ('Applying formatting in VDX sheet - {}'.format (self.config.ioid))
 		workbook = self.config.writer.book
-		worksheet = self.config.writer.sheets["VDX Details({})".format(self.config.ioid)]
+		worksheet = self.config.writer.sheets["VDX Details".format(self.config.ioid)]
 		worksheet.hide_gridlines (2)
 		worksheet.set_row (0, 6)
 		worksheet.set_column ("A:A", 2)
@@ -727,7 +727,8 @@ Class for VDX Placements
 		number_cols_adsize = self.placementadsizefinal.shape[1]
 		number_cols_video = self.placement_by_video_final.shape[1]
 		
-		format_hearder = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
+		format_hearder_right = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"right"})
+		format_hearder_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
 		format_colour = workbook.add_format({"bg_color":'#00B0F0'})
 		format_campaign_info = workbook.add_format ({"bold":True,"bg_color":'#00B0F0', "align":"left"})
 		format_grand_total = workbook.add_format({"bold":True,"bg_color":"#A5A5A5","num_format":"#,##0"})
@@ -739,16 +740,16 @@ Class for VDX Placements
 		worksheet.conditional_format ("A1:R5", {"type":"no_blanks", "format":format_campaign_info})
 		
 		worksheet.write_string (7, 1, "VDX Performance KPIs - by Placement and Platform",
-		                        format_hearder)
+		                        format_hearder_left)
 		
-		worksheet.write_string (8, 1, "Unit", format_hearder)
-		worksheet.write_string (8, 2, "Engagement Rate", format_hearder)
-		worksheet.write_string (8, 3, "Viewer CTR", format_hearder)
-		worksheet.write_string (8, 4, "Engager CTR", format_hearder)
-		worksheet.write_string (8, 5, "Viewer VCR (Primary Video)", format_hearder)
-		worksheet.write_string (8, 6, "Engager VCR (Primary Video)", format_hearder)
-		worksheet.write_string (8, 7, "Interaction Rate", format_hearder)
-		worksheet.write_string (8, 8, "Active Time Spent", format_hearder)
+		worksheet.write_string (8, 1, "Unit", format_hearder_left)
+		worksheet.write_string (8, 2, "Engagement Rate", format_hearder_right)
+		worksheet.write_string (8, 3, "Viewer CTR", format_hearder_right)
+		worksheet.write_string (8, 4, "Engager CTR", format_hearder_right)
+		worksheet.write_string (8, 5, "Viewer VCR (Primary Video)", format_hearder_right)
+		worksheet.write_string (8, 6, "Engager VCR (Primary Video)", format_hearder_right)
+		worksheet.write_string (8, 7, "Interaction Rate", format_hearder_right)
+		worksheet.write_string (8, 8, "Active Time Spent", format_hearder_right)
 		worksheet.conditional_format(7,1,7,number_cols_plc_summary-1,{"type":"blanks","format":format_colour})
 		
 		percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
@@ -759,24 +760,24 @@ Class for VDX Placements
 		
 		format_num = workbook.add_format ({"num_format":"#,##0"})
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+1, 1, "Ad Size Breakdown",
-		                        format_hearder)
+		                        format_hearder_left)
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 1, "Ad Size",
-		                        format_hearder)
+		                        format_hearder_left)
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 2, "Engagement Rate",
-		                        format_hearder)
+		                        format_hearder_right)
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 3, "Viewer CTR",
-		                        format_hearder)
+		                        format_hearder_right)
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 4, "Engager CTR",
-		                        format_hearder)
+		                        format_hearder_right)
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 5, "Viewer VCR (Primary Video)",
-		                        format_hearder)
+		                        format_hearder_right)
 		
-		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 6,"Engager VCR (Primary Video)",format_hearder)
+		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 6,"Engager VCR (Primary Video)",format_hearder_right)
 		
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2, 7,"Interaction Rate",
-		                        format_hearder)
+		                        format_hearder_right)
 		
-		worksheet.write_string(9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2,8,"Active Time Spent",format_hearder)
+		worksheet.write_string(9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+2,8,"Active Time Spent",format_hearder_right)
 		
 		worksheet.conditional_format(9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+1,1,
 		                             9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+1,number_cols_adsize-1,{"type":"blanks",
@@ -784,36 +785,36 @@ Class for VDX Placements
 		
 		worksheet.write_string (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3,
-		                        1, "Video Details",format_hearder)
+		                        1, "Video Details",format_hearder_left)
 		
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
-		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4,1, "Unit",format_hearder)
+		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4,1, "Unit",format_hearder_left)
 		
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4, 2, "Video Name",
-		                       format_hearder)
+		                       format_hearder_right)
 		
 		worksheet.write_string (9+self.placementsummaryfinal.shape[0]+
 		                        self.unique_plc_summary*2+1+self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4,
-		                        3, "Views",format_hearder)
+		                        3, "Views",format_hearder_right)
 		
 		worksheet.write_string (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
-		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4,4,"25% View",format_hearder)
+		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4,4,"25% View",format_hearder_right)
 		
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4, 5, "50% View",
-		                       format_hearder)
+		                       format_hearder_right)
 		
 		worksheet.write_string (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
-		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4, 6, "75% View",format_hearder)
+		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4, 6, "75% View",format_hearder_right)
 		
 		worksheet.write_string (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4, 7, "Video Completion",
-		                        format_hearder)
+		                        format_hearder_right)
 		
 		worksheet.write_string (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+4, 8, "Video Completion Rate",
-		                        format_hearder)
+		                        format_hearder_right)
 		
 		worksheet.conditional_format(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                             self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3,1,
@@ -825,7 +826,7 @@ Class for VDX Placements
 		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 		                        self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+3,
 		                        1,"Interaction Details",
-		                        format_hearder)
+		                        format_hearder_left)
 		
 		worksheet.conditional_format(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
@@ -839,7 +840,7 @@ Class for VDX Placements
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 		                       self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+4,2,"Video Player Interactions",
-		                       format_hearder)
+		                       format_hearder_right)
 		
 		worksheet.conditional_format (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                        self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
@@ -853,17 +854,17 @@ Class for VDX Placements
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 		                       self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+4, 9,
-		                       "Clickthroughs",format_hearder)
+		                       "Clickthroughs",format_hearder_right)
 		
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 		                       self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+4,
-		                       9+self.intractions_clicks_new.shape[1],"Ad Interactions",format_hearder)
+		                       9+self.intractions_clicks_new.shape[1],"Ad Interactions",format_hearder_right)
 		
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 		                       self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+5,
-		                       9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],"Total Interactions",format_hearder)
+		                       9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],"Total Interactions",format_hearder_right)
 		
 		worksheet.write_string(9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                       self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
@@ -906,7 +907,7 @@ Class for VDX Placements
 		                             9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 		                             self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 		                             self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+5,
-		                             9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],{"type":"no_blanks","format":format_hearder})
+		                             9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],{"type":"no_blanks","format":format_hearder_left})
 		
 		#applying grand Total Formatting
 		
