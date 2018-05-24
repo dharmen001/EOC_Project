@@ -13,7 +13,9 @@ from config import Config
 if __name__ == '__main__':
     IO_Name = input("Enter IO Name:")
     IO_ID = int(input("Enter the IO:"))
-    c = Config(IO_Name, IO_ID)
+    START_DATE = input("Enter the Start Date:")
+    END_DATE = input("Enter the End Date:")
+    c = Config(IO_Name, IO_ID,START_DATE,END_DATE)#,START_DATE,END_DATE)
     obj_summary = Eoc_Summary.Summary(c)
     obj_summary.main()
     obj_daily = Eoc_Daily.Daily(c)

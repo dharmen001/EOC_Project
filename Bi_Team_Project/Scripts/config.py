@@ -11,10 +11,12 @@ class Config(object):
 	"""
 	This class is configuration for all classes
 	"""
-	def __init__(self, ioname, ioid):
+	def __init__(self, ioname, ioid,start_date,end_date):#start_date,end_date):
 		
 		self.ioname = ioname
 		self.ioid = ioid
+		self.start_date = start_date
+		self.end_date = end_date
 		self.LoggFile ()
 		self.logger.info('Trying to connect with TFR for io: {}'.format(self.ioid))
 		try:

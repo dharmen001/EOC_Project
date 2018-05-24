@@ -617,8 +617,8 @@ Applying formatting on Display Sheet
 			check_daily_sales_data = self.final_day_wise.empty
 			
 			
-			worksheet.insert_image( "M7", "Exponential.png", {"url":"https://www.tribalfusion.com"} )
-			worksheet.insert_image( "M2", "Client_Logo.png" )
+			worksheet.insert_image( "O6", "Exponential.png", {"url":"https://www.tribalfusion.com"} )
+			worksheet.insert_image( "O2", "Client_Logo.png" )
 			
 			# column b2 to O5 formatting
 			#format_campaign_info = workbook.add_format( {"bg_color":'#F0F8FF', "align":"left"} )

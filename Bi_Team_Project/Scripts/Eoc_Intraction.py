@@ -409,8 +409,8 @@ Applying Formatting
 			
 			alignment = workbook.add_format( {"align":"center"} )
 			
-			worksheet.insert_image("M7", "Exponential.png", {"url":"https://www.tribalfusion.com"})
-			worksheet.insert_image("M2", "Client_Logo.png")
+			worksheet.insert_image("O6", "Exponential.png", {"url":"https://www.tribalfusion.com"})
+			worksheet.insert_image("O2", "Client_Logo.png")
 			
 			#format_campaign_info = workbook.add_format( {"bg_color":'#F0F8FF', "align":"left"} )
 			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})

@@ -31,54 +31,17 @@ class Summary (object):
 	    :param self:Query Reading
 	    :return:Query
 	    """
-		
-		
-		
-		sqlvdxsummary = "select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', "\
-		                "1)-1) as "'Placement#'", SDATE as "'Start_Date'", EDATE as "'End_Date'", "\
-		                "initcap(CREATIVE_DESC)  as "'Placement_Name'",COST_TYPE_DESC as "'Cost_type'",UNIT_COST as "\
-		                ""'Unit_Cost'",BUDGET as "'Planned_Cost'",BOOKED_QTY as "'Booked_Imp#Booked_Eng'" from "\
-		                "TFR_REP.SUMMARY_MV where (IO_ID = {}) AND (DATA_SOURCE = 'KM') AND CREATIVE_DESC IN(SELECT "\
-		                "DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name "\
-		                "Not IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + Mobile','Pre-Roll – Desktop + Mobile',"\
-		                "'Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - Mobile','Pre-Roll -Desktop','Pre-Roll - "\
-		                "In-Stream')".format (
-			self.config.ioid)
+		sqlvdxsummary = "select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, TO_CHAR(SDATE, 'YYYY-MM-DD') as Start_Date, TO_CHAR(EDATE, 'YYYY-MM-DD') as End_Date, initcap(CREATIVE_DESC)  as Placement_Name, COST_TYPE_DESC as Cost_type, UNIT_COST as Unit_Cost, BUDGET as Planned_Cost, BOOKED_QTY as Booked_Imp#Booked_Eng FROM TFR_REP.SUMMARY_MV where IO_ID = {} AND DATA_SOURCE = 'KM' AND (TO_CHAR(SDATE, 'YYYY-MM-DD') >= '{}' AND TO_CHAR(EDATE, 'YYYY-MM-DD') <= '{}') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name Not LIKE '%Pre-Roll%' or Placement_Name LIKE '%Pre–Roll%'".format(self.config.ioid,self.config.start_date,self.config.end_date)
 	
-		sqlvdxmv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-	             "sum(IMPRESSIONS) as "'Impression'", sum(ENGAGEMENTS) as "'Eng'", sum(DPE_ENGAGEMENTS) as "\
-	             ""'Deep'", sum(CPCV_COUNT) as "'Completions'" from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP "\
-	             "BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format (
-		self.config.ioid)
+		sqlvdxmv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, sum(IMPRESSIONS) as "'Impression'", sum(ENGAGEMENTS) as "'Eng'", sum(DPE_ENGAGEMENTS) as Deep,sum(CPCV_COUNT) as Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{}' AND '{}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid,self.config.start_date,self.config.end_date)
 	
-		sqldisplaysummary = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-	                      "SDATE as "'Start_Date'", EDATE as "'End_Date'", CREATIVE_DESC  as "'Placement_Name'", "\
-	                      "COST_TYPE_DESC as "'Cost_type'",UNIT_COST as "'Unit_Cost'",BUDGET as "'Planned_Cost'", "\
-	                      "BOOKED_QTY as "'Booked_Imp#Booked_Eng'" FROM TFR_REP.SUMMARY_MV where IO_ID = {} AND "\
-	                      "DATA_SOURCE = 'SalesFile' ORDER BY PLACEMENT_ID".format (
-		self.config.ioid)
+		sqldisplaysummary = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, TO_CHAR(SDATE, 'YYYY-MM-DD') as Start_Date, TO_CHAR(EDATE, 'YYYY-MM-DD') as End_Date, CREATIVE_DESC  as Placement_Name, COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost,BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng FROM TFR_REP.SUMMARY_MV where IO_ID = {} AND DATA_SOURCE = 'SalesFile' AND (TO_CHAR(SDATE, 'YYYY-MM-DD') >= '{}' AND TO_CHAR(EDATE, 'YYYY-MM-DD') <= '{}') ORDER BY PLACEMENT_ID".format (self.config.ioid,self.config.start_date, self.config.end_date)
 	
-		sqldisplaymv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-	                 "sum(VIEWS) as "'Delivered_Impresion'", sum(CLICKS) as "'Clicks'", sum(CONVERSIONS) as "\
-	                 ""'Conversion'" from TFR_REP.DAILY_SALES_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, "\
-	                 "PLACEMENT_DESC ORDER BY PLACEMENT_ID".format (
-			self.config.ioid)
+		sqldisplaymv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, sum(VIEWS) as Delivered_Impresion, sum(CLICKS) as Clicks, sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = {} AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{}' AND '{}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid,self.config.start_date,self.config.end_date)
 	
-		sqlprerollsummary = "select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', "\
-	                      "1)-1) as "'Placement#'", SDATE as "'Start_Date'", EDATE as "'End_Date'", "\
-	                      "initcap(CREATIVE_DESC)  as "'Placement_Name'",COST_TYPE_DESC as "'Cost_type'","\
-	                      "UNIT_COST as "'Unit_Cost'",BUDGET as "'Planned_Cost'",BOOKED_QTY as "\
-	                      ""'Booked_Imp#Booked_Eng'" from TFR_REP.SUMMARY_MV where (IO_ID = {}) AND (DATA_SOURCE = "\
-	                      "'KM') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER "\
-	                      "BY PLACEMENT_ID) WHERE Placement_Name IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + "\
-	                      "Mobile','Pre-Roll – Desktop + Mobile','Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - "\
-	                      "Mobile','Pre-Roll -Desktop','Pre-Roll - In-Stream')".format (
-		self.config.ioid)
+		sqlprerollsummary = "SELECT * FROM (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, TO_CHAR(SDATE, 'YYYY-MM-DD') as Start_Date, TO_CHAR(EDATE, 'YYYY-MM-DD') as End_Date, initcap(CREATIVE_DESC)  as Placement_Name, COST_TYPE_DESC as Cost_type, UNIT_COST as Unit_Cost, BUDGET as Planned_Cost, BOOKED_QTY as Booked_Imp#Booked_Eng FROM TFR_REP.SUMMARY_MV where (IO_ID = {}) AND (DATA_SOURCE = 'KM') AND (TO_CHAR(SDATE, 'YYYY-MM-DD') >= '{}' AND TO_CHAR(EDATE, 'YYYY-MM-DD') <= '{}') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name LIKE '%Pre-Roll%' or Placement_Name LIKE '%Pre–Roll%'".format (self.config.ioid,self.config.start_date,self.config.end_date)
 	
-		sqlprerollmv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-	                 "sum(IMPRESSIONS) as "'Impression'", sum(CPCV_COUNT) as "'Completions'" from "\
-	                 "TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY "\
-	                 "PLACEMENT_ID".format (self.config.ioid)
+		sqlprerollmv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#,sum(IMPRESSIONS) as Impression, sum(CPCV_COUNT) as Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{}' AND '{}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format (self.config.ioid,self.config.start_date,self.config.end_date)
 	
 		#return sqlvdxsummary, sqldisplaysummary, sqlprerollsummary, sqldisplaymv, sqlvdxmv, sqlprerollmv
 		
@@ -107,27 +70,35 @@ class Summary (object):
 			self.logger.info (
 				'Running Query on 10.29.20.76 in Summary MV for VDX placements for IO - {}'.format (self.config.ioid))
 			read_sql__v_d_x = pd.read_sql (self.sqlvdxsummary, self.config.conn)
+			#print(read_sql__v_d_x)
 			
 			self.logger.info (
 				'Running Query on 10.29.20.76 in Summary MV for Display placements for IO - {}'.format (self.config.ioid))
 			read_sql__display= pd.read_sql (self.sqldisplaysummary, self.config.conn)
+			#print (read_sql__display)
 			
 			self.logger.info (
 				'Running Query on 10.29.20.76 in Summary MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll = pd.read_sql (self.sqlprerollsummary, self.config.conn)
+			print (read_sql_preroll)
+			exit()
 			
 			self.logger.info (
 				'Running Query on 10.29.20.76 in DailySales MV for Display placements for IO - {}'.format (self.config.ioid))
 			read_sql__display_mv = pd.read_sql (self.sqldisplaymv, self.config.conn)
+			#print (read_sql__display_mv)
 			
 			self.logger.info(
 				'Running Query on 10.29.20.76 in KeyMetric MV for VDX placements for IO - {}'.format(self.config.ioid))
 			read_sql__v_d_x_mv = pd.read_sql (self.sqlvdxmv, self.config.conn)
+			#print (read_sql__v_d_x_mv)
 			
 			self.logger.info(
 				'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll_mv = pd.read_sql (self.sqlprerollmv, self.config.conn)
-		
+			#print(read_sql_preroll_mv)
+			#exit()
+			
 		except AttributeError as e:
 			self.logger.error(str(e)+' Connection Not established please rerun for IO - {}'.format(self.config.ioid))
 			pass
@@ -185,6 +156,8 @@ class Summary (object):
 				vdx_second__table = vdx_second_summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                       "COST_TYPE", "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
 				                                       "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
+				
+				#print (vdx_second__table)
 				
 				conditionseng = [(vdx_second__table.loc[:, ['COST_TYPE']]=='CPE'),
 				                  (vdx_second__table.loc[:, ['COST_TYPE']]=='CPE+')]
@@ -278,17 +251,24 @@ class Summary (object):
 				self.vdx_access_table["Delivered_Engagements"] = self.vdx_access_table["Delivered_Engagements"].astype (int)
 				self.vdx_access_table["Delivered_Impressions"] = self.vdx_access_table["Delivered_Impressions"].astype (int)
 				self.vdx_access_table["PLACEMENT#"] = self.vdx_access_table["PLACEMENT#"].astype (int)
+				
 				choices_vdx_eng = self.vdx_access_table["Delivered_Engagements"]/self.vdx_access_table["BOOKED_IMP#BOOKED_ENG"]
 				choices_vdx_cpcv = self.vdx_access_table["Delivered_Impressions"]/self.vdx_access_table["BOOKED_IMP#BOOKED_ENG"]
+				
 				choices_vdx_eng_spend = self.vdx_access_table["Delivered_Engagements"]*self.vdx_access_table["UNIT_COST"]
-				choices_vdx_cpcv_spend = self.vdx_access_table["Delivered_Impressions"]/1000*self.vdx_access_table["UNIT_COST"]
+				choices_vdx_cpcv_spend = self.vdx_access_table["Delivered_Impressions"] * self.vdx_access_table["UNIT_COST"]
+				choices_vdx_cpm_spend = self.vdx_access_table["Delivered_Impressions"]/1000*self.vdx_access_table["UNIT_COST"]
 				
 				mask1 = self.vdx_access_table["COST_TYPE"].isin (['CPE', 'CPE+'])
-				mast2 = self.vdx_access_table["COST_TYPE"].isin (['CPM', 'CPCV'])
+				mask2 = self.vdx_access_table["COST_TYPE"].isin (['CPM', 'CPCV'])
+				mask3 = self.vdx_access_table["COST_TYPE"].isin (['CPCV'])
+				mask4 = self.vdx_access_table["COST_TYPE"].isin (['CPM'])
 				
-				self.vdx_access_table['Delivery%'] = np.select ([mask1, mast2], [choices_vdx_eng, choices_vdx_cpcv],
+				self.vdx_access_table['Delivery%'] = np.select ([mask1, mask2], [choices_vdx_eng, choices_vdx_cpcv],
 				                                           default=0.00)
-				self.vdx_access_table['Spend'] = np.select ([mask1, mast2], [choices_vdx_eng_spend, choices_vdx_cpcv_spend],
+				
+				self.vdx_access_table['Spend'] = np.select ([mask1, mask3, mask4], [choices_vdx_eng_spend,
+				                                                                    choices_vdx_cpcv_spend,choices_vdx_cpm_spend],
 				                                       default=0.00)
 				self.vdx_access_table['Delivery%'] = self.vdx_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.vdx_access_table['Spend'] = self.vdx_access_table['Spend'].replace (np.inf, 0.00)
@@ -440,8 +420,8 @@ class Summary (object):
 		worksheet.set_row (0, 6)
 		worksheet.set_column ("A:A", 2)
 		format_campaign_info = workbook.add_format({"bold":True,"bg_color":'#00B0F0', "align":"left"})
-		worksheet.insert_image ("N6", "Exponential.png", {"url":"https://www.tribalfusion.com"})
-		worksheet.insert_image ("N2", "Client_Logo.png")
+		worksheet.insert_image ("O6", "Exponential.png", {"url":"https://www.tribalfusion.com"})
+		worksheet.insert_image ("O2", "Client_Logo.png")
 		worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
 		worksheet.conditional_format ("A1:R5", {"type":"no_blanks", "format":format_campaign_info})
 		format_write = workbook.add_format ({"bold":True, "bg_color":"#00B0F0", "align":"left"})
@@ -783,9 +763,9 @@ class Summary (object):
 		self.logger.info("Summary Sheet Created for IO - {}".format(self.config.ioid))
 
 if __name__=="__main__":
-	pass
+	#pass
 	# enable it when running for individual file
-	#c=config.Config("test", 599207)
-	#o=Summary(c)
-	#o.main()
-	#c.saveAndCloseWriter()
+	c=config.Config("test", 608607,'2018-04-16','2018-04-23')
+	o=Summary(c)
+	o.main()
+	c.saveAndCloseWriter()
