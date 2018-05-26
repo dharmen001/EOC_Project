@@ -765,6 +765,7 @@ Class for VDX Placements
 		ats_format = workbook.add_format ({"bg_color":'#A5A5A5', "bold":True})
 		
 		format_num = workbook.add_format ({"num_format":"#,##0"})
+		
 		worksheet.write_string (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+1, 1,
 		                        "Ad Size Breakdown",
 		                        format_hearder_left)

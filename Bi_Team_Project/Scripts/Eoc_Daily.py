@@ -6,6 +6,8 @@ Date:2018-03-23
 import datetime
 import pandas as pd
 import numpy as np
+from xlsxwriter.utility import xl_rowcol_to_cell
+
 import config
 import pandas.io.formats.excel
 import logging
@@ -263,7 +265,7 @@ To create display placements
 			columns={
 				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
 				"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
-				"BOOKED_IMP#BOOKED_ENG":"Booked", "DELIVERED_IMPRESION":"Delivered Impressions"
+				"BOOKED_IMP#BOOKED_ENG":"Booked Impressions", "DELIVERED_IMPRESION":"Delivered Impressions"
 				, "CLICKS":"Clicks",
 				"CONVERSION":"Conversion"
 				, "PLACEMENTNAME":"Placement# Name", "CTR%":"CTR"
@@ -358,52 +360,62 @@ To create display placements
 		#error = some function failed
 		#critical = something failed application must close
 		
-		placement_sales_data = self.display_sales_first_table[["Placement# Name", "Cost Type", "Unit Cost", "Booked",
+		placement_sales_data = self.display_sales_first_table[["Placement# Name", "Unit Cost", "Booked Impressions",
 		                                                  "Delivered Impressions", "Clicks", "CTR",
-		                                                  "Conversion",
-		                                                  "Conversion Rate", "Spend", "eCPA"]]
+		                                                  "Conversion","Spend", "eCPA"]]
+		
 		
 		adsize_sales_data_new = self.adsize_sales_second_table.loc[:,
 		                        ["Placement# Name", "Adsize", "Delivered Impressions", "Clicks",
 		                         "CTR", "Conversion", "Conversion Rate", "Spend", "eCPA"]]
 		
-		adsize_sales_data_pivot = pd.pivot_table( adsize_sales_data_new, index=["Adsize"],
-		                                          values=["Delivered Impressions",
-		                                                  "Clicks", "Conversion",
-		                                                  "Spend"], aggfunc=np.sum )
-		
-		adsize_sales_data_pivot_new = adsize_sales_data_pivot.reset_index()
-		
-		adsize_sales_data = None
 		final_adsize = None
 		try:
-			adsize_sales_data_pivot_new["CTR"] = adsize_sales_data_pivot_new["Clicks"]/adsize_sales_data_pivot_new[
-					"Delivered Impressions"]
-
-			adsize_sales_data_pivot_new["Conversion Rate"] = adsize_sales_data_pivot_new["Conversion"]/\
-			                                                 adsize_sales_data_pivot_new["Delivered Impressions"]
-
-			adsize_sales_data_pivot_new["eCPA"] = adsize_sales_data_pivot_new["Spend"]/adsize_sales_data_pivot_new[
-				"Conversion"]
-		
-			adsize_sales_data = adsize_sales_data_pivot_new[["Adsize", "Delivered Impressions", "Clicks", "CTR",
-		                                                     "Conversion", "Conversion Rate", "Spend", "eCPA"]]
-		
-			final_adsize = adsize_sales_data[["Adsize", "Delivered Impressions", "Clicks", "CTR",
-		                                          "Conversion", "Conversion Rate", "Spend", "eCPA"]]
+			final_adsize = adsize_sales_data_new[["Placement# Name","Adsize", "Delivered Impressions", "Clicks", "CTR",
+			                                      "Conversion","Spend", "eCPA"]]
+			
+			
+		# adsize_sales_data_pivot = pd.pivot_table( adsize_sales_data_new, index=["Adsize"],
+		#                                           values=["Delivered Impressions",
+		#                                                   "Clicks", "Conversion",
+		#                                                   "Spend"], aggfunc=np.sum )
+		#
+		# adsize_sales_data_pivot_new = adsize_sales_data_pivot.reset_index()
+		#
+		# adsize_sales_data = None
+		# final_adsize = None
+		# try:
+		# 	adsize_sales_data_pivot_new["CTR"] = adsize_sales_data_pivot_new["Clicks"]/adsize_sales_data_pivot_new[
+		# 			"Delivered Impressions"]
+		#
+		# 	adsize_sales_data_pivot_new["Conversion Rate"] = adsize_sales_data_pivot_new["Conversion"]/\
+		# 	                                                 adsize_sales_data_pivot_new["Delivered Impressions"]
+		#
+		# 	adsize_sales_data_pivot_new["eCPA"] = adsize_sales_data_pivot_new["Spend"]/adsize_sales_data_pivot_new[
+		# 		"Conversion"]
+		#
+		# 	adsize_sales_data = adsize_sales_data_pivot_new[["Adsize", "Delivered Impressions", "Clicks", "CTR",
+		#                                                      "Conversion", "Conversion Rate", "Spend", "eCPA"]]
+		#
+		# 	final_adsize = adsize_sales_data[["Adsize", "Delivered Impressions", "Clicks", "CTR",
+		#                                           "Conversion", "Conversion Rate", "Spend", "eCPA"]]
 		except KeyError as e:
 			self.logger.error(str(e)+'Not found in adsize Display Placements Data')
 			pass
+		
+		
 		daily_sales_data = self.daily_sales_third_table.loc[:,
 		                   ["Placement#", "Placement# Name", "Date", "Delivered Impressions",
 		                    "Clicks", "CTR", "Conversion", "eCPA", "Spend",
 		                    "Unit Cost"]]
 		
+		#daily_sales_data['Date'] = pd.to_datetime(daily_sales_data.Date)
+		
 		daily_sales_remove_zero = daily_sales_data[daily_sales_data['Delivered Impressions']==0]
 		
 		daily_sales_data = daily_sales_data.drop( daily_sales_remove_zero.index, axis=0 )
 		
-		# daily_sales_data [ "Date" ] = pd.to_datetime ( daily_sales_data [ "Date" ] )
+		daily_sales_data [ "Date" ] = pd.to_datetime ( daily_sales_data [ "Date" ] )
 		
 		daily_sales_data['Date'] = pd.to_datetime( daily_sales_data['Date'] ).dt.date
 		
@@ -415,9 +427,12 @@ To create display placements
 		except (KeyError,AttributeError) as e:
 			self.logger.error(str(e)+'Not found in day wise data')
 			pass
-		final_day_wise = daily_sales_data.loc[:, ['Placement#', "Placement# Name", "Date",
+		final_day_wise = daily_sales_data.loc[:, ["Placement# Name", "Date",
 		                                          "Delivered Impressions", "Clicks", "CTR",
-		                                          "Conversion", "eCPA", "Spend"]]
+		                                          "Conversion", "Spend", "eCPA"]]
+		
+		
+		
 		
 		#return placement_sales_data, final_adsize, final_day_wise
 		self.placement_sales_data = placement_sales_data
@@ -431,17 +446,19 @@ To create display placements
 		:return: writing Data
 		"""
 		data_common_columns = self.config.common_columns_summary()
+		unqiue_final_day_wise = self.final_day_wise['Placement# Name'].nunique ()
 		
-		#placement_sales_data, final_adsize, final_day_wise = self.accessing_main_column()
+		
 		
 		self.logger.info("Writing Summary on Display Sheet for IO - {}".format(self.config.ioid))
+		
 		writing_data_common_columns = data_common_columns[1].to_excel( self.config.writer,
-		                                                               sheet_name="Performance Details".format
-		                                                               ( self.config.ioid ), startcol=1,
+		                                                               sheet_name="Performance Details", startcol=1,
 		                                                               startrow=1,
 		                                                               index=False, header=False )
 		
 		self.logger.info ("Writing Placement level information on Display Sheet for IO - {}".format (self.config.ioid))
+		
 		try:
 			check_placement_sales_data = self.placement_sales_data.empty
 		
@@ -449,155 +466,134 @@ To create display placements
 				pass
 			else:
 				writing_placement_data = self.placement_sales_data.to_excel( self.config.writer,
-				                                                        sheet_name="Performance Details".format(
-					                                                        self.config.ioid ),
+				                                                        sheet_name="Performance Details",
 				                                                        startcol=1, startrow=8, index=False,
 				                                                        header=True )
 			
 			self.logger.info (
 				"Writing ad size level information on Display Sheet for IO - {}".format (self.config.ioid))
+			
 			check_adsize_sales_data = self.final_adsize.empty
+			start_row_adsize = len( self.placement_sales_data )+14
+			
 			if check_adsize_sales_data is True:
 				pass
 			else:
-				writing_adsize_data = self.final_adsize.to_excel( self.config.writer,
-				                                             sheet_name="Performance Details".format(
-					                                             self.config.ioid ),
-				                                             startcol=1, startrow=len( self.placement_sales_data )+13,
-				                                             index=False,
-				                                             header=True )
-		
+				for placement, placement_df in self.final_adsize.groupby('Placement# Name', as_index=False):
+					writing_adsize_data = placement_df.to_excel(self.config.writer,
+					                                             sheet_name="Performance Details",
+					                                             startcol=1, startrow=start_row_adsize,
+					                                             index=False,
+					                                             header=False)
+					
+					workbook = self.config.writer.book
+					worksheet = self.config.writer.sheets["Performance Details".format (self.config.ioid)]
+					start_row_adsize += len(placement_df)+2
+					worksheet.write_string (start_row_adsize-2, 1, 'Subtotal')
+					start_row_new = start_row_adsize-len (placement_df)-1
+					format_num = workbook.add_format ({"num_format":"#,##0"})
+					percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
+					money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
+					worksheet.write_formula(start_row_adsize-2,3,'=sum(D{}:D{})'.format(start_row_new,start_row_adsize-2),format_num)
+					
+					worksheet.write_formula (start_row_adsize-2, 4,
+					                         '=sum(E{}:E{})'.format (start_row_new, start_row_adsize-2),format_num)
+					
+					worksheet.write_formula (start_row_adsize-2, 5,
+					                         '=IFERROR(E{}/D{},0)'.format (start_row_adsize-1, start_row_adsize-1),percent_fmt)
+					
+					worksheet.write_formula (start_row_adsize-2, 6,
+					                         '=sum(G{}:G{})'.format (start_row_new, start_row_adsize-2),format_num)
+					
+					worksheet.write_formula (start_row_adsize-2, 7,
+					                         '=sum(H{}:H{})'.format (start_row_new, start_row_adsize-2),money_fmt)
+					
+					worksheet.conditional_format(start_row_new-1,3,start_row_adsize-2,4,{"type":"no_blanks","format":format_num})
+					
+					worksheet.conditional_format (start_row_new-1, 5, start_row_adsize-2, 5,
+					                              {"type":"no_blanks", "format":percent_fmt})
+					
+					worksheet.conditional_format (start_row_new-1, 6, start_row_adsize-2, 6,
+					                              {"type":"no_blanks", "format":format_num})
+					
+					worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+					                              {"type":"no_blanks", "format":money_fmt})
+			
 			check_daily_sales_data = self.final_day_wise.empty
 			
-			self.logger.info (
-				"Writing Placement by day level information on Display Sheet for IO - {}".format (self.config.ioid))
-		
+			self.logger.info ("Writing Placement by day level information on Display Sheet for IO - {}".format (self.config.ioid))
+			
+			start_row_plc_day = len (self.placement_sales_data)+13+unqiue_final_day_wise*2+len (self.final_adsize)+5
+			
 			if check_daily_sales_data is True:
 				pass
 			else:
-				
-				startline = len( self.placement_sales_data )+len( self.final_adsize )+18
-				startRow = startline
-				endRow = 0
-				
-				for placement, placement_df in self.final_day_wise.groupby( 'Placement# Name', as_index=False ):
-					writing_daily_data = placement_df.to_excel( self.config.writer,
-					                                            sheet_name="Performance Details".format(
-						                                            self.config.ioid ), encoding='UTF-8',
-					                                            startcol=1,
-					                                            startrow=startline, columns=["Placement# Name"],
-					                                            index=False,
-					                                            header=False, merge_cells=False )
+				for placement_by_day, placement_df_by_day in self.final_day_wise.groupby('Placement# Name', as_index=False):
 					
-					writing_daily_data_new = placement_df.to_excel( self.config.writer,
-					                                                sheet_name="Performance Details".format(
-						                                                self.config.ioid ), startcol=1,
-					                                                startrow=startline+1,
-					                                                columns=["Date", "Delivered Impressions",
-					                                                         "Clicks", "CTR",
-					                                                         "Conversion", "eCPA", "Spend"],
-					                                                index=False, header=True, merge_cells=False )
-					
+					writing_daily_data = placement_df_by_day.to_excel(self.config.writer,sheet_name="Performance Details",
+					                                                  startcol=1,startrow=start_row_plc_day,index=False,
+					                                                  header=False,merge_cells=False)
 					workbook = self.config.writer.book
-					worksheet = self.config.writer.sheets["Performance Details".format( self.config.ioid )]
-					startline += len( placement_df )+2
-					# add Sub Total
-					worksheet.write_string( startline, 1, 'Subtotal' )
+					worksheet = self.config.writer.sheets["Performance Details".format (self.config.ioid)]
+					start_row_plc_day += len(placement_df_by_day)+2
+					worksheet.write_string(start_row_plc_day-2, 1, 'Subtotal')
+					start_row_plc_day_new = start_row_plc_day-len (placement_df_by_day)-1
 					
-					startRow = startline-len( placement_df )+1
-					worksheet.write_formula( startline, 2, '=sum(C{}:C{})'.format( startRow, startline ) )
-					worksheet.write_formula( startline, 3, '=sum(D{}:D{})'.format( startRow, startline ) )
-					worksheet.write_formula( startline, 5, '=sum(F{}:F{})'.format( startRow, startline ) )
-					worksheet.write_formula( startline, 4,
-					                         '=IFERROR(sum(D{}:D{})/sum(C{}:C{}),0)'.format( startRow, startline, startRow,
-					                                                                         startline ) )
-					worksheet.write_formula( startline, 6,
-					                         '=IFERROR(sum(H{}:H{})/sum(F{}:F{}),0)'.format( startRow, startline, startRow,
-					                                                                         startline ) )
+					format_num = workbook.add_format ({"num_format":"#,##0"})
+					percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
+					money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
 					
-					worksheet.write_formula( startline, 7,
-					                         '=sum(H{}:H{})'.format( startRow, startline ) )
+					centre_date_format_wb = workbook.add_format ({'align':'center', 'num_format':'YYYY-MM-DD'})
+					worksheet.conditional_format(start_row_plc_day_new-1,2,start_row_plc_day-2,2,{"type":"no_blanks","format":centre_date_format_wb})
 					
-					endRow = startline
+					worksheet.write_formula(start_row_plc_day-2,3,'=sum(D{}:D{})'.format(start_row_plc_day_new,
+					                                                                     start_row_plc_day-2),format_num)
+					worksheet.write_formula(start_row_plc_day-2,4,'=sum(E{}:E{})'.format(start_row_plc_day_new,
+					                                                                     start_row_plc_day-2),format_num)
+					worksheet.write_formula (start_row_plc_day-2,5,'=IFERROR(E{}/D{},0)'.format (start_row_plc_day-1,
+					                                                                             start_row_plc_day-1),percent_fmt)
+					worksheet.write_formula (start_row_plc_day-2, 6,'=sum(G{}:G{})'.format (start_row_plc_day_new,
+					                                                                        start_row_plc_day-2),format_num)
+					worksheet.write_formula (start_row_plc_day-2, 7,'=sum(H{}:H{})'.format (start_row_plc_day_new,
+					                                                                        start_row_plc_day-2),money_fmt)
 					
-					column_chart = workbook.add_chart( {'type':'column'} )
-					column_x = "='Performance Details'!B{}:B{}".format(startRow, endRow )
-					column_y = "='Performance Details'!C{}:C{}".format(startRow, endRow )
-					column_chart.add_series( {
-						'categories':column_x
-						, 'values':column_y, 'name':'Impressions'
-						} )
 					
-					column_chart.set_title( {'name':'Impressions vs CTR'} )
+					worksheet.conditional_format(start_row_plc_day_new-1,3,start_row_plc_day-2,4,
+					                             {"type":"no_blanks","format":format_num})
 					
-					line_chart = workbook.add_chart( {'type':'line'} )
+					worksheet.conditional_format (start_row_plc_day_new-1, 5, start_row_plc_day-2, 5,
+					                              {"type":"no_blanks", "format":percent_fmt})
 					
-					line_x = "='Performance Details'!B{}:B{}".format(startRow, endRow )
-					line_y = "='Performance Details'!E{}:E{}".format(startRow, endRow )
+					worksheet.conditional_format (start_row_plc_day_new-1, 6, start_row_plc_day-2, 6,
+					                              {"type":"no_blanks", "format":format_num})
 					
-					line_chart.add_series( {'categories':line_x, 'values':line_y, 'name':'CTR', 'y2_axis':True} )
-					
-					column_chart.combine( line_chart )
-					
-					column_chart.set_size( {'width':800} )
-					worksheet.insert_chart( 'J{}'.format( startRow ), column_chart )
-					column_chart.set_y_axis( {'num_format':'#,##0'} )
-					line_chart.set_y2_axis( {'num_format':'0.00%'} )
-					
-					format_border_left = workbook.add_format( {"left":2} )
-					format_border_right = workbook.add_format( {"right":2} )
-					format_border_top = workbook.add_format( {"top":2} )
-					format_border_bottom = workbook.add_format( {"bottom":2} )
-					
-					"""worksheet.conditional_format( startRow, 1, endRow, 1,
-												  {"type":"no_blanks", "format":format_border_left} )"""
-					
-					format_placement_subtotal = workbook.add_format( {"bold":True, "bg_color":'#E7E6E6'} )
-					worksheet.conditional_format( endRow, 1, endRow, 7,
-					                              {"type":"no_blanks", "format":format_placement_subtotal} )
-					
-					worksheet.conditional_format( endRow+3, 1, endRow+3, 7,
-					                              {"type":"no_blanks", "format":format_placement_subtotal} )
-					
-					worksheet.conditional_format( endRow+3, 1, endRow+3, 7,
-					                              {"type":"blanks", "format":format_placement_subtotal} )
-					
-					worksheet.conditional_format( startRow-3, 0, endRow, 0,
-					                              {"type":"blanks", "format":format_border_right} )
-					
-					worksheet.conditional_format( startRow-3, 8, endRow, 8,
-					                              {"type":"blanks", "format":format_border_left} )
-					
-					worksheet.conditional_format( endRow+1, 1, endRow+1, 7,
-					                              {"type":"blanks", "format":format_border_top} )
-					
-					worksheet.conditional_format( startRow-4, 1, startRow-4, 7,
-					                              {"type":"blanks", "format":format_border_bottom} )
-					"""worksheet.conditional_format(startRow - 3, 1, startRow - 3, 7,
-												 {"type": "blanks", "format": format_border_top})"""
-					
-					startline += 3
-					
-		except AttributeError as e:
+					worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+					                              {"type":"no_blanks", "format":money_fmt})
+		
+		except (KeyError,AttributeError,TypeError,IOError) as e:
+			self.logger.error(str(e))
 			pass
 			
-		#return placement_sales_data, final_adsize, final_day_wise
-		#self.placement_sales_data = placement_sales_data
+			
 	def formatting_daily(self):
-		
 		"""
-Applying formatting on Display Sheet
+		Applying formatting on Display Sheet
 		"""
-		#placement_sales_data, final_adsize, final_day_wise = self.write_KM_Sales_summary()
 		
 		self.logger.info('Applying Formatting on each label of Display sheet - {}'.format(self.config.ioid))
 		try:
+			
 			workbook = self.config.writer.book
 			worksheet = self.config.writer.sheets["Performance Details".format( self.config.ioid )]
 			
 			unqiue_final_day_wise = self.final_day_wise['Placement# Name'].nunique()
+			format_grand = workbook.add_format ({"bold":True, "bg_color":"#A5A5A5"})
+			format_header = workbook.add_format ({"bold":True, "bg_color":"#00B0F0"})
+			format_header_center = workbook.add_format ({"bold":True, "bg_color":"#00B0F0","align":"center"})
+			format_header_right = workbook.add_format ({"bold":True, "bg_color":"#00B0F0","align":"right"})
 			
-			data_common_columns = self.config.common_columns_summary()
+			format_colour = workbook.add_format ({"bg_color":'#00B0F0'})
+			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
 			
 			number_rows_placement = self.placement_sales_data.shape[0]
 			number_cols_placement = self.placement_sales_data.shape[1]
@@ -608,436 +604,242 @@ Applying formatting on Display Sheet
 			
 			worksheet.hide_gridlines( 2 )
 			worksheet.set_row( 0, 6 )
-			worksheet.set_column( "A:A", 2 )
+			worksheet.set_column( "A:A", 2)
+			worksheet.set_zoom(75)
+			alignment_center = workbook.add_format ({"align":"center"})
+			alignment_left = workbook.add_format ({"align":"left"})
+			alignment_right = workbook.add_format ({"align":"right"})
 			
-			alignment = workbook.add_format( {"align":"center"} )
-			
-			check_placement_sales_data = self.placement_sales_data.empty
-			check_adsize_sales_data = self.final_adsize.empty
-			check_daily_sales_data = self.final_day_wise.empty
-			
-			
-			worksheet.insert_image( "O6", "Exponential.png", {"url":"https://www.tribalfusion.com"} )
-			worksheet.insert_image( "O2", "Client_Logo.png" )
-			
-			# column b2 to O5 formatting
-			#format_campaign_info = workbook.add_format( {"bg_color":'#F0F8FF', "align":"left"} )
-			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
-			# column headers formatting
-			format_col = workbook.add_format(
-				{"bg_color":'#E7E6E6', "bold":True, "align":"center", "bottom":2, "top":2} )
-			
-			format_left_col = workbook.add_format( {"left":2} )
-			format_right_col = workbook.add_format( {"right":2} )
-			format_bottom_col = workbook.add_format( {"bottom":2} )
-			format_top_col = workbook.add_format( {"top":2} )
-			
-			# values of subtotal and last column needs to be colour
-			format_last_row = workbook.add_format( {"bg_color":'#E7E6E6', "bold":True, "align":"center"} )
-			
-			# format the placement by date table
-			
-			format_placement_by_date_header = workbook.add_format(
-				{"bg_color":'#595959', 'font_color':'#FFFFFF', "bold":True, "align":"center"} )
-			
-			format_sub = workbook.add_format( {"bold":True, "bg_color":'#E7E6E6'} )
-			format_subtotal = workbook.add_format( {"bold":True} )
-			format_total = workbook.add_format( {"bg_color":'#E7E6E6', "bold":True} )
-			
-			percent_fmt = workbook.add_format( {"num_format":"0.00%", "align":"center"} )
-			money_fmt = workbook.add_format( {"num_format":"$#,###0.00", "align":"center"} )
-			
-			format_number = workbook.add_format( {"num_format":"#,##0", "align":"center"} )
-			date_format = workbook.add_format( {'num_format':'YYYY-MM-DD', "align":"left"} )
-			
-			# formatting campaign info
-			#worksheet.conditional_format( "B2:L5", {"type":"blanks", "format":format_campaign_info} )
-			#worksheet.conditional_format( "B2:L5", {"type":"no_blanks", "format":format_campaign_info} )
 			worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
 			worksheet.conditional_format ("A1:R5", {"type":"no_blanks", "format":format_campaign_info})
 			
-			# adding formula in bottom rows:
-			if check_placement_sales_data is True:
-				pass
-			else:
-				worksheet.write_formula( number_rows_placement+9, 4,
-				                         '=sum(E{}:E{})'.format( 10, number_rows_placement+9 ), format_number )
-				
-				worksheet.write_formula( number_rows_placement+9, 5,
-				                         '=sum(F{}:F{})'.format( 10, number_rows_placement+9 ), format_number )
-				
-				worksheet.write_formula( number_rows_placement+9, 6,
-				                         '=sum(G{}:G{})'.format( 10, number_rows_placement+9 ), format_number )
-				
-				worksheet.write_formula( number_rows_placement+9, 7,
-				                         '=IFERROR(sum(G{}:G{})/sum(F{}:F{}),0)'.format( 10,
-				                                                                         number_rows_placement+9, 10,
-				                                                                         number_rows_placement+9 ),
-				                         percent_fmt )
-				
-				worksheet.write_formula( number_rows_placement+9, 8,
-				                         '=sum(I{}:I{})'.format( 10, number_rows_placement+9 ), format_number )
-				
-				worksheet.write_formula( number_rows_placement+9, 9,
-				                         '=IFERROR(sum(I{}:I{})/sum(F{}:F{}),0)'.format( 10, number_rows_placement+9,
-				                                                                         10,
-				                                                                         number_rows_placement+9 ),
-				                         percent_fmt )
-				
-				worksheet.write_formula( number_rows_placement+9, 10,
-				                         '=sum(K{}:K{})'.format( 10, number_rows_placement+9 ), money_fmt )
-				
-				worksheet.write_formula( number_rows_placement+9, 11,
-				                         '=IFERROR(sum(K{}:K{})/sum(I{}:I{}),0)'.format( 10, number_rows_placement+9,
-				                                                                         10, number_rows_placement+9 )
-				                         , money_fmt )
+			worksheet.insert_image ("O6", "Exponential.png", {"url":"https://www.tribalfusion.com"})
+			worksheet.insert_image ("O2", "Client_Logo.png")
 			
-			if check_adsize_sales_data is True:
-				pass
-			else:
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 2,
-				                         '=sum(C{}:C{})'.format( number_rows_placement+15,
-				                                                 number_rows_placement+number_rows_adsize+14 ),
-				                         format_number )
-				
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 3,
-				                         '=sum(D{}:D{})'.format( number_rows_placement+15,
-				                                                 number_rows_placement+number_rows_adsize+14 ),
-				                         format_number )
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 4,
-				                         '=IFERROR(sum(D{}:D{})/sum(C{}:C{}),0)'.format( number_rows_placement+15,
-				                                                                         number_rows_placement+
-				                                                                         number_rows_adsize+14,
-				                                                                         number_rows_placement+15,
-				                                                                         number_rows_placement+
-				                                                                         number_rows_adsize+14 ),
-				                         percent_fmt )
-				
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 5,
-				                         '=sum(F{}:F{})'.format( number_rows_placement+15,
-				                                                 number_rows_placement+number_rows_adsize+14 ),
-				                         format_number )
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 6,
-				                         '=IFERROR(sum(F{}:F{})/sum(C{}:C{}),0)'.format( number_rows_placement+15,
-				                                                                         number_rows_placement+
-				                                                                         number_rows_adsize+14,
-				                                                                         number_rows_placement+15,
-				                                                                         number_rows_placement+
-				                                                                         number_rows_adsize+14 ),
-				                         percent_fmt )
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 7,
-				                         '=sum(H{}:H{})'.format( number_rows_placement+15,
-				                                                 number_rows_placement+number_rows_adsize+14 ),
-				                         money_fmt )
-				
-				worksheet.write_formula( number_rows_placement+number_rows_adsize+14, 8,
-				                         '=IFERROR(sum(H{}:H{})/sum(F{}:F{}),0)'.format( number_rows_placement+15,
-				                                                                         number_rows_placement+
-				                                                                         number_rows_adsize+14,
-				                                                                         number_rows_placement+15,
-				                                                                         number_rows_placement+
-				                                                                         number_rows_adsize+14 ),
-				                         money_fmt )
+			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
+			format_num = workbook.add_format ({"num_format":"#,##0"})
+			percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
+			money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
 			
-			# Colour formatting for Columns
-			if check_placement_sales_data is True:
-				pass
-			else:
-				worksheet.conditional_format( 8, 1, 8, number_cols_placement+1,
-				                              {"type":"no_blanks", "format":format_col} )
+			# Placement data formatting
+			worksheet.write_string(7,1,"Performance by Placement",format_header_left)
+			worksheet.write_string(9+number_rows_placement,1,"Grand Total",format_grand)
+			worksheet.conditional_format(7,2,7,number_cols_placement,{"type":"blanks","format":format_colour})
+			worksheet.conditional_format(7, 2, 7, number_cols_placement,{"type":"no_blanks", "format":format_colour})
+			worksheet.conditional_format(8,1,8,1,{"type":"no_blanks","format":format_header_left})
+			worksheet.conditional_format(8,2,8, 2,{"type":"no_blanks", "format":format_header})
+			worksheet.conditional_format (8, 3, 8, 9, {"type":"no_blanks", "format":format_header})
 			
-			if check_adsize_sales_data is True:
-				pass
-			else:
-				worksheet.conditional_format( number_rows_placement+13, 1, number_rows_placement+13,
-				                              number_cols_adsize+1,
-				                              {"type":"no_blanks", "format":format_col} )
 			
-			# Values_for_daily = 'Date','Delivered Impressions','Clicks','CTR','Conversion','eCPA','Spend'
+			for col in range(3,6):
+				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)
+				start_range = xl_rowcol_to_cell(9,col)
+				end_range = xl_rowcol_to_cell(9+number_rows_placement-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,format_num)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_placement-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+				                              {"type":"no_blanks", "format":format_num})
+				start_range_format = 9+number_rows_placement
+				worksheet.conditional_format(start_range_format,col,start_range_format,col,{"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				
+			for col in range(6,7):
+				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)
+				# start_range = xl_rowcol_to_cell(9,col)
+				# end_range = xl_rowcol_to_cell(9+number_rows_placement-1,col)
+				formula = '=IFERROR(F{}/E{},0)'.format(9+number_rows_placement+1,9+number_rows_placement+1)
+				worksheet.write_formula(cell_location,formula,percent_fmt)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_placement-1
+				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks", "format":percent_fmt})
+				start_range_format = 9+number_rows_placement
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				
+			for col in range(7,8):
+				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)
+				start_range = xl_rowcol_to_cell(9,col)
+				end_range = xl_rowcol_to_cell(9+number_rows_placement-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,format_num)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_placement-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+				                              {"type":"no_blanks", "format":format_num})
+				start_range_format = 9+number_rows_placement
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
 			
-			if check_daily_sales_data is True:
-				pass
-			else:
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+19, 1,
-				                              number_rows_placement+number_rows_adsize+19,
-				                              number_cols_daily+1,
-				                              {"type":"no_blanks", "format":format_placement_by_date_header} )
+			for col in range(8,9):
+				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)
+				start_range = xl_rowcol_to_cell(9,col)
+				end_range = xl_rowcol_to_cell(9+number_rows_placement-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,money_fmt)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_placement-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,{"type":"no_blanks", "format":money_fmt})
+				start_range_format = 9+number_rows_placement
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
 				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15, number_cols_daily-2,
-				                              {
-					                              "type":"text", 'criteria':'containing', 'value':'Date',
-					                              'format':format_placement_by_date_header
-					                              } )
 				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              number_cols_daily-2, {
-					                              "type":"text", 'criteria':'containing',
-					                              'value':'Delivered Impressions',
-					                              'format':format_placement_by_date_header
-					                              } )
 				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              number_cols_daily-2, {
-					                              "type":"text", 'criteria':'containing',
-					                              'value':'Clicks', 'format':format_placement_by_date_header
-					                              } )
+			for col in range(2,3):
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_placement-1
+				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":money_fmt})
+				start_range = 9+number_rows_placement
+				worksheet.conditional_format(start_range,col,start_range,col,{"type":"blanks","format":format_grand})
+				worksheet.conditional_format (start_range, col, start_range, col,
+				                              {"type":"no_blanks", "format":format_grand})
 				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              number_cols_daily-2, {
-					                              "type":"text", 'criteria':'containing',
-					                              'value':'CTR',
-					                              'format':format_placement_by_date_header
-					                              } )
+				#worksheet.conditional_format (8, col, 8, col, {"type":"no_blanks", "format":format_header_center})
 				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              number_cols_daily-2, {
-					                              "type":"text", 'criteria':'containing',
-					                              'value':'Conversion',
-					                              'format':format_placement_by_date_header
-					                              } )
+			for col in range(9,10):
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_placement-1
+				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":money_fmt})
+				start_range = 9+number_rows_placement
+				worksheet.conditional_format (start_range, col, start_range, col,
+				                              {"type":"blanks", "format":format_grand})
+				worksheet.conditional_format (start_range, col, start_range, col,
+				                              {"type":"no_blanks", "format":format_grand})
 				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              number_cols_daily-2, {
-					                              "type":"text", 'criteria':'containing',
-					                              'value':'eCPA',
-					                              'format':format_placement_by_date_header
-					                              } )
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 1,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              number_cols_daily-2, {
-					                              "type":"text", 'criteria':'containing',
-					                              'value':'Spend',
-					                              'format':format_placement_by_date_header
-					                              } )
+				
+			#adsize data formatting
 			
-			# Money and Percet Formatting
-			if check_placement_sales_data is True:
-				pass
-			else:
-				
-				worksheet.conditional_format( 8, 3, number_rows_placement+8, 3,
-				                              {"type":"no_blanks", "format":money_fmt} )
-				
-				worksheet.conditional_format( 8, 10, number_rows_placement+8, 11,
-				                              {"type":"no_blanks", "format":money_fmt} )
-				
-				worksheet.conditional_format( 8, 7, number_rows_placement+8, 7,
-				                              {"type":"no_blanks", "format":percent_fmt} )
-				
-				worksheet.conditional_format( 8, 9, number_rows_placement+8, 9,
-				                              {"type":"no_blanks", "format":percent_fmt} )
-				
-				worksheet.conditional_format( 8, 4, number_rows_placement+8, 6,
-				                              {"type":"no_blanks", "format":format_number} )
-				worksheet.conditional_format( 8, 8, number_rows_placement+8, 8,
-				                              {"type":"no_blanks", "format":format_number} )
+			worksheet.write_string(12+number_rows_placement,1,"Performance by Ad Size",format_header_left)
 			
-			if check_adsize_sales_data is True:
-				pass
-			else:
-				
-				# Value = final_adsize.loc[final_adsize["Placement# Name"] == "Total"]
-				
-				worksheet.conditional_format( number_rows_placement+12, 2,
-				                              number_rows_placement+number_rows_adsize+13, 3,
-				                              {"type":"no_blanks", "format":format_number} )
-				
-				worksheet.conditional_format( number_rows_placement+12, 4,
-				                              number_rows_placement+number_rows_adsize+13, 4,
-				                              {"type":"no_blanks", "format":percent_fmt} )
-				
-				worksheet.conditional_format( number_rows_placement+12, 5,
-				                              number_rows_placement+number_rows_adsize+13, 5,
-				                              {"type":"no_blanks", "format":format_number} )
-				
-				worksheet.conditional_format( number_rows_placement+12, 6,
-				                              number_rows_placement+number_rows_adsize+13, 6,
-				                              {"type":"no_blanks", "format":percent_fmt} )
-				
-				worksheet.conditional_format( number_rows_placement+12, 7,
-				                              number_rows_placement+number_rows_adsize+13, 8,
-				                              {"type":"no_blanks", "format":money_fmt} )
+			for col in range(2,number_cols_adsize+1):
+				worksheet.write_string(12+number_rows_placement,col,"",format_colour)
 			
-			if check_daily_sales_data is True:
-				pass
-			else:
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 2,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              2, {"type":"no_blanks", "format":format_number} )
-				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 3,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              3, {"type":"no_blanks", "format":format_number} )
-				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 4,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              4, {"type":"no_blanks", "format":percent_fmt} )
-				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 5,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              5, {"type":"no_blanks", "format":format_number} )
-				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+20, 6,
-				                              number_rows_placement+number_rows_adsize+number_rows_daily+
-				                              unqiue_final_day_wise*5+15,
-				                              7, {"type":"no_blanks", "format":money_fmt} )
+			worksheet.write_string(13+number_rows_placement, 1, "Placement # Name", format_header_left)
+			worksheet.write_string(13+number_rows_placement, 2, "Ad Size", format_header_center)
+			worksheet.write_string(13+number_rows_placement,3,"Delivered Impressions",format_header_right)
+			worksheet.write_string(13+number_rows_placement,4,"Clicks",format_header_right)
+			worksheet.write_string(13+number_rows_placement,5,"CTR %",format_header_right)
+			worksheet.write_string(13+number_rows_placement,6,"Conversions",format_header_right)
+			worksheet.write_string(13+number_rows_placement,7,"Spend",format_header_right)
+			worksheet.write_string(13+number_rows_placement, 8, "eCPA", format_header_right)
 			
-			# addting subtotal and adding formatting for subtotal
-			if check_placement_sales_data is True:
-				pass
-			else:
-				worksheet.write( number_rows_placement+9, 1, "Subtotal", format_subtotal )
+			worksheet.write_string(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,1,
+			                       'Grand Total',format_grand)
 			
-			if check_adsize_sales_data is True:
-				pass
-			else:
-				worksheet.write( number_rows_placement+number_rows_adsize+14, 1, "Subtotal",
-				                 format_subtotal )
+			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,3,
+			                        '=SUMIF(B{}:B{},"Subtotal",D{}:D{})'.format(15+number_rows_placement,
+			                                                                    13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,
+			                                                                    15+number_rows_placement,
+			                                                                    13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2),
+			                        format_num)
 			
-			if check_placement_sales_data is True:
-				pass
-			else:
-				worksheet.conditional_format( number_rows_placement+10, 1, number_rows_placement+10,
-				                              number_cols_placement,
-				                              {"type":"blanks", "format":format_top_col} )
-				
-				"""worksheet.conditional_format(number_rows_placement + 9, 1, number_rows_placement + 9,
-											 number_cols_placement,
-											 {"type": "blanks", "format": format_bottom_col})"""
-				
-				worksheet.conditional_format( number_rows_placement+9, 1, number_rows_placement+9,
-				                              number_cols_placement,
-				                              {"type":"no_blanks", "format":format_sub} )
-				
-				worksheet.conditional_format( number_rows_placement+9, 1, number_rows_placement+9,
-				                              number_cols_placement,
-				                              {"type":"blanks", "format":format_sub} )
-				
-				worksheet.conditional_format( 8, 0, number_rows_placement+9, 0,
-				                              {"type":"blanks", "format":format_right_col} )
-				
-				worksheet.conditional_format( 8, number_cols_placement+1, number_rows_placement+9,
-				                              number_cols_placement+1,
-				                              {"type":"blanks", "format":format_left_col} )
+			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,4,
+			                        '=SUMIF(B{}:B{},"Subtotal",E{}:E{})'.format(15+number_rows_placement,
+			                                                                    13+number_rows_placement
+			                                                                    +number_rows_adsize+unqiue_final_day_wise*2,
+			                                                                    15+number_rows_placement,
+			                                                                    13+number_rows_placement
+			                                                                    +number_rows_adsize+unqiue_final_day_wise*2))
 			
-			if check_adsize_sales_data is True:
-				pass
-			else:
-				worksheet.conditional_format( number_rows_placement+13, 0,
-				                              number_rows_placement+number_rows_adsize+14, 0,
-				                              {"type":"blanks", "format":format_right_col} )
-				
-				worksheet.conditional_format( number_rows_placement+13, number_cols_adsize+1,
-				                              number_rows_placement+number_rows_adsize+14,
-				                              number_cols_adsize+1, {"type":"blanks", "format":format_left_col} )
-				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+14, 1,
-				                              number_rows_placement+number_rows_adsize+14,
-				                              number_cols_adsize, {"type":"no_blanks", "format":format_sub} )
-				
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+15, 1,
-				                              number_rows_placement+number_rows_adsize+15, number_cols_adsize,
-				                              {"type":"blanks", "format":format_top_col} )
+			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,5,
+			                        '=IFERROR(E{}/D{},0)'.format(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+1,
+			                                                     13+number_rows_placement+number_rows_adsize
+			                                                     +unqiue_final_day_wise*2+1),percent_fmt)
 			
-			# Merge Row formatting
-			format_merge_row = workbook.add_format( {
-				"bold":True, "font_color":'#FFFFFF', "align":"centre",
-				"fg_color":"#00B0F0", "border":2, "border_color":"#000000"
-				} )
+			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,6,
+			                        '=SUMIF(B{}:B{},"Subtotal",G{}:G{})'.format(15+number_rows_placement,
+			                                                                    13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,
+			                                                                    15+number_rows_placement,
+			                                                                    13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2),format_num)
 			
-			format_merge_row_black = workbook.add_format( {
-				"bold":True, "font_color":'#000000', "align":"centre",
-				"fg_color":"#00B0F0", "border":2, "border_color":"#000000"
-				} )
 			
-			if check_placement_sales_data is True:
-				pass
-			else:
-				worksheet.merge_range( 7, 1, 7, number_cols_placement,
-				                       "Standard Banner Performance - Summary", format_merge_row )
+			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,7,
+			                        '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format(15+number_rows_placement,
+			                                                                    13+number_rows_placement
+			                                                                    +number_rows_adsize+unqiue_final_day_wise*2,
+			                                                                    15+number_rows_placement,
+			                                                                    13+number_rows_placement
+			                                                                    +number_rows_adsize+unqiue_final_day_wise*2),money_fmt)
 			
-			if check_adsize_sales_data is True:
-				pass
-			else:
-				worksheet.merge_range( number_rows_placement+12, 1, number_rows_placement+12, number_cols_adsize,
-				                       "Standard Banner Performance - Ad Size Summary", format_merge_row )
+			for col in range(2,number_cols_adsize+1):
+				worksheet.conditional_format(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,col,
+				                             13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,col,
+				                             {"type":"blanks","format":format_grand})
+				worksheet.conditional_format(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,col,
+				                             13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,col,
+				                             {"type":"no_blanks","format":format_grand})
 			
-			if check_daily_sales_data is True:
-				pass
-			else:
-				worksheet.merge_range( number_rows_placement+number_rows_adsize+17, 1,
-				                       number_rows_placement+number_rows_adsize+17, number_cols_daily-2,
-				                       "Breakdown By Day + Placement", format_merge_row_black )
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+18, 1,
-				                              number_rows_placement+number_rows_adsize+19, number_cols_daily-2,
-				                              {"type":"blanks", "format":format_sub} )
-				worksheet.conditional_format( number_rows_placement+number_rows_adsize+18, 1,
-				                              number_rows_placement+number_rows_adsize+19, number_cols_daily-2,
-				                              {"type":"no_blanks", "format":format_sub} )
 			
-			# adding Grand Total
-			if check_daily_sales_data is True:
-				pass
-			else:
-				row_start = number_rows_placement+number_rows_adsize+21
-				row_end = number_rows_placement+number_rows_adsize+number_rows_daily+unqiue_final_day_wise*5+18
-				
-				worksheet.write(
-					row_end, 1,
-					"Grand Total", format_subtotal )
-				
-				worksheet.write_formula(
-					row_end,
-					2, '=SUMIF(B{}:B{},"Subtotal",C{}:C{})'.format( row_start, row_end, row_start, row_end ),
-					format_number )
-				
-				worksheet.write_formula( row_end,
-				                         3, '=SUMIF(B{}:B{},"Subtotal",D{}:D{})'.format( row_start, row_end, row_start,
-				                                                                         row_end ), format_number )
-				
-				worksheet.write_formula( row_end,
-				                         4, '=D{}/C{}'.format( row_end+1, row_end+1 ), percent_fmt )
-				
-				worksheet.write_formula( row_end, 5, '=SUMIF(B{}:B{},"Subtotal",F{}:F{})'.format( row_start,
-				                                                                                  row_end, row_start,
-				                                                                                  row_end ),
-				                         format_number )
-				
-				worksheet.write_formula( row_end, 7, '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format( row_start, row_end,
-				                                                                                  row_start, row_end ),
-				                         money_fmt )
-				
-				worksheet.write_formula( row_end, 6, '=H{}/F{}'.format( row_end+1, row_end+1 ), money_fmt )
-				
-				worksheet.conditional_format( row_end, 1, row_end, 7, {"type":"no_blanks", "format":format_sub} )
-				worksheet.conditional_format( row_end, 0, row_end, 0, {"type":"blanks", "format":format_right_col} )
-				worksheet.conditional_format( row_end, 8, row_end, 8, {"type":"blanks", "format":format_left_col} )
-				worksheet.conditional_format( row_end-1, 1, row_end-1, 7, {"type":"blanks", "format":format_bottom_col} )
-				worksheet.conditional_format( row_end+1, 1, row_end+1, 7, {"type":"blanks", "format":format_top_col} )
+			#Day Wise Grand Total
+			#worksheet.write_string (12+number_rows_placement, 1, "Performance by Ad Size", format_header_left)
+			grand_total_row = 13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+number_rows_daily+unqiue_final_day_wise*2+4
+			formula_range_grand = 14+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+5
+			writing_info_row = 13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+3
+			writing_header_row = 13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+4
+			worksheet.write_string (writing_info_row, 1, "Performance - by Placement and Date", format_header_left)
+			worksheet.write_string(writing_header_row,1,"Placement # Name",format_header_left)
+			worksheet.write_string(writing_header_row,2,"Date",format_header_center)
+			worksheet.write_string(writing_header_row,3,"Delivered Impressions",format_header_right)
+			worksheet.write_string(writing_header_row,4,"Clicks",format_header_right)
+			worksheet.write_string (writing_header_row, 5, "CTR %", format_header_right)
+			worksheet.write_string(writing_header_row, 6, "Conversions", format_header_right)
+			worksheet.write_string(writing_header_row, 7, "Spend", format_header_right)
+			worksheet.write_string(writing_header_row, 8, "eCPA", format_header_right)
+			#centre_date_format_wb = workbook.add_format ({'align':'center', 'num_format':'YYYY-MM-DD'})
+			worksheet.write_string(grand_total_row,1,'Grand Total',format_grand)
 			
-			worksheet.set_column( "B:B", 25, date_format )
-			worksheet.set_column( "C:L", 21, alignment )
-			worksheet.set_zoom( 75 )
+			#worksheet.conditional_format(formula_range_grand,2,grand_total_row,2,{"type":"no_blanks","format":centre_date_format_wb})
+			
+			for col in range(2,number_cols_daily+1):
+				worksheet.write_string(writing_info_row,col,"",format_colour)
+				worksheet.conditional_format(grand_total_row,col,grand_total_row,col,{"type":"blanks","format":format_grand})
+				worksheet.conditional_format (grand_total_row, col, grand_total_row, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				
+			
+			worksheet.write_formula(grand_total_row,3,'=SUMIF(B{}:B{},"Subtotal",D{}:D{})'.format(formula_range_grand,
+			                                                                                      grand_total_row,
+			                                                                                      formula_range_grand,
+			                                                                                      grand_total_row),format_num)
+			
+			worksheet.write_formula(grand_total_row,4,'=SUMIF(B{}:B{},"Subtotal",E{}:E{})'.format(formula_range_grand,
+			                                                                                      grand_total_row,formula_range_grand,
+			                                                                                      grand_total_row),format_num)
+			
+			worksheet.write_formula (grand_total_row, 5,'=IFERROR(E{}/D{},0)'.format (grand_total_row+1,grand_total_row+1),percent_fmt)
+			
+			worksheet.write_formula(grand_total_row, 6,'=SUMIF(B{}:B{},"Sub-Total",G{}:G{})'.format(formula_range_grand,
+			                                                                                        grand_total_row,
+			                                                                                        formula_range_grand,
+			                                                                                        grand_total_row),format_num)
+			
+			worksheet.write_formula(grand_total_row,7,'=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format(formula_range_grand,
+			                                                                                      grand_total_row,
+			                                                                                      formula_range_grand,
+			                                                                                      grand_total_row),money_fmt)
+			
+			
+			
+			worksheet.set_column(1,1,45)
+			worksheet.set_column(2,2,13,alignment_center)
+			worksheet.set_column(3,4,20,alignment_right)
+			worksheet.set_column(5,6,14,alignment_right)
+			worksheet.set_column(7,7,21,alignment_right)
+			worksheet.set_column(8,9,11,alignment_right)
+			worksheet.set_column(10,17,15,alignment_right)
+			
 			
 		except AttributeError as e:
-			self.logger.info(str(e)+ ' Not found')
+			self.logger.error(str(e))
 			pass
 	
 	def main(self):
@@ -1063,10 +865,10 @@ Adding Main Function
 			self.logger.info("Display Sheet Created for IO {}".format(self.config.ioid))
 
 if __name__=="__main__":
-	pass
+	#pass
 	
-	# enable it when running for individual file
-	#c = config.Config('test', 573967)
-	#o = Daily( c )
-	#o.main()
-	#c.saveAndCloseWriter()
+	#enable it when running for individual file
+	c = config.Config('test', 606087,'2018-01-02','2018-02-02')
+	o = Daily( c )
+	o.main()
+	c.saveAndCloseWriter()
