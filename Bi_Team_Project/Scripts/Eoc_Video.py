@@ -50,7 +50,7 @@ Class for VDX Placements
 		
 		sql_adsize_km_rate = "SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,sum(DPE_INTERACTIVE_ENGAGEMENTS) as DpeIntractiveEngagements,sum(ENG_INTERACTIVE_ENGAGEMENTS) as EngIntractiveEngagements,sum(ENG_TOTAL_TIME_SPENT) as Engtotaltimespent,sum(DPE_TOTAL_TIME_SPENT) as Dpetotaltimespent from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{}' AND '{}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format (self.config.ioid,self.config.start_date,self.config.end_date)
 		
-		sql_km_for_video = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,PRODUCT,sum(IMPRESSIONS) as Impressions,sum(ENGAGEMENTS) as Engagements, sum(CPCV_COUNT) as completions,sum(DPE_ENGAGEMENTS) as Dpeengaments From TFR_REP.KEY_METRIC_MV WHERE IO_ID = 599207 AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-04-01' AND '2018-04-02' GROUP BY PLACEMENT_ID, PLACEMENT_DESC,PRODUCT ORDER BY  PLACEMENT_ID".format(self.config.ioid,self.config.start_date,self.config.end_date)
+		sql_km_for_video = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,PRODUCT,sum(IMPRESSIONS) as Impressions,sum(ENGAGEMENTS) as Engagements, sum(CPCV_COUNT) as completions,sum(DPE_ENGAGEMENTS) as Dpeengaments From TFR_REP.KEY_METRIC_MV WHERE IO_ID = 599207 AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{}' AND '{}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC,PRODUCT ORDER BY  PLACEMENT_ID".format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
 		self.sql_vdx_summary = sql_vdx_summary
 		self.sql_vdx_km = sql_vdx_km
@@ -1047,6 +1047,7 @@ Main Function
 			self.logger.info ("No VDX placements for IO - {}".format (self.config.ioid))
 			pass
 		else:
+			self.logger.info ("VDX placements found for IO - {}".format (self.config.ioid))
 			self.access_vdx_columns ()
 			self.write_video_data ()
 			self.formatting_Video ()

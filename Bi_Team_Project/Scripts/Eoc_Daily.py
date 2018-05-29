@@ -614,7 +614,7 @@ To create display placements
 			worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
 			worksheet.conditional_format ("A1:R5", {"type":"no_blanks", "format":format_campaign_info})
 			
-			worksheet.insert_image ("O6", "Exponential.png", {"url":"https://www.tribalfusion.com"})
+			worksheet.insert_image ("O7", "Exponential.png", {"url":"https://www.tribalfusion.com"})
 			worksheet.insert_image ("O2", "Client_Logo.png")
 			
 			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
