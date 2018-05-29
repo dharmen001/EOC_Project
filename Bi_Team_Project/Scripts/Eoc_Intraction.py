@@ -5,7 +5,7 @@ Date:2018-03-23
 """
 import pandas as pd
 import numpy as np
-from xlsxwriter.utility import xl_rowcol_to_cell
+from xlsxwriter.utility import xl_rowcol_to_cell, xl_range
 import xlsxwriter
 import config
 import pandas.io.formats.excel
@@ -162,7 +162,7 @@ Accessing Columns from Query
 			
 			preroll_video_summary["Views"] = preroll_video_summary["VIEWS0"]
 			
-			preroll_video_summary["Video Completion Rate"] = preroll_video_summary["VIDEO_COMPLETIONS"]/preroll_video_summary["Views"]
+			preroll_video_summary["Video Completion Rate"] = preroll_video_summary["Video Completions"]/preroll_video_summary["Views"]
 			
 			preroll_video_summary["Placement# Name"] = preroll_video_summary[["PLACEMENT","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
 			
@@ -419,7 +419,9 @@ Applying Formatting
 			
 			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
 			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
+			format_header_center = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"center"})
 			format_header = workbook.add_format ({"bold":True, "bg_color":"#00B0F0"})
+			format_header_right = workbook.add_format ({"bold":True, "bg_color":"#00B0F0","align":"right"})
 			format_grand = workbook.add_format ({"bold":True, "bg_color":"#A5A5A5"})
 			format_colour = workbook.add_format ({"bg_color":'#00B0F0'})
 			
@@ -429,8 +431,11 @@ Applying Formatting
 			format_headers = workbook.add_format({"bold":True,"bg_color": '#E7E6E6'})
 			
 			money_fmt = workbook.add_format( {"num_format":"$#,###0.00","align":"right"})
+			money_fmt_spend = workbook.add_format ({"num_format":"$#,###0.00", "align":"right","bg_color":"#A5A5A5"})
 			format_num = workbook.add_format ({"num_format":"#,##0"})
+			format_num_cent = workbook.add_format ({"num_format":"#,##0","align":"center","bg_color":"#A5A5A5","bold":True})
 			percent_fmt = workbook.add_format( {"num_format":"0.00%", "align":"right"})
+			percent_fmt_ctr_vcr = workbook.add_format ({"num_format":"0.00%", "align":"right","bg_color":"#A5A5A5"})
 			
 			#formatting preroll summary
 			worksheet.write_string(7,1,"Standard Pre Roll Performance - Summary",format_header_left)
@@ -442,8 +447,10 @@ Applying Formatting
 			#worksheet.conditional_format (8, 3, 8, 9, {"type":"no_blanks", "format":format_header})
 			
 			for col in range (2, number_cols_preroll_summary+1):
-				worksheet.write_string(8,col,"",format_colour)
-			
+				worksheet.write_string(7,col,"",format_colour)
+				worksheet.conditional_format(8,col,8,col,{"type":"no_blanks", "format":format_header})
+				worksheet.conditional_format (8, col, 8, col, {"type":"blanks", "format":format_header})
+				
 			for col in range(4,6):
 				cell_location = xl_rowcol_to_cell(9+number_rows_preroll_summary,col)
 				start_range = xl_rowcol_to_cell(9,col)
@@ -541,14 +548,210 @@ Applying Formatting
 				                              {"type":"blanks", "format":format_grand})
 				worksheet.conditional_format (start_range_format, col, start_range_format, col,
 				                              {"type":"no_blanks", "format":format_grand})
-				
+			
 				
 				
 			#formatting video summary
 			worksheet.write_string(9+number_rows_preroll_summary+3,1,"Standard Pre Roll - Video Details",format_header_left)
+			worksheet.conditional_format (13+number_rows_preroll_summary, 1, 13+number_rows_preroll_summary, 1, {"type":"no_blanks", "format":format_header_left})
+			worksheet.write_string (13+number_rows_preroll_summary+number_rows_video_player_summary_final+1, 1, "Grand Total", format_grand)
 			
-			for col in range(2,number_cols_preroll_summary):
+			for col in range(2,number_cols_video_player_summary_final+1):
+				
 				worksheet.write_string(12+number_rows_preroll_summary,col,"",format_colour)
+				worksheet.conditional_format(13+number_rows_preroll_summary,col,13+number_rows_preroll_summary,col,
+				                             {"type":"no_blanks","format":format_header})
+					
+				worksheet.conditional_format(13+number_rows_preroll_summary,col,13+number_rows_preroll_summary,col,
+				                             {"type":"blanks","format":format_header})
+			
+			for col in range (2, 3):
+				start_range_format = 13+number_rows_preroll_summary+number_rows_video_player_summary_final+1
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+			
+			for col in range(3,8):
+				cell_location = xl_rowcol_to_cell(13+number_rows_preroll_summary+number_rows_video_player_summary_final+1,col)
+				start_range = xl_rowcol_to_cell(14+number_rows_preroll_summary,col)
+				end_range = xl_rowcol_to_cell(13+number_rows_preroll_summary+number_rows_video_player_summary_final,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,format_num)
+				
+				start_range_plc = 14+number_rows_preroll_summary
+				end_range_plc = 13+number_rows_preroll_summary+number_rows_video_player_summary_final
+				worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"no_blanks","format":format_num})
+				start_range_format = 13+number_rows_preroll_summary+number_rows_video_player_summary_final+1
+				worksheet.conditional_format(start_range_format,col,start_range_format,col,{"type":"no_blanks",
+				                                                                            "format":format_grand})
+				
+				worksheet.conditional_format(start_range_format,col,start_range_format,col,{"type":"blanks",
+				                                                                            "format":format_grand})
+				
+				
+			for col in range(8,9):
+				cell_location = xl_rowcol_to_cell(13+number_rows_preroll_summary+number_rows_video_player_summary_final+1, col)
+				formula = '=IFERROR(H{}/D{},0)'.format (13+number_rows_preroll_summary+number_rows_video_player_summary_final+2,
+				                                        13+number_rows_preroll_summary+number_rows_video_player_summary_final+2)
+				worksheet.write_formula(cell_location,formula,percent_fmt)
+				start_range_plc = 14+number_rows_preroll_summary
+				end_range_plc = 13+number_rows_preroll_summary+number_rows_video_player_summary_final
+				worksheet.conditional_format (start_range_plc, col, end_range_plc, col,
+				                              {"type":"no_blanks", "format":percent_fmt})
+				
+				start_range_format = 13+number_rows_preroll_summary+number_rows_video_player_summary_final+1
+				worksheet.conditional_format (start_range_format, col, start_range_format, col, {
+					"type":"no_blanks",
+					"format":format_grand
+				})
+				
+				worksheet.conditional_format (start_range_format, col, start_range_format, col, {
+					"type":"blanks",
+					"format":format_grand
+				})
+			
+			#formatting video player table
+			worksheet.write_string (16+number_rows_preroll_summary+number_rows_video_preroll_summary, 1, "Standard Pre Roll - Interaction Details",format_header_left)
+			worksheet.write_string (17+number_rows_preroll_summary+number_rows_video_preroll_summary, 2,"Video Player Interactions",format_header)
+			worksheet.write_string (17+number_rows_preroll_summary+number_rows_video_preroll_summary,
+			                        number_cols_video_player_summary_final+1,"Clickthroughs",format_header)
+			worksheet.write_string(19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final,1,
+			                       "Grand Total",format_grand)
+			
+			worksheet.write_string(18+number_rows_preroll_summary+number_rows_video_preroll_summary,
+			                       number_cols_video_player_summary_final+number_cols_interaction_final+1,
+			                       "Total Interactions",format_header_right)
+			
+			
+			for col in range(1,number_cols_video_player_summary_final+number_cols_interaction_final+2):
+				start_range = 16+number_rows_preroll_summary+number_rows_video_preroll_summary
+				end_range = 17+number_rows_preroll_summary+number_rows_video_preroll_summary
+				start_range_header = 18+number_rows_preroll_summary+number_rows_video_preroll_summary
+				worksheet.conditional_format(start_range,col,end_range,col,{"type":"blanks","format":format_colour})
+				worksheet.conditional_format (start_range, col, end_range, col, {"type":"no_blanks", "format":format_colour})
+				worksheet.conditional_format(start_range_header,col,start_range_header,col,{"type":"no_blanks", "format":format_header})
+			
+			
+			for col in range(3,number_cols_video_player_summary_final+number_cols_interaction_final+2):
+				cell_location = xl_rowcol_to_cell(19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final, col)
+				start_range = xl_rowcol_to_cell(19+number_rows_preroll_summary+number_rows_video_preroll_summary,col)
+				end_range = xl_rowcol_to_cell(19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,format_num)
+				start_range_plc = 19+number_rows_preroll_summary+number_rows_video_preroll_summary
+				end_range_plc = 19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final-1
+				worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"no_blanks","format":format_num})
+				#worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"blanks","format":format_num})
+				range_grand = 19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final
+				worksheet.conditional_format(range_grand,col,range_grand,col,{"type":"no_blanks","format":format_grand})
+				# worksheet.conditional_format (range_grand, col, range_grand, col,
+				#                               {"type":"no_blanks", "format":format_grand})
+			
+			for col in range(2,3):
+				cell_location = xl_rowcol_to_cell (19+number_rows_preroll_summary+number_rows_video_preroll_summary
+					+number_rows_video_player_summary_final,
+					col)
+				start_range = xl_rowcol_to_cell (19+number_rows_preroll_summary+number_rows_video_preroll_summary, col)
+				end_range = xl_rowcol_to_cell (
+					19+number_rows_preroll_summary+number_rows_video_preroll_summary
+					+number_rows_video_player_summary_final-1,
+					col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula (cell_location, formula, format_num_cent)
+				start_range_plc = 19+number_rows_preroll_summary+number_rows_video_preroll_summary
+				end_range_plc = 19+number_rows_preroll_summary+number_rows_video_preroll_summary\
+				                +number_rows_video_player_summary_final-1
+				worksheet.conditional_format (start_range_plc, col, end_range_plc, col,
+				                              {"type":"no_blanks", "format":format_num})
+				#worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"blanks","format":format_num})
+			
+			start_range_video = 19+number_rows_preroll_summary+number_rows_video_preroll_summary
+			start_col_video = number_cols_video_player_summary_final+number_cols_interaction_final+1
+			for row in range(number_rows_video_player_summary_final):
+				cell_range = xl_range(start_range_video,2,start_range_video,
+				              number_cols_video_player_summary_final+number_cols_interaction_final)
+				
+				formula = 'sum({:s})'.format(cell_range)
+				worksheet.write_formula(start_range_video,start_col_video,formula)
+				start_range_video += 1
+				
+			#formatting_Day_Information
+			worksheet.write_string (21+number_rows_preroll_summary+
+			                        number_rows_video_preroll_summary+
+			                        number_rows_video_player_summary_final,1,"Standard Pre Roll - by Date",format_header_left)
+			
+			worksheet.write_string(22+number_rows_preroll_summary+
+			                       number_rows_video_preroll_summary+
+			                       number_rows_video_player_summary_final, 1, "Placement # Name",
+			                       format_header_left)
+			
+			worksheet.write_string (22+number_rows_preroll_summary+
+			                        number_rows_video_preroll_summary+
+			                        number_rows_video_player_summary_final, 2, "Date",
+			                        format_header_center)
+			
+			worksheet.write_string(22+number_rows_preroll_summary+
+			                       number_rows_video_preroll_summary+
+			                       number_rows_video_player_summary_final, 3, "Impressions",format_header_right)
+			
+			worksheet.write_string (22+number_rows_preroll_summary+
+			                        number_rows_video_preroll_summary+
+			                        number_rows_video_player_summary_final, 4, "Clickthroughs",format_header_right)
+			
+			worksheet.write_string(22+number_rows_preroll_summary+
+			                       number_rows_video_preroll_summary+
+			                       number_rows_video_player_summary_final, 5, "CTR %", format_header_right)
+			
+			worksheet.write_string(22+number_rows_preroll_summary+
+			                       number_rows_video_preroll_summary+
+			                       number_rows_video_player_summary_final, 6, "Video Completions", format_header_right)
+			
+			worksheet.write_string (22+number_rows_preroll_summary+
+			                        number_rows_video_preroll_summary+
+			                        number_rows_video_player_summary_final, 7, "VCR %", format_header_right)
+			
+			worksheet.write_string (22+number_rows_preroll_summary+
+			                        number_rows_video_preroll_summary+
+			                        number_rows_video_player_summary_final, 8, "Spend", format_header_right)
+			
+			start_range_day = 21+number_rows_preroll_summary+number_rows_video_preroll_summary+\
+			                  number_rows_video_player_summary_final
+			
+			for col in range(2,number_cols_day_preroll_summary+1):
+				worksheet.conditional_format(start_range_day,col,start_range_day,col,{"type":"blanks","format":format_colour})
+				worksheet.conditional_format (start_range_day, col, start_range_day, col,
+				                              {"type":"no_blanks", "format":format_colour})
+			
+			start_grand_total = 21+number_rows_preroll_summary+\
+			                    number_rows_video_preroll_summary+\
+			                    number_rows_day_preroll_summary+\
+			                    number_rows_video_player_summary_final+\
+			                    unique_day_preroll_summary_final*2+1
+			
+			worksheet.write_string(start_grand_total,1,"Grand Total",format_grand)
+			worksheet.write_string(start_grand_total,2,"",format_grand)
+			
+		
+			cell_location = start_grand_total
+			start_range_day = 24+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final
+			end_range_day = start_grand_total
+			formula_imp = '=SUMIF(B{}:B{},"Subtotal",D{}:D{})'.format(start_range_day,end_range_day,start_range_day,end_range_day)
+			formula_click = '=SUMIF(B{}:B{},"Subtotal",E{}:E{})'.format (start_range_day, end_range_day, start_range_day,
+			                                                           end_range_day)
+			formula_comp = '=SUMIF(B{}:B{},"Subtotal",G{}:G{})'.format(start_range_day,end_range_day,start_range_day,end_range_day)
+			
+			formula_spend = '=SUMIF(B{}:B{},"Subtotal",I{}:I{})'.format(start_range_day,end_range_day,start_range_day,end_range_day)
+			
+			formula_ctr = '=IFERROR((E{}/D{}),0)'.format(start_grand_total+1,start_grand_total+1)
+			formula_vcr = '=IFERROR((G{}/D{}),0)'.format(start_grand_total+1,start_grand_total+1)
+			
+			worksheet.write_formula(cell_location,3,formula_imp,format_grand)
+			worksheet.write_formula(cell_location,4,formula_click,format_grand)
+			worksheet.write_formula(cell_location,5,formula_ctr,percent_fmt_ctr_vcr)
+			worksheet.write_formula(cell_location,6,formula_comp,format_grand)
+			worksheet.write_formula(cell_location,7,formula_vcr,percent_fmt_ctr_vcr)
+			worksheet.write_formula(cell_location,8,formula_spend,money_fmt_spend)
 			
 			worksheet.set_column (1, 1, 45, alignment_left)
 			worksheet.set_column (2, 2, 15, alignment_center)
@@ -578,7 +781,7 @@ if __name__=="__main__":
 	#pass
 	
 	# enable it when running for individual file
-	c = config.Config('Test', 598397,'2018-01-01','2018-02-01')
+	c = config.Config('Test', 608607,'2018-01-01','2018-02-01')
 	o = Intraction( c )
 	o.main()
 	c.saveAndCloseWriter()
