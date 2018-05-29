@@ -416,21 +416,143 @@ Applying Formatting
 			worksheet.insert_image("O7", "Exponential.png", {"url":"https://www.tribalfusion.com"})
 			worksheet.insert_image("O2", "Client_Logo.png")
 			
-			#format_campaign_info = workbook.add_format( {"bg_color":'#F0F8FF', "align":"left"} )
+			
 			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
+			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
+			format_header = workbook.add_format ({"bold":True, "bg_color":"#00B0F0"})
+			format_grand = workbook.add_format ({"bold":True, "bg_color":"#A5A5A5"})
+			format_colour = workbook.add_format ({"bg_color":'#00B0F0'})
 			
 			worksheet.conditional_format("A1:R5", {"type":"blanks", "format":format_campaign_info} )
 			worksheet.conditional_format("A1:R5", {"type":"no_blanks", "format":format_campaign_info} )
 			
 			format_headers = workbook.add_format({"bold":True,"bg_color": '#E7E6E6'})
 			
-			money_fmt = workbook.add_format( {"num_format":"$#,###0.00","align":"center"})
-			format_number = workbook.add_format({"num_format":"#,##0","align":"center"} )
-			percent_fmt = workbook.add_format( {"num_format":"0.00%", "align":"center"} )
+			money_fmt = workbook.add_format( {"num_format":"$#,###0.00","align":"right"})
+			format_num = workbook.add_format ({"num_format":"#,##0"})
+			percent_fmt = workbook.add_format( {"num_format":"0.00%", "align":"right"})
+			
+			#formatting preroll summary
+			worksheet.write_string(7,1,"Standard Pre Roll Performance - Summary",format_header_left)
+			worksheet.write_string (9+number_rows_preroll_summary, 1, "Grand Total", format_grand)
+			worksheet.conditional_format (7, 2, 7, number_cols_preroll_summary, {"type":"blanks", "format":format_colour})
+			worksheet.conditional_format (7, 2, 7, number_cols_preroll_summary, {"type":"no_blanks", "format":format_colour})
+			worksheet.conditional_format (8, 1, 8, 1, {"type":"no_blanks", "format":format_header_left})
+			#worksheet.conditional_format (8, 2, 8, 2, {"type":"no_blanks", "format":format_header})
+			#worksheet.conditional_format (8, 3, 8, 9, {"type":"no_blanks", "format":format_header})
+			
+			for col in range (2, number_cols_preroll_summary+1):
+				worksheet.write_string(8,col,"",format_colour)
+			
+			for col in range(4,6):
+				cell_location = xl_rowcol_to_cell(9+number_rows_preroll_summary,col)
+				start_range = xl_rowcol_to_cell(9,col)
+				end_range = xl_rowcol_to_cell(9+number_rows_preroll_summary-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,format_num)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_preroll_summary-1
+				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":format_num})
+				start_range_format = 9+number_rows_preroll_summary
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				
+				
+				
+			for col in range(6,7):
+				cell_location = xl_rowcol_to_cell (9+number_rows_preroll_summary, col)
+				formula = '=IFERROR(F{}/E{},0)'.format (9+number_rows_preroll_summary+1, 9+number_rows_preroll_summary+1)
+				worksheet.write_formula(cell_location,formula,percent_fmt)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_preroll_summary-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+				                              {"type":"no_blanks", "format":percent_fmt})
+				start_range_format = 9+number_rows_preroll_summary
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				
+				
+			
+			for col in range(7,8):
+				cell_location = xl_rowcol_to_cell(9+number_rows_preroll_summary,col)
+				start_range = xl_rowcol_to_cell(9,col)
+				end_range = xl_rowcol_to_cell(9+number_rows_preroll_summary-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula(cell_location,formula,format_num)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_preroll_summary-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+				                              {"type":"no_blanks", "format":format_num})
+				start_range_format = 9+number_rows_preroll_summary
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				
+			
+			for col in range(8,9):
+				cell_location = xl_rowcol_to_cell(9+number_rows_preroll_summary, col)
+				formula = '=IFERROR(H{}/E{},0)'.format (9+number_rows_preroll_summary+1, 9+number_rows_preroll_summary+1)
+				worksheet.write_formula(cell_location,formula,percent_fmt)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_preroll_summary-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+				                              {"type":"no_blanks", "format":percent_fmt})
+				start_range_format = 9+number_rows_preroll_summary
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				
+				
+			for col in range(9,10):
+				cell_location = xl_rowcol_to_cell(9+number_rows_preroll_summary,col)
+				start_range = xl_rowcol_to_cell(9,col)
+				end_range = xl_rowcol_to_cell(9+number_rows_preroll_summary-1,col)
+				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
+				worksheet.write_formula (cell_location, formula, money_fmt)
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_preroll_summary-1
+				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+				                              {"type":"no_blanks", "format":money_fmt})
+				start_range_format = 9+number_rows_preroll_summary
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+			
+			
+			for col in range(3,4):
+				start_plc_row = 9
+				end_plc_row = 9+number_rows_preroll_summary-1
+				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":money_fmt})
+				start_range = 9+number_rows_preroll_summary
+				worksheet.conditional_format(start_range,col,start_range,col,{"type":"blanks","format":format_grand})
+				worksheet.conditional_format (start_range, col, start_range, col,
+				                              {"type":"no_blanks", "format":format_grand})
+			
+			for col in range(2,3):
+				start_range_format = 9+number_rows_preroll_summary
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"blanks", "format":format_grand})
+				worksheet.conditional_format (start_range_format, col, start_range_format, col,
+				                              {"type":"no_blanks", "format":format_grand})
+				
+				
+				
+			#formatting video summary
+			worksheet.write_string(9+number_rows_preroll_summary+3,1,"Standard Pre Roll - Video Details",format_header_left)
+			
+			for col in range(2,number_cols_preroll_summary):
+				worksheet.write_string(12+number_rows_preroll_summary,col,"",format_colour)
 			
 			worksheet.set_column (1, 1, 45, alignment_left)
 			worksheet.set_column (2, 2, 15, alignment_center)
-			worksheet.set_column (3, number_cols_interaction_final+18, 15, alignment_right)
+			worksheet.set_column (3, number_cols_interaction_final+18, 20, alignment_right)
 			
 		except AttributeError as e:
 			pass
