@@ -8,13 +8,8 @@ import datetime
 import pandas as pd
 import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell
-
-import config
 import pandas.io.formats.excel
-import logging
-
 pandas.io.formats.excel.header_style = None
-
 
 class Daily(object):
 	"""
@@ -33,27 +28,24 @@ To create display placements
 		"""
 		TFR Quries for making connection
 		"""
-		self.logger.info ('Starting to build Display Sheet for IO - {}'.format (self.config.ioid))
+		self.logger.info ('Starting to create Display Sheet for IO - {}'.format (self.config.ioid))
 		
+		self.logger.info (
+			"Start executing: "+'Display_Summary.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_display_summary = open("Display_Summary.sql")
 		sql_sales_summary = read_display_summary.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Display_Summary.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_summary)
 		
+		self.logger.info ("Start executing: "+'Placement_info_display.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_plc_info = open("Placement_info_display.sql")
 		sql_sales_mv = read_plc_info.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Placement_info_display.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_mv)
 		
+		self.logger.info("Start executing: "+'Placement_info_display_adsize.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_adsize_display = open("Placement_info_display_adsize.sql")
 		sql_sales_adsize_mv = read_adsize_display.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Placement_info_display_adsize.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_adsize_mv)
 		
+		self.logger.info("Start executing: "+'Placement_info_display_day.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_by_day_display = open("Placement_info_display_day.sql")
 		sql_sales_daily_mv = read_by_day_display.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Placement_info_display_day.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_daily_mv)
 		
 		
 		self.sql_sales_summary = sql_sales_summary
@@ -61,7 +53,7 @@ To create display placements
 		self.sql_sales_adsize_mv = sql_sales_adsize_mv
 		self.sql_sales_daily_mv = sql_sales_daily_mv
 		
-		#return sql_sales_summary, sql_sales_mv, sql_sales_adsize_mv, sql_sales_daily_mv
+		
 	
 	def read_Query_daily(self):
 		
@@ -71,19 +63,10 @@ To create display placements
 		"""
 		self.logger.info ('Running Query for Display placements for IO {}'.format (self.config.ioid))
 
-		#sql_sales_summary, sql_sales_mv, sql_sales_adsize_mv, sql_sales_daily_mv = self.connect_TFR_daily()
-
 		read_sql_sales = pd.read_sql( self.sql_sales_summary, self.config.conn )
 		read_sql_sales_mv = pd.read_sql( self.sql_sales_mv, self.config.conn )
 		read_sql_adsize_mv = pd.read_sql( self.sql_sales_adsize_mv, self.config.conn )
 		read_sql_daily_mv = pd.read_sql( self.sql_sales_daily_mv, self.config.conn )
-		
-		# self.read_sql_sales = read_sql_sales
-		# self.read_sql_sales_mv = read_sql_sales_mv
-		# self.read_sql_adsize_mv = read_sql_adsize_mv
-		#self.read_sql_daily_mv = read_sql_daily_mv
-		
-		#return read_sql_sales, read_sql_sales_mv, read_sql_adsize_mv, read_sql_daily_mv
 		
 		self.read_sql_sales = read_sql_sales
 		self.read_sql_sales_mv = read_sql_sales_mv
@@ -98,18 +81,19 @@ To create display placements
 		"""
 		self.logger.info('Query Stored for further processing of IO - {}'.format(self.config.ioid))
 
-		#read_sql_sales, read_sql_sales_mv, read_sql_adsize_mv, read_sql_daily_mv = self.read_Query_daily()
-		
 		self.logger.info('Creating by placement information of IO {}'.format(self.config.ioid))
 		
 		display_sales_first_table = None
 		try:
-			standard_sales_first_table = self.read_sql_sales.merge( self.read_sql_sales_mv, on="PLACEMENT#", how="inner" )
-			display_sales_first_table = standard_sales_first_table[
-				["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
-				 "CLICKS", "CONVERSION"]]
-		except (KeyError,ValueError,AttributeError) as e:
-			self.logger.error(str(e) +' No Placement Information Display Placements IO - {}'.format(self.config.ioid))
+			if self.read_sql_sales_mv.empty:
+				pass
+			else:
+				standard_sales_first_table = self.read_sql_sales.merge( self.read_sql_sales_mv, on="PLACEMENT#")
+				display_sales_first_table = standard_sales_first_table[
+					["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
+					 "CLICKS", "CONVERSION"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 			
 		self.logger.info (
@@ -117,289 +101,290 @@ To create display placements
 		
 		adsize_sales_second_table= None
 		try:
-			standard_sales_second_table = self.read_sql_sales.merge( self.read_sql_adsize_mv, on="PLACEMENT#", how="inner" )
-			adsize_sales_second_table = standard_sales_second_table[
-				["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
-				 "ADSIZE", "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
-		except (KeyError,ValueError,AttributeError) as e:
-			self.logger.error(str(e)+ ' No adSize information found for Display placement IO - {}'.format(self.config.ioid))
+			if self.read_sql_adsize_mv.empty:
+				pass
+			else:
+				standard_sales_second_table = self.read_sql_sales.merge( self.read_sql_adsize_mv, on="PLACEMENT#")
+				adsize_sales_second_table = standard_sales_second_table[
+					["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
+					 "ADSIZE", "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
+		
+		self.logger.info ('Creating by day information for display placements of IO {}'.format (self.config.ioid))
 		daily_sales_third_table = None
 		try:
-			self.logger.info('Creating by day information for display placements of IO {}'.format(self.config.ioid))
-			standard_sales_third_table = self.read_sql_sales.merge( self.read_sql_daily_mv, on="PLACEMENT#", how="inner" )
-			daily_sales_third_table = standard_sales_third_table[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
-			                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
-			                                                      "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
-			
-		except (KeyError,ValueError,AttributeError) as e:
-			self.logger.error(str(e) + ' No placement by day information found for Display placement IO - {}'.format(self.config.ioid))
+			if self.read_sql_daily_mv.empty:
+				pass
+			else:
+				standard_sales_third_table = self.read_sql_sales.merge( self.read_sql_daily_mv, on="PLACEMENT#")
+				daily_sales_third_table = standard_sales_third_table[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
+				                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
+				                                                      "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 		
 		self.display_sales_first_table = display_sales_first_table
 		self.adsize_sales_second_table = adsize_sales_second_table
 		self.daily_sales_third_table = daily_sales_third_table
 		
-		#return display_sales_first_table, adsize_sales_second_table, daily_sales_third_table
-	
 	def KM_Sales_daily(self):
 		
 		"""
 
 		:return: Joining Creative with placement Number
 		"""
-		#display_sales_first_table, adsize_sales_second_table, daily_sales_third_table =\
-			#self.access_Data_KM_Sales_daily()
+		try:
+			self.logger.info (
+				'Putting creative and placement together for placement information of IO {}'.format (self.config.ioid))
+			if self.read_sql_sales_mv.empty:
+				pass
+			else:
+				self.display_sales_first_table["PLACEMENTNAME"] = self.display_sales_first_table[
+					["PLACEMENT#", "PLACEMENT_NAME"]].apply (
+					lambda x:".".join (x), axis=1)
+				choices_display_ctr = self.display_sales_first_table["CLICKS"]/self.display_sales_first_table[
+					"DELIVERED_IMPRESION"]
+				choices_display_conversion = self.display_sales_first_table["CONVERSION"]/\
+				                             self.display_sales_first_table[
+					                             "DELIVERED_IMPRESION"]
+				choices_display_spend = self.display_sales_first_table["DELIVERED_IMPRESION"]/1000*\
+				                        self.display_sales_first_table[
+					                        "UNIT_COST"]
+				
+				choices_display_ecpa = (self.display_sales_first_table["DELIVERED_IMPRESION"]/1000*
+				                        self.display_sales_first_table[
+					                        "UNIT_COST"])/self.display_sales_first_table["CONVERSION"]
+				
+				mask1 = self.display_sales_first_table["COST_TYPE"].isin (['CPM'])
+				
+				self.display_sales_first_table["CTR%"] = np.select ([mask1], [choices_display_ctr], default=0.00)
+				self.display_sales_first_table["CONVERSIONRATE%"] = np.select ([mask1], [choices_display_conversion],
+				                                                               default=0.00)
+				self.display_sales_first_table["SPEND"] = np.select ([mask1], [choices_display_spend], default=0.00)
+				self.display_sales_first_table["EPCA"] = np.select ([mask1], [choices_display_ecpa], default=0.00)
+				
+			self.logger.info(
+				'Putting creative and placement together for adsize information of IO {}'.format(self.config.ioid))
+			if self.read_sql_adsize_mv.empty:
+				pass
+			else:
+				self.adsize_sales_second_table["PLACEMENTNAME"] = self.adsize_sales_second_table[
+					["PLACEMENT#", "PLACEMENT_NAME"]].apply (
+					lambda x:".".join (x), axis=1)
+				
+				choices_adsize_ctr = self.adsize_sales_second_table["CLICKS"]/self.adsize_sales_second_table[
+					"DELIVERED_IMPRESION"]
+				choices_adsize_conversion = self.adsize_sales_second_table[
+					                            "CONVERSION"]/self.adsize_sales_second_table[
+					                            "DELIVERED_IMPRESION"]
+				choices_adsize_spend = self.adsize_sales_second_table["DELIVERED_IMPRESION"]/1000*\
+				                       self.adsize_sales_second_table[
+					                       "UNIT_COST"]
+				choices_adsize_ecpa = choices_adsize_spend/(self.adsize_sales_second_table["CONVERSION"])
+				
+				mask2 = self.adsize_sales_second_table["COST_TYPE"].isin (["CPM"])
+				
+				self.adsize_sales_second_table["CTR%"] = np.select ([mask2], [choices_adsize_ctr], default=0.00)
+				self.adsize_sales_second_table["CONVERSIONRATE%"] = np.select ([mask2], [choices_adsize_conversion],
+				                                                               default=0.00)
+				self.adsize_sales_second_table["SPEND"] = np.select ([mask2], [choices_adsize_spend], default=0.00)
+				self.adsize_sales_second_table["ECPA"] = np.select ([mask2], [choices_adsize_ecpa], default=0.00)
+			
+			self.logger.info('Putting creative and placement for by day information of IO {}'.format(self.config.ioid))
+			if self.read_sql_daily_mv.empty:
+				pass
+			else:
+				self.daily_sales_third_table["PLACEMENTNAME"] = self.daily_sales_third_table[
+					["PLACEMENT#", "PLACEMENT_NAME"]].apply (
+					lambda x:".".join (x), axis=1)
+				
+				choice_daily_ctr = self.daily_sales_third_table["CLICKS"]/self.daily_sales_third_table[
+					"DELIVERED_IMPRESION"]
+				choice_daily_spend = self.daily_sales_third_table["DELIVERED_IMPRESION"]/1000*\
+				                     self.daily_sales_third_table["UNIT_COST"]
+				choice_daily_cpa = (self.daily_sales_third_table["DELIVERED_IMPRESION"]/1000*
+				                    self.daily_sales_third_table[
+					                    "UNIT_COST"])/self.daily_sales_third_table["CONVERSION"]
+				
+				mask3 = self.daily_sales_third_table["COST_TYPE"].isin (["CPM"])
+				
+				self.daily_sales_third_table["CTR%"] = np.select ([mask3], [choice_daily_ctr], default=0.00)
+				self.daily_sales_third_table["SPEND"] = np.select ([mask3], [choice_daily_spend], default=0.00)
+				self.daily_sales_third_table["ECPA"] = np.select ([mask3], [choice_daily_cpa], default=0.00)
+			
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.logger.info(
-			'Putting creative and placement together for placement information of IO {}'.format(self.config.ioid))
-		self.display_sales_first_table["PLACEMENTNAME"] = self.display_sales_first_table[
-			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
-			lambda x:".".join( x ), axis=1 )
 		
-		self.logger.info(
-			'Putting creative and placement together for adsize information of IO {}'.format(self.config.ioid))
-		self.adsize_sales_second_table["PLACEMENTNAME"] = self.adsize_sales_second_table[
-			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
-			lambda x:".".join( x ), axis=1 )
-		
-		self.logger.info('Putting creative and placement for by day information of IO {}'.format(self.config.ioid))
-		self.daily_sales_third_table["PLACEMENTNAME"] = self.daily_sales_third_table[
-			["PLACEMENT#", "PLACEMENT_NAME"]].apply(
-			lambda x:".".join( x ), axis=1 )
-		
-		self.logger.info('Adding Delivery Metrices for display placements information of IO {}'.format(self.config.ioid))
-		choices_display_ctr = self.display_sales_first_table["CLICKS"]/self.display_sales_first_table[
-			"DELIVERED_IMPRESION"]
-		choices_display_conversion = self.display_sales_first_table["CONVERSION"]/self.display_sales_first_table[
-			"DELIVERED_IMPRESION"]
-		choices_display_spend = self.display_sales_first_table["DELIVERED_IMPRESION"]/1000*self.display_sales_first_table[
-			"UNIT_COST"]
-		
-		choices_display_ecpa = (self.display_sales_first_table["DELIVERED_IMPRESION"]/1000*self.display_sales_first_table[
-			"UNIT_COST"])/self.display_sales_first_table["CONVERSION"]
-		
-		mask1 = self.display_sales_first_table["COST_TYPE"].isin( ['CPM'] )
-		
-		self.display_sales_first_table["CTR%"] = np.select( [mask1], [choices_display_ctr], default=0.00 )
-		self.display_sales_first_table["CONVERSIONRATE%"] = np.select( [mask1], [choices_display_conversion], default=0.00 )
-		self.display_sales_first_table["SPEND"] = np.select( [mask1], [choices_display_spend], default=0.00 )
-		self.display_sales_first_table["EPCA"] = np.select( [mask1], [choices_display_ecpa], default=0.00 )
-		
-		self.logger.info('Adding Deliver Metrices for display placements adsize information of IO {}'.format(self.config.ioid))
-		choices_adsize_ctr = self.adsize_sales_second_table["CLICKS"]/self.adsize_sales_second_table[
-			"DELIVERED_IMPRESION"]
-		choices_adsize_conversion = self.adsize_sales_second_table["CONVERSION"]/self.adsize_sales_second_table[
-			"DELIVERED_IMPRESION"]
-		choices_adsize_spend = self.adsize_sales_second_table["DELIVERED_IMPRESION"]/1000*self.adsize_sales_second_table[
-			"UNIT_COST"]
-		choices_adsize_ecpa = choices_adsize_spend/(self.adsize_sales_second_table["CONVERSION"])
-		
-		mask2 = self.adsize_sales_second_table["COST_TYPE"].isin( ["CPM"] )
-		
-		self.adsize_sales_second_table["CTR%"] = np.select( [mask2], [choices_adsize_ctr], default=0.00 )
-		self.adsize_sales_second_table["CONVERSIONRATE%"] = np.select( [mask2], [choices_adsize_conversion], default=0.00 )
-		self.adsize_sales_second_table["SPEND"] = np.select( [mask2], [choices_adsize_spend], default=0.00 )
-		self.adsize_sales_second_table["ECPA"] = np.select( [mask2], [choices_adsize_ecpa], default=0.00 )
-		
-		self.logger.info(
-			'Adding Delivery Metrices for display placements daily information of IO {}'.format(self.config.ioid))
-		choice_daily_ctr = self.daily_sales_third_table["CLICKS"]/self.daily_sales_third_table["DELIVERED_IMPRESION"]
-		choice_daily_spend = self.daily_sales_third_table["DELIVERED_IMPRESION"]/1000*self.daily_sales_third_table["UNIT_COST"]
-		choice_daily_cpa = (self.daily_sales_third_table["DELIVERED_IMPRESION"]/1000*self.daily_sales_third_table[
-			"UNIT_COST"])/self.daily_sales_third_table["CONVERSION"]
-		
-		mask3 = self.daily_sales_third_table["COST_TYPE"].isin( ["CPM"] )
-		
-		self.daily_sales_third_table["CTR%"] = np.select( [mask3], [choice_daily_ctr], default=0.00 )
-		self.daily_sales_third_table["SPEND"] = np.select( [mask3], [choice_daily_spend], default=0.00 )
-		self.daily_sales_third_table["ECPA"] = np.select( [mask3], [choice_daily_cpa], default=0.00 )
-		
-		#self.display_sales_first_table = display_sales_first_table
-		#self.adsize_sales_second_table = adsize_sales_second_table
-		#self.daily_sales_third_table = daily_sales_third_table
-		
-		#return display_sales_first_table, adsize_sales_second_table, daily_sales_third_table
-	
 	def rename_KM_Sales_daily(self):
 		"""Renaming The columns of Previous Functions"""
-		#display_sales_first_table, adsize_sales_second_table, daily_sales_third_table = self.KM_Sales_daily()
+		try:
+			if self.read_sql_sales_mv.empty:
+				pass
+			else:
+				rename_display_sales_first_table = self.display_sales_first_table.rename(
+					columns={
+						"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
+						"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
+						"BOOKED_IMP#BOOKED_ENG":"Booked Impressions", "DELIVERED_IMPRESION":"Delivered Impressions"
+						, "CLICKS":"Clicks",
+						"CONVERSION":"Conversion"
+						, "PLACEMENTNAME":"Placement# Name", "CTR%":"CTR"
+						, "CONVERSIONRATE%":"Conversion Rate"
+						, "SPEND":"Spend", "EPCA":"eCPA"
+						}, inplace=True )
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.logger.info('Renaming of display placements information of IO {}'.format(self.config.ioid))
-		rename_display_sales_first_table = self.display_sales_first_table.rename(
-			columns={
-				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
-				"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
-				"BOOKED_IMP#BOOKED_ENG":"Booked Impressions", "DELIVERED_IMPRESION":"Delivered Impressions"
-				, "CLICKS":"Clicks",
-				"CONVERSION":"Conversion"
-				, "PLACEMENTNAME":"Placement# Name", "CTR%":"CTR"
-				, "CONVERSIONRATE%":"Conversion Rate"
-				, "SPEND":"Spend", "EPCA":"eCPA"
-				}, inplace=True )
+		try:
+			if self.read_sql_adsize_mv.empty:
+				pass
+			else:
+				rename_adsize_sales_second_table = self.adsize_sales_second_table.rename(
+					columns={
+						"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
+						"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
+						"BOOKED_IMP#BOOKED_ENG":"Booked", "ADSIZE":"Adsize"
+						, "DELIVERED_IMPRESION":"Delivered Impressions", "CLICKS":"Clicks", "CONVERSION":"Conversion",
+						"PLACEMENTNAME":"Placement# Name"
+						, "CTR%":"CTR", "CONVERSIONRATE%":"Conversion Rate", "SPEND":"Spend", "ECPA":"eCPA"
+						}, inplace=True )
+		except (AttributeError, KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.logger.info('Renaming of display placements adsize information of IO {}'.format(self.config.ioid))
-		rename_adsize_sales_second_table = self.adsize_sales_second_table.rename(
-			columns={
-				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
-				"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
-				"BOOKED_IMP#BOOKED_ENG":"Booked", "ADSIZE":"Adsize"
-				, "DELIVERED_IMPRESION":"Delivered Impressions", "CLICKS":"Clicks", "CONVERSION":"Conversion",
-				"PLACEMENTNAME":"Placement# Name"
-				, "CTR%":"CTR", "CONVERSIONRATE%":"Conversion Rate", "SPEND":"Spend", "ECPA":"eCPA"
-				}, inplace=True )
+		try:
+			if self.read_sql_daily_mv.empty:
+				pass
+			else:
+				rename_daily_sales_third_table = self.daily_sales_third_table.rename(
+					columns={
+						"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
+						"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost", "BOOKED_IMP#BOOKED_ENG":"Booked",
+						"DAY":"Date", "DELIVERED_IMPRESION":"Delivered Impressions", "CLICKS":"Clicks",
+						"CONVERSION":"Conversion", "PLACEMENTNAME":"Placement# Name",
+						"CTR%":"CTR", "SPEND":"Spend", "ECPA":"eCPA"
+						}, inplace=True )
+		except(AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.logger.info( 'Renaming of display placements daily information of IO {}'.format(self.config.ioid))
-		rename_daily_sales_third_table = self.daily_sales_third_table.rename(
-			columns={
-				"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
-				"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost", "BOOKED_IMP#BOOKED_ENG":"Booked",
-				"DAY":"Date", "DELIVERED_IMPRESION":"Delivered Impressions", "CLICKS":"Clicks",
-				"CONVERSION":"Conversion", "PLACEMENTNAME":"Placement# Name",
-				"CTR%":"CTR", "SPEND":"Spend", "ECPA":"eCPA"
-				}, inplace=True )
-		
-		# self.display_sales_first_table = display_sales_first_table
-		# self.adsize_sales_second_table = adsize_sales_second_table
-		# self.daily_sales_third_table = daily_sales_third_table
-		
-		#return display_sales_first_table, adsize_sales_second_table, daily_sales_third_table
-	
 	def accessing_nan_values(self):
 		
 		"""
-
 		:return: Nan values handling
 		"""
-		#display_sales_first_table, adsize_sales_second_table, daily_sales_third_table = self.rename_KM_Sales_daily()
+		try:
+			if self.read_sql_sales_mv.empty:
+				pass
+			else:
+				self.display_sales_first_table["CTR"] = self.display_sales_first_table["CTR"].replace (np.nan, 0.00)
+				self.display_sales_first_table["Conversion Rate"] = self.display_sales_first_table[
+					"Conversion Rate"].replace (
+					np.nan, 0.00)
+				self.display_sales_first_table["Spend"] = self.display_sales_first_table["Spend"].replace (np.nan, 0.00)
+				self.display_sales_first_table["eCPA"] = self.display_sales_first_table["eCPA"].replace (np.nan, 0.00)
+				self.display_sales_first_table["CTR"] = self.display_sales_first_table["CTR"].replace (np.inf, 0.00)
+				self.display_sales_first_table["Conversion Rate"] = self.display_sales_first_table[
+					"Conversion Rate"].replace (
+					np.inf, 0.00)
+				self.display_sales_first_table["Spend"] = self.display_sales_first_table["Spend"].replace (np.inf, 0.00)
+				self.display_sales_first_table["eCPA"] = self.display_sales_first_table["eCPA"].replace (np.inf, 0.00)
+		except (AttributeError, KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.display_sales_first_table["CTR"] = self.display_sales_first_table["CTR"].replace( np.nan, 0.00 )
-		self.display_sales_first_table["Conversion Rate"] = self.display_sales_first_table["Conversion Rate"].replace(
-			np.nan, 0.00 )
-		self.display_sales_first_table["Spend"] = self.display_sales_first_table["Spend"].replace( np.nan, 0.00 )
-		self.display_sales_first_table["eCPA"] = self.display_sales_first_table["eCPA"].replace( np.nan, 0.00 )
+		try:
+			if self.read_sql_adsize_mv.empty:
+				pass
+			else:
+				self.adsize_sales_second_table["CTR"] = self.adsize_sales_second_table["CTR"].replace (np.nan, 0.00)
+				self.adsize_sales_second_table["Conversion Rate"] = self.adsize_sales_second_table[
+					"Conversion Rate"].replace (
+					np.nan, 0.00)
+				self.adsize_sales_second_table["Spend"] = self.adsize_sales_second_table["Spend"].replace (np.nan, 0.00)
+				self.adsize_sales_second_table["eCPA"] = self.adsize_sales_second_table["eCPA"].replace (np.nan, 0.00)
+				self.adsize_sales_second_table["CTR"] = self.adsize_sales_second_table["CTR"].replace (np.inf, 0.00)
+				self.adsize_sales_second_table["Conversion Rate"] = self.adsize_sales_second_table[
+					"Conversion Rate"].replace (
+					np.inf, 0.00)
+				self.adsize_sales_second_table["Spend"] = self.adsize_sales_second_table["Spend"].replace (np.inf, 0.00)
+				self.adsize_sales_second_table["eCPA"] = self.adsize_sales_second_table["eCPA"].replace (np.inf, 0.00)
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.adsize_sales_second_table["CTR"] = self.adsize_sales_second_table["CTR"].replace( np.nan, 0.00 )
-		self.adsize_sales_second_table["Conversion Rate"] = self.adsize_sales_second_table["Conversion Rate"].replace(
-			np.nan, 0.00 )
-		self.adsize_sales_second_table["Spend"] = self.adsize_sales_second_table["Spend"].replace( np.nan, 0.00 )
-		self.adsize_sales_second_table["eCPA"] = self.adsize_sales_second_table["eCPA"].replace( np.nan, 0.00 )
+		try:
+			if self.read_sql_daily_mv.empty:
+				pass
+			else:
+				self.daily_sales_third_table["CTR"] = self.daily_sales_third_table["CTR"].replace (np.nan, 0.00)
+				self.daily_sales_third_table["Spend"] = self.daily_sales_third_table["Spend"].replace (np.nan, 0.00)
+				self.daily_sales_third_table["eCPA"] = self.daily_sales_third_table["eCPA"].replace (np.nan, 0.00)
+				self.daily_sales_third_table["CTR"] = self.daily_sales_third_table["CTR"].replace (np.inf, 0.00)
+				self.daily_sales_third_table["Spend"] = self.daily_sales_third_table["Spend"].replace (np.inf, 0.00)
+				self.daily_sales_third_table["eCPA"] = self.daily_sales_third_table["eCPA"].replace (np.inf, 0.00)
+		except(AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
-		self.daily_sales_third_table["CTR"] = self.daily_sales_third_table["CTR"].replace( np.nan, 0.00 )
-		self.daily_sales_third_table["Spend"] = self.daily_sales_third_table["Spend"].replace( np.nan, 0.00 )
-		self.daily_sales_third_table["eCPA"] = self.daily_sales_third_table["eCPA"].replace( np.nan, 0.00 )
-		
-		self.display_sales_first_table["CTR"] = self.display_sales_first_table["CTR"].replace( np.inf, 0.00 )
-		self.display_sales_first_table["Conversion Rate"] = self.display_sales_first_table["Conversion Rate"].replace(
-			np.inf, 0.00 )
-		self.display_sales_first_table["Spend"] = self.display_sales_first_table["Spend"].replace( np.inf, 0.00 )
-		self.display_sales_first_table["eCPA"] = self.display_sales_first_table["eCPA"].replace( np.inf, 0.00 )
-		
-		self.adsize_sales_second_table["CTR"] = self.adsize_sales_second_table["CTR"].replace( np.inf, 0.00 )
-		self.adsize_sales_second_table["Conversion Rate"] = self.adsize_sales_second_table["Conversion Rate"].replace(
-			np.inf, 0.00 )
-		self.adsize_sales_second_table["Spend"] = self.adsize_sales_second_table["Spend"].replace( np.inf, 0.00 )
-		self.adsize_sales_second_table["eCPA"] = self.adsize_sales_second_table["eCPA"].replace( np.inf, 0.00 )
-		
-		self.daily_sales_third_table["CTR"] = self.daily_sales_third_table["CTR"].replace( np.inf, 0.00 )
-		self.daily_sales_third_table["Spend"] = self.daily_sales_third_table["Spend"].replace( np.inf, 0.00 )
-		self.daily_sales_third_table["eCPA"] = self.daily_sales_third_table["eCPA"].replace( np.inf, 0.00 )
-		
-		# self.display_sales_first_table = display_sales_first_table
-		# self.adsize_sales_second_table = adsize_sales_second_table
-		# self.daily_sales_third_table = daily_sales_third_table
-		
-		#return display_sales_first_table, adsize_sales_second_table, daily_sales_third_table
-	
 	def accessing_main_column(self):
 		
 		"""
-
 		:return: Accessing columns
 		"""
-		#display_sales_first_table, adsize_sales_second_table, daily_sales_third_table = self.accessing_nan_values()
-		
 		#debug = detailed info
 		#info =confirmation that things accroding to the plan
 		#warning = something unexpected
 		#error = some function failed
 		#critical = something failed application must close
 		
-		placement_sales_data = self.display_sales_first_table[["Placement# Name", "Unit Cost", "Booked Impressions",
-		                                                  "Delivered Impressions", "Clicks", "CTR",
-		                                                  "Conversion","Spend", "eCPA"]]
-		
-		
-		adsize_sales_data_new = self.adsize_sales_second_table.loc[:,
-		                        ["Placement# Name", "Adsize", "Delivered Impressions", "Clicks",
-		                         "CTR", "Conversion", "Conversion Rate", "Spend", "eCPA"]]
-		
+		placement_sales_data = None
 		final_adsize = None
+		final_day_wise = None
+		
 		try:
+			placement_sales_data = self.display_sales_first_table[["Placement# Name", "Unit Cost", "Booked Impressions",
+			                                                  "Delivered Impressions", "Clicks", "CTR",
+			                                                  "Conversion","Spend", "eCPA"]]
+			
+			adsize_sales_data_new = self.adsize_sales_second_table.loc[:,
+			                        ["Placement# Name", "Adsize", "Delivered Impressions", "Clicks",
+			                         "CTR", "Conversion", "Conversion Rate", "Spend", "eCPA"]]
+		
 			final_adsize = adsize_sales_data_new[["Placement# Name","Adsize", "Delivered Impressions", "Clicks", "CTR",
 			                                      "Conversion","Spend", "eCPA"]]
+		
+			daily_sales_data = self.daily_sales_third_table.loc[:,
+			                   ["Placement#", "Placement# Name", "Date", "Delivered Impressions",
+			                    "Clicks", "CTR", "Conversion", "eCPA", "Spend",
+			                    "Unit Cost"]]
 			
+			daily_sales_remove_zero = daily_sales_data[daily_sales_data['Delivered Impressions']==0]
 			
-		# adsize_sales_data_pivot = pd.pivot_table( adsize_sales_data_new, index=["Adsize"],
-		#                                           values=["Delivered Impressions",
-		#                                                   "Clicks", "Conversion",
-		#                                                   "Spend"], aggfunc=np.sum )
-		#
-		# adsize_sales_data_pivot_new = adsize_sales_data_pivot.reset_index()
-		#
-		# adsize_sales_data = None
-		# final_adsize = None
-		# try:
-		# 	adsize_sales_data_pivot_new["CTR"] = adsize_sales_data_pivot_new["Clicks"]/adsize_sales_data_pivot_new[
-		# 			"Delivered Impressions"]
-		#
-		# 	adsize_sales_data_pivot_new["Conversion Rate"] = adsize_sales_data_pivot_new["Conversion"]/\
-		# 	                                                 adsize_sales_data_pivot_new["Delivered Impressions"]
-		#
-		# 	adsize_sales_data_pivot_new["eCPA"] = adsize_sales_data_pivot_new["Spend"]/adsize_sales_data_pivot_new[
-		# 		"Conversion"]
-		#
-		# 	adsize_sales_data = adsize_sales_data_pivot_new[["Adsize", "Delivered Impressions", "Clicks", "CTR",
-		#                                                      "Conversion", "Conversion Rate", "Spend", "eCPA"]]
-		#
-		# 	final_adsize = adsize_sales_data[["Adsize", "Delivered Impressions", "Clicks", "CTR",
-		#                                           "Conversion", "Conversion Rate", "Spend", "eCPA"]]
-		except KeyError as e:
-			self.logger.error(str(e)+'Not found in adsize Display Placements Data')
-			pass
-		
-		
-		daily_sales_data = self.daily_sales_third_table.loc[:,
-		                   ["Placement#", "Placement# Name", "Date", "Delivered Impressions",
-		                    "Clicks", "CTR", "Conversion", "eCPA", "Spend",
-		                    "Unit Cost"]]
-		
-		#daily_sales_data['Date'] = pd.to_datetime(daily_sales_data.Date)
-		
-		daily_sales_remove_zero = daily_sales_data[daily_sales_data['Delivered Impressions']==0]
-		
-		daily_sales_data = daily_sales_data.drop( daily_sales_remove_zero.index, axis=0 )
-		
-		daily_sales_data [ "Date" ] = pd.to_datetime ( daily_sales_data [ "Date" ] )
-		
-		daily_sales_data['Date'] = pd.to_datetime( daily_sales_data['Date'] ).dt.date
-		
-		excel_start_date = datetime.date( 1899, 12, 30 )
-		daily_sales_data['Date'] = daily_sales_data['Date']-excel_start_date
-		
-		try:
+			daily_sales_data = daily_sales_data.drop( daily_sales_remove_zero.index, axis=0 )
+			
+			daily_sales_data [ "Date" ] = pd.to_datetime ( daily_sales_data [ "Date" ] )
+			
+			daily_sales_data['Date'] = pd.to_datetime( daily_sales_data['Date'] ).dt.date
+			
+			excel_start_date = datetime.date( 1899, 12, 30 )
+			daily_sales_data['Date'] = daily_sales_data['Date']-excel_start_date
+			
 			daily_sales_data.Date = daily_sales_data.Date.dt.days
-		except (KeyError,AttributeError) as e:
-			self.logger.error(str(e)+'Not found in day wise data')
+			
+			final_day_wise = daily_sales_data.loc[:, ["Placement# Name", "Date",
+			                                          "Delivered Impressions", "Clicks", "CTR",
+			                                          "Conversion", "Spend", "eCPA"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
-		final_day_wise = daily_sales_data.loc[:, ["Placement# Name", "Date",
-		                                          "Delivered Impressions", "Clicks", "CTR",
-		                                          "Conversion", "Spend", "eCPA"]]
 		
-		
-		
-		
-		#return placement_sales_data, final_adsize, final_day_wise
 		self.placement_sales_data = placement_sales_data
 		self.final_adsize = final_adsize
 		self.final_day_wise = final_day_wise
@@ -407,53 +392,54 @@ To create display placements
 	def write_KM_Sales_summary(self):
 		
 		"""
-
 		:return: writing Data
 		"""
-		#data_common_columns = self.config.common_columns_summary()
-		unqiue_final_day_wise = self.final_day_wise['Placement# Name'].nunique ()
-		
-		
+		unqiue_final_day_wise = 0
+		try:
+			unqiue_final_day_wise = self.final_day_wise['Placement# Name'].nunique ()
+		except KeyError as e:
+			self.logger.error(str(e))
+			pass
 		
 		self.logger.info("Writing Summary on Display Sheet for IO - {}".format(self.config.ioid))
 		
-		"""writing_data_common_columns = data_common_columns[1].to_excel( self.config.writer,
-		                                                               sheet_name="Performance Details", startcol=1,
-		                                                               startrow=1,
-		                                                               index=False, header=False )"""
+		try:
+			info_client = self.config.client_info.to_excel (self.config.writer, sheet_name="Performance Details",
+			                                                startcol=1, startrow=1, index=True, header=False)
+			info_campaign = self.config.campaign_info.to_excel (self.config.writer, sheet_name="Performance Details",
+			                                                    startcol=1, startrow=2, index=True, header=False)
+			info_ac_mgr = self.config.ac_mgr.to_excel (self.config.writer, sheet_name="Performance Details", startcol=4,
+			                                           startrow=1, index=True, header=False)
+			info_sales_rep = self.config.sales_rep.to_excel (self.config.writer, sheet_name="Performance Details",
+			                                                 startcol=4, startrow=2, index=True, header=False)
+			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
+			                                                             sheet_name="Performance Details", startcol=7,
+			                                                             startrow=1, index=True, header=False)
 		
-		info_client = self.config.client_info.to_excel (self.config.writer, sheet_name="Performance Details",
-		                                                startcol=1, startrow=1, index=True, header=False)
-		info_campaign = self.config.campaign_info.to_excel (self.config.writer, sheet_name="Performance Details",
-		                                                    startcol=1, startrow=2, index=True, header=False)
-		info_ac_mgr = self.config.ac_mgr.to_excel (self.config.writer, sheet_name="Performance Details", startcol=4,
-		                                           startrow=1, index=True, header=False)
-		info_sales_rep = self.config.sales_rep.to_excel (self.config.writer, sheet_name="Performance Details",
-		                                                 startcol=4, startrow=2, index=True, header=False)
-		info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
-		                                                             sheet_name="Performance Details", startcol=7,
-		                                                             startrow=1, index=True, header=False)
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
 		self.logger.info ("Writing Placement level information on Display Sheet for IO - {}".format (self.config.ioid))
 		
 		try:
-			check_placement_sales_data = self.placement_sales_data.empty
-		
-			if check_placement_sales_data is True:
+			if self.placement_sales_data.empty:
 				pass
 			else:
 				writing_placement_data = self.placement_sales_data.to_excel( self.config.writer,
 				                                                        sheet_name="Performance Details",
-				                                                        startcol=1, startrow=8, index=False,
-				                                                        header=True )
+				                                                        startcol=1, startrow=8, index=False,header=True)
+		except(AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
+		try:
 			self.logger.info (
 				"Writing ad size level information on Display Sheet for IO - {}".format (self.config.ioid))
 			
-			check_adsize_sales_data = self.final_adsize.empty
 			start_row_adsize = len( self.placement_sales_data )+14
 			
-			if check_adsize_sales_data is True:
+			if self.final_adsize.empty:
 				pass
 			else:
 				for placement, placement_df in self.final_adsize.groupby('Placement# Name', as_index=False):
@@ -496,13 +482,16 @@ To create display placements
 					worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
 					                              {"type":"no_blanks", "format":money_fmt})
 			
-			check_daily_sales_data = self.final_day_wise.empty
+		except(AttributeError, KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
-			self.logger.info ("Writing Placement by day level information on Display Sheet for IO - {}".format (self.config.ioid))
-			
+			self.logger.info (
+				"Writing Placement by day level information on Display Sheet for IO - {}".format (self.config.ioid))
+		try:
 			start_row_plc_day = len (self.placement_sales_data)+13+unqiue_final_day_wise*2+len (self.final_adsize)+5
 			
-			if check_daily_sales_data is True:
+			if self.final_day_wise.empty is True:
 				pass
 			else:
 				for placement_by_day, placement_df_by_day in self.final_day_wise.groupby('Placement# Name', as_index=False):
@@ -547,7 +536,7 @@ To create display placements
 					worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
 					                              {"type":"no_blanks", "format":money_fmt})
 		
-		except (KeyError,AttributeError,TypeError,IOError) as e:
+		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -584,7 +573,7 @@ To create display placements
 			worksheet.set_column( "A:A", 2)
 			worksheet.set_zoom(75)
 			alignment_center = workbook.add_format ({"align":"center"})
-			alignment_left = workbook.add_format ({"align":"left"})
+			
 			alignment_right = workbook.add_format ({"align":"right"})
 			
 			worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
@@ -598,7 +587,6 @@ To create display placements
 			percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
 			money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
 			
-			# Placement data formatting
 			worksheet.write_string(7,1,"Performance by Placement",format_header_left)
 			worksheet.write_string(9+number_rows_placement,1,"Grand Total",format_grand)
 			worksheet.conditional_format(7,2,7,number_cols_placement,{"type":"blanks","format":format_colour})
@@ -606,7 +594,10 @@ To create display placements
 			worksheet.conditional_format(8,1,8,1,{"type":"no_blanks","format":format_header_left})
 			worksheet.conditional_format(8,2,8, 2,{"type":"no_blanks", "format":format_header})
 			worksheet.conditional_format (8, 3, 8, 9, {"type":"no_blanks", "format":format_header})
-			
+			worksheet.write_string (2, 8, self.config.status)
+			worksheet.write_string (2, 7, "Campaign Status")
+			worksheet.write_string (3, 1, "Agency Name")
+			worksheet.write_string (3, 7, "Currency")
 			
 			for col in range(3,6):
 				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)
@@ -625,8 +616,6 @@ To create display placements
 				
 			for col in range(6,7):
 				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)
-				# start_range = xl_rowcol_to_cell(9,col)
-				# end_range = xl_rowcol_to_cell(9+number_rows_placement-1,col)
 				formula = '=IFERROR(F{}/E{},0)'.format(9+number_rows_placement+1,9+number_rows_placement+1)
 				worksheet.write_formula(cell_location,formula,percent_fmt)
 				start_plc_row = 9
@@ -668,9 +657,7 @@ To create display placements
 				                              {"type":"no_blanks", "format":format_grand})
 				worksheet.conditional_format (start_range_format, col, start_range_format, col,
 				                              {"type":"blanks", "format":format_grand})
-				
-				
-				
+						
 			for col in range(2,3):
 				start_plc_row = 9
 				end_plc_row = 9+number_rows_placement-1
@@ -680,7 +667,6 @@ To create display placements
 				worksheet.conditional_format (start_range, col, start_range, col,
 				                              {"type":"no_blanks", "format":format_grand})
 				
-				#worksheet.conditional_format (8, col, 8, col, {"type":"no_blanks", "format":format_header_center})
 				
 			for col in range(9,10):
 				start_plc_row = 9
@@ -693,7 +679,6 @@ To create display placements
 				                              {"type":"no_blanks", "format":format_grand})
 				
 				
-			#adsize data formatting
 			
 			worksheet.write_string(12+number_rows_placement,1,"Performance by Ad Size",format_header_left)
 			
@@ -756,8 +741,6 @@ To create display placements
 				                             {"type":"no_blanks","format":format_grand})
 			
 			
-			#Day Wise Grand Total
-			#worksheet.write_string (12+number_rows_placement, 1, "Performance by Ad Size", format_header_left)
 			grand_total_row = 13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+number_rows_daily+unqiue_final_day_wise*2+4
 			formula_range_grand = 14+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+5
 			writing_info_row = 13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+3
@@ -771,10 +754,7 @@ To create display placements
 			worksheet.write_string(writing_header_row, 6, "Conversions", format_header_right)
 			worksheet.write_string(writing_header_row, 7, "Spend", format_header_right)
 			worksheet.write_string(writing_header_row, 8, "eCPA", format_header_right)
-			#centre_date_format_wb = workbook.add_format ({'align':'center', 'num_format':'YYYY-MM-DD'})
 			worksheet.write_string(grand_total_row,1,'Grand Total',format_grand)
-			
-			#worksheet.conditional_format(formula_range_grand,2,grand_total_row,2,{"type":"no_blanks","format":centre_date_format_wb})
 			
 			for col in range(2,number_cols_daily+1):
 				worksheet.write_string(writing_info_row,col,"",format_colour)
@@ -804,8 +784,6 @@ To create display placements
 			                                                                                      formula_range_grand,
 			                                                                                      grand_total_row),money_fmt)
 			
-			
-			
 			worksheet.set_column(1,1,45)
 			worksheet.set_column(2,2,13,alignment_center)
 			worksheet.set_column(3,4,20,alignment_right)
@@ -815,7 +793,7 @@ To create display placements
 			worksheet.set_column(10,17,15,alignment_right)
 			
 			
-		except AttributeError as e:
+		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
 	
@@ -827,7 +805,7 @@ Adding Main Function
 		self.config.common_columns_summary()
 		self.connect_TFR_daily()
 		self.read_Query_daily()
-		if self.read_sql_sales_mv.empty:
+		if self.read_sql_sales_mv.empty or self.read_sql_sales.empty:
 			self.logger.info("No Display placements for IO - {}".format(self.config.ioid))
 			pass
 		else:
@@ -838,7 +816,7 @@ Adding Main Function
 			self.accessing_nan_values()
 			self.accessing_main_column()
 			self.write_KM_Sales_summary()
-			#self.formatting_daily()
+			self.formatting_daily()
 			self.logger.info("Display Sheet Created for IO {}".format(self.config.ioid))
 
 if __name__=="__main__":

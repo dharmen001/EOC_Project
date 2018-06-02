@@ -1,4 +1,5 @@
 #coding=utf-8
+# !/usr/bin/env python
 """
 Created by:Dharmendra
 Date:2018-03-23
@@ -7,8 +8,6 @@ import datetime
 import pandas as pd
 import cx_Oracle
 import logging
-import numpy as np
-import openpyxl
 
 class Config(object):
 	"""
@@ -18,7 +17,6 @@ class Config(object):
 		
 		self.start_date = start_date
 		self.ioid = ioid
-		#self.start_date = start_date
 		self.end_date = end_date
 		self.LoggFile ()
 		self.logger.info('Trying to connect with TFR for io: {}'.format(self.ioid))
@@ -43,11 +41,6 @@ class Config(object):
 		reading data from csv file for ioid
 		:return: read_common_columns, data_common_columns
 		"""
-		"""read_common_columns = pd.read_csv("C://EOC_Project//Bi_Team_Project//EOC_Data//Eociocommoncolumn.csv")
-		data_common_columns_new = read_common_columns.loc[read_common_columns.IOID==self.ioid, :]
-		data_common_columns = data_common_columns_new.loc[:, ["Columns-IO", "Values-IO", "Columns-AM-Sales",
-		                                                      "Values-AM-Sales",
-		                                                      "Columns-Campaign-Info", "Values-Campaign-Info"]]"""
 		
 		sql_client_info = "SELECT DISTINCT CLIENT_DESC from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		sql_campaign_info = "SELECT DISTINCT IO_DESC FROM TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
@@ -56,7 +49,6 @@ class Config(object):
 		sql_sdate = "SELECT TO_CHAR(MIN(SDATE),'YYYY-MM-DD') as SDATE from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		sql_edate = "select (CASE WHEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) <= TO_CHAR(sysdate-1,'YYYY-MM-DD') THEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) ELSE TO_CHAR(sysdate-1,'YYYY-MM-DD') END) AS EDATE FROM TFR_REP.SUMMARY_MV where IO_ID = {}".format(self.ioid)
 		sql_end_date = "SELECT TO_CHAR(MAX(EDATE),'YYYY-MM-DD') as EDATENEW from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
-		
 		
 		read_sql_client_info = pd.read_sql(sql_client_info,self.conn)
 		read_last_row_client_info = read_sql_client_info.iloc[-1:]
@@ -82,18 +74,17 @@ class Config(object):
 		read_sql_sdate = pd.read_sql(sql_sdate,self.conn)
 		read_last_row_sdate = read_sql_sdate.iloc[-1:]
 		read_last_row_sdate.rename(columns = {"SDATE":"Start_Date"},inplace = True)
-		#s_date = read_last_row_sdate.set_index('Start_Date').reset_index().transpose()
 		
 		read_sql_edate = pd.read_sql(sql_edate,self.conn)
 		read_last_row_edate = read_sql_edate.iloc[-1:]
 		read_last_row_edate.rename (columns={"EDATE":"End_Date"}, inplace=True)
-		#e_date = read_last_row_edate.set_index('End_Date').reset_index().transpose()
+		
 		
 		read_sql_end_date = pd.read_sql(sql_end_date,self.conn)
 		read_last_row_end_date = read_sql_end_date.iloc[-1:]
 		read_last_row_end_date.rename (columns={"EDATENEW":"End_Date_New"}, inplace=True)
 		final_end_date = read_last_row_end_date.iloc[0,0]
-		#new_final_end_date = final_end_date.strftime('%Y-%m-%d')
+		
 		
 		sdate_edate = pd.concat([read_last_row_sdate,read_last_row_edate],axis =1)
 		try:

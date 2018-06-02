@@ -1,4 +1,5 @@
 #coding=utf-8
+# !/usr/bin/env python
 """
 This is main class running for all scripts
 """
@@ -22,16 +23,16 @@ if __name__ == '__main__':
 	#IO_Name = input ("Enter IO Name:")
 	#IO_ID = int (input ("Enter the IO:"))
 	#END_DATE = input("Enter the End Date:")
-	c = Config(START_DATE,IO_ID,END_DATE)#,START_DATE,END_DATE)
+	c = Config(START_DATE,IO_ID,END_DATE)
 	obj_summary = Eoc_Summary.Summary(c)
 	obj_summary.main()
-	#obj_daily = Eoc_Daily.Daily(c)
-	#obj_daily.main()
-	#obj_Video = Eoc_Video.Video(c)
-	#obj_Video.main()
-	#obj_Intraction = Eoc_Intraction.Intraction(c)
-	#obj_Intraction.main()
-	#obj_definition = EOC_definition.definition(c)
-	#obj_definition.main()
+	obj_daily = Eoc_Daily.Daily(c)
+	obj_daily.main()
+	obj_Video = Eoc_Video.Video(c)
+	obj_Video.main()
+	obj_Intraction = Eoc_Intraction.Intraction(c)
+	obj_Intraction.main()
+	obj_definition = EOC_definition.definition(c)
+	obj_definition.main()
 	c.saveAndCloseWriter()
 	o = Eoc_Summary.Summary

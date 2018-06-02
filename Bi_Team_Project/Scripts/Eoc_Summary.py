@@ -1,11 +1,12 @@
 # coding=utf-8
+# !/usr/bin/env python
 """
 Created by:Dharmendra
 Date:2018-03-23
 """
 from __future__ import print_function
 
-
+import datetime
 import pandas as pd
 import numpy as np
 from xlsxwriter.utility import xl_range, xl_rowcol_to_cell
@@ -28,41 +29,32 @@ class Summary (object):
 	    :param self:Query Reading
 	    :return:Query
 	    """
+		self.logger.info ('Starting to create Summary Sheet for IO - {}'.format (self.config.ioid))
 		
+		self.logger.info ("Start executing: "+'VDX_Summary.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_vdx_summary = open("VDX_Summary.sql")
 		sqlvdxsummary = read_vdx_summary.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'VDX_Summary.sql'+" at "+str (
-		# 	datetime.datetime.now().strftime ("%Y-%m-%d %H:%M"))+"\n"+sqlvdxsummary)
 		
-		
+		self.logger.info ("Start executing: "+'VDX_MV.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_vdx_mv = open("VDX_MV.sql")
 		sqlvdxmv = read_vdx_mv.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'VDX_MV.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sqlvdxmv)
 		
-		
+		self.logger.info ("Start executing: "+'Display_Summary.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_display_summary = open("Display_Summary.sql")
 		sqldisplaysummary = read_display_summary.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Display_Summary.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sqldisplaysummary)
 		
-		
+		self.logger.info ("Start executing: "+'Display_MV.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_display_mv = open("Display_MV.sql")
 		sqldisplaymv = read_display_mv.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Display_MV.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sqldisplaymv)
 		
-		
+		self.logger.info ("Start executing: "+'Preroll_Summary.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_preroll_summary = open("Preroll_Summary.sql")
 		sqlprerollsummary = read_preroll_summary.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Preroll_Summary.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sqlprerollsummary)
 		
-		
+		self.logger.info ("Start executing: "+'Preroll_MV.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_preroll_mv = open("Preroll_MV.sql")
 		sqlprerollmv = read_preroll_mv.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
-		# self.logger.info ("Start executing: "+'Preroll_MV.sql'+" at "+str (
-		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sqlprerollmv)
+		
 		
 		
 		self.sqlvdxsummary = sqlvdxsummary
@@ -88,42 +80,32 @@ class Summary (object):
 			self.logger.info (
 				'Running Query on 10.29.20.76 in Summary MV for VDX placements for IO - {}'.format (self.config.ioid))
 			read_sql__v_d_x = pd.read_sql (self.sqlvdxsummary, self.config.conn)
-			#print (read_sql__v_d_x)
-			#exit()
+			
 			self.logger.info (
 				'Running Query on 10.29.20.76 in Summary MV for Display placements for IO - {}'.format (self.config.ioid))
 			read_sql__display= pd.read_sql (self.sqldisplaysummary, self.config.conn)
-			#print (read_sql__display)
+			
 			
 			self.logger.info (
 				'Running Query on 10.29.20.76 in Summary MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll = pd.read_sql (self.sqlprerollsummary, self.config.conn)
-			#print (read_sql_preroll)
-			#exit()
 			
 			self.logger.info (
 				'Running Query on 10.29.20.76 in DailySales MV for Display placements for IO - {}'.format (self.config.ioid))
 			read_sql__display_mv = pd.read_sql (self.sqldisplaymv, self.config.conn)
-			#print (read_sql__display_mv)
+			
 			
 			self.logger.info(
 				'Running Query on 10.29.20.76 in KeyMetric MV for VDX placements for IO - {}'.format(self.config.ioid))
 			read_sql__v_d_x_mv = pd.read_sql (self.sqlvdxmv, self.config.conn)
-			#print (read_sql__v_d_x_mv)
-			#exit()
+			
 			self.logger.info(
 				'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll_mv = pd.read_sql (self.sqlprerollmv, self.config.conn)
-			#print(read_sql_preroll_mv)
-			#exit()
 			
-		except AttributeError as e:
-			self.logger.error(str(e)+' Connection Not established please rerun for IO - {}'.format(self.config.ioid))
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
-		except Exception as e:
-			self.logger.error(str(e)+' Table or view does not exist')
-			pass
-		#return read_sql__v_d_x, read_sql__display, read_sql_preroll, read_sql__display_mv, read_sql__v_d_x_mv, read_sql_preroll_mv
 		
 		self.read_sql__v_d_x = read_sql__v_d_x
 		self.read_sql__display = read_sql__display
@@ -141,9 +123,6 @@ class Summary (object):
 		
 		self.logger.info('Query Stored for further processing for IO - {}'.format(self.config.ioid))
 		
-		#read_sql__v_d_x, read_sql__display, read_sql_preroll, read_sql__display__m_v, read_sql__v_d_x_mv, read_sql_preroll_mv = \
-			#self.read_query_summary ()
-		
 		self.logger.info('Building Display placements for IO - {}'.format(self.config.ioid))
 		displayfirsttable = None
 		try:
@@ -152,15 +131,14 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("Display placements found for IO - {}".format (self.config.ioid))
-				display_first__summary = self.read_sql__display.merge (self.read_sql__display_mv, on="PLACEMENT#", how="inner",
-				                                                suffixes=('_1', '_2'))
+				display_first__summary = self.read_sql__display.merge (self.read_sql__display_mv, on="PLACEMENT#",suffixes=('_1', '_2'))
 				
 				displayfirsttable = display_first__summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                             "COST_TYPE", "UNIT_COST", "PLANNED_COST",
 				                                             "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION"]]
-		except (KeyError,ValueError,AttributeError,TypeError) as e:
-				self.logger.error(str(e))
-				pass
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
 		self.logger.info ('Buliding VDX placements for IO - {}'.format(self.config.ioid))
 		vdx_access_table = None
@@ -170,31 +148,30 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("VDX placements found for IO - {}".format (self.config.ioid))
-				vdx_second_summary = self.read_sql__v_d_x.merge (self.read_sql__v_d_x_mv, on="PLACEMENT#", how="inner", suffixes=('_1', '_2'))
+				vdx_second_summary = self.read_sql__v_d_x.merge (self.read_sql__v_d_x_mv, on="PLACEMENT#",suffixes=('_1', '_2'))
 				vdx_second__table = vdx_second_summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                       "COST_TYPE", "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
 				                                       "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
 				
-				#print (vdx_second__table)
-				#exit()
+				
 				conditionseng = [(vdx_second__table.loc[:, ['COST_TYPE']]=='CPE'),
 				                  (vdx_second__table.loc[:, ['COST_TYPE']]=='CPE+')]
 				choiceseng = [vdx_second__table.loc[:, ["ENG"]],
 				               vdx_second__table.loc[:, ["DEEP"]]]
 				
-				vdx_second__table['Delivered_Engagements'] = np.select (conditionseng, choiceseng, default=0)
+				vdx_second__table['Delivered_Engagements'] = np.select (conditionseng, choiceseng)
 			
 				conditionsimp = [(vdx_second__table.loc[:, ['COST_TYPE']]=='CPCV'),
 			                      (vdx_second__table.loc[:, ['COST_TYPE']]=='CPM')]
 				choiceimp = [vdx_second__table.loc[:, ["COMPLETIONS"]],
 			                   vdx_second__table.loc[:, ["IMPRESSION"]]]
 			
-				vdx_second__table['Delivered_Impressions'] = np.select (conditionsimp, choiceimp, default=0)
+				vdx_second__table['Delivered_Impressions'] = np.select (conditionsimp, choiceimp)
 				vdx_access_table = vdx_second__table[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME","COST_TYPE",
 				                                      "UNIT_COST", "PLANNED_COST","BOOKED_IMP#BOOKED_ENG",
 				                                      "Delivered_Engagements","Delivered_Impressions"]]
 		
-		except (TypeError,KeyError, IOError, AttributeError) as e:
+		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -207,8 +184,7 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("Preroll placements found for IO - {}".format (self.config.ioid))
-				preroll_third_summary = self.read_sql_preroll.merge (self.read_sql_preroll_mv, on="PLACEMENT#", how="inner",
-			                                                    suffixes=('_1', '_2'))
+				preroll_third_summary = self.read_sql_preroll.merge (self.read_sql_preroll_mv, on="PLACEMENT#",suffixes=('_1', '_2'))
 				preroll_third_table = preroll_third_summary[
 					["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
 				    "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG", "IMPRESSION",
@@ -224,11 +200,10 @@ class Summary (object):
 				                                            "COST_TYPE","UNIT_COST", "PLANNED_COST",
 				                                            "BOOKED_IMP#BOOKED_ENG","Delivered_Impressions"]]
 		
-		except (KeyError,ValueError,AttributeError, TypeError) as e:
+		except (KeyError,AttributeError) as e:
 			self.logger.error(str(e))
 			pass
 		
-		#return displayfirsttable, vdx_access_table, preroll_access_table
 		self.displayfirsttable = displayfirsttable
 		self.vdx_access_table = vdx_access_table
 		self.preroll_access_table = preroll_access_table
@@ -251,7 +226,7 @@ class Summary (object):
 				self.displayfirsttable['Spend'] = self.displayfirsttable['DELIVERED_IMPRESION']/1000*self.displayfirsttable[
 					'UNIT_COST']
 				self.displayfirsttable["PLACEMENT#"] = self.displayfirsttable["PLACEMENT#"].astype (int)
-		except (KeyError,TypeError,AttributeError,ValueError) as e:
+		except (KeyError,AttributeError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -286,7 +261,7 @@ class Summary (object):
 				                                       default=0.00)
 				self.vdx_access_table['Delivery%'] = self.vdx_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.vdx_access_table['Spend'] = self.vdx_access_table['Spend'].replace (np.inf, 0.00)
-		except (KeyError,TypeError,ValueError,AttributeError) as e:
+		except (KeyError,AttributeError) as e:
 			self.logger.error (str (e))
 			pass
 			
@@ -305,7 +280,7 @@ class Summary (object):
 					"UNIT_COST"]
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace (np.inf, 0.00)
-		except (KeyError,TypeError,AttributeError) as e:
+		except (KeyError,AttributeError) as e:
 			self.logger.error(str(e))
 			pass
 	
@@ -353,8 +328,7 @@ class Summary (object):
 		info_ac_mgr = self.config.ac_mgr.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=1, index=True, header=False)
 		info_sales_rep = self.config.sales_rep.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=2, index=True, header=False)
 		info_campaign_date = self.config.sdate_edate_final.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=7, startrow=1, index=True, header=False)
-		#info_campaign_status = self.config.status.to_excel(self.config.writer,sheet_name="Delivery Summary", startcol=7, startrow=1, index=True, header=False)
-	
+		
 	def write_summary_display(self):
 		
 		"""
@@ -413,11 +387,6 @@ class Summary (object):
 		worksheet.insert_image ("M2", "Client_Logo.png")
 		format_write = workbook.add_format ({"bold":True, "bg_color":"#00B0F0", "align":"left"})
 		format_header = workbook.add_format ({"bold":True, "bg_color":"#00B0F0",'align': 'center'})
-		format_header_center = workbook.add_format ({"align":"center"})
-		integer = workbook.add_format ({'num_format':'#,##0', 'align':'center'})
-		format_header_left = workbook.add_format ({"align":"left"})
-		format_header_right = workbook.add_format ({"align":"right"})
-		format_colour = workbook.add_format({"bg_color":"#00B0F0"})
 		format_subtotal = workbook.add_format({"bg_color":"#A5A5A5","bold":True,"align":"center"})
 		format_subtotal_row = workbook.add_format({"bg_color":"#A5A5A5","bold":True})
 		number_fmt = workbook.add_format({"num_format":"#,##0","bg_color":"#A5A5A5","bold":True})
@@ -433,6 +402,7 @@ class Summary (object):
 		start_row = 7
 		start_col = 2
 		end_row =2
+		
 		try:
 			if self.read_sql__display.empty:
 				pass
@@ -506,7 +476,8 @@ class Summary (object):
 					startrowmoney = start_row+end_row
 					endrowmoney = start_row+self.displayfirsttable.shape[0]+1
 					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
-		except AttributeError:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 
 		try:
@@ -593,7 +564,8 @@ class Summary (object):
 					endrowmoney = start_row+display_row+self.vdx_access_table.shape[0]+1
 					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
 		
-		except AttributeError:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 
 		try:
@@ -692,7 +664,8 @@ class Summary (object):
 					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
 					                              {"type":"no_blanks", "format":money_fmt})
 					
-		except AttributeError:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 	
 		aligment_left = workbook.add_format ({"align":"left"})
@@ -742,7 +715,8 @@ class Summary (object):
 			else:
 				self.logger.info ("Preroll Placements found to rename columns for IO - {}".format (self.config.ioid))
 				self.rename_preroll()
-		except AttributeError:
+		except AttributeError as e:
+			self.logger.error(str(e))
 			pass
 		
 		self.write_campaign_info()
@@ -767,7 +741,8 @@ class Summary (object):
 			else:
 				self.logger.info("Preroll Placements found for IO - {}".format(self.config.ioid))
 				self.write_summary_preroll()
-		except AttributeError:
+		except AttributeError as e:
+			self.logger.error(str(e))
 			pass
 		self.format_campaign_info ()
 		self.logger.info("Summary Sheet Created for IO - {}".format(self.config.ioid))

@@ -1,15 +1,14 @@
 #coding=utf-8
+# !/usr/bin/env python
 """
 Created by:Dharmendra
 Date:2018-03-23
 """
+import datetime
 import pandas as pd
 import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_range
-import xlsxwriter
-import config
 import pandas.io.formats.excel
-import logging
 from functools import reduce
 pandas.io.formats.excel.header_style = None
 
@@ -27,20 +26,35 @@ Preroll placements Class
 TFR Quries for Preroll Placements
 		:return:
 		"""
-		self.logger.info ('Starting to build Preroll Sheet for IO - {}'.format (self.config.ioid))
-		sql_preroll_summary = "select * from (select substr(PLACEMENT_DESC, 1, INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, SDATE as Start_Date, EDATE as End_Date, initcap(CREATIVE_DESC)  as Placement_Name, COST_TYPE_DESC as Cost_type, UNIT_COST as Unit_Cost, BUDGET as Planned_Cost, BOOKED_QTY as Booked_Imp_Booked_Eng from  TFR_REP.SUMMARY_MV where (IO_ID = {}) AND (DATA_SOURCE = 'KM') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + Mobile','Pre-Roll – Desktop + Mobile','Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - Mobile','Pre-Roll -Desktop','Pre-Roll - In-Stream')".format(self.config.ioid)
+		self.logger.info ('Starting to create Preroll Sheet for IO - {}'.format (self.config.ioid))
 		
-		sql_preroll_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, sum(IMPRESSIONS) as Impression, sum(CPCV_COUNT) as Completions,sum(VWR_CLICK_THROUGHS) as Clickthroughs , sum(VWR_VIDEO_VIEW_100_PC_COUNT) as Video_Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		self.logger.info("Start executing: "+'Preroll_Summary.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_summary = open("Preroll_Summary.sql")
+		sql_preroll_summary = read_preroll_summary.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
-		sql_preroll_video_views = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,sum(IMPRESSIONS) as Impression, sum(VWR_VIDEO_VIEW_25_PC_COUNT) as Views25,sum(VWR_VIDEO_VIEW_50_PC_COUNT) as Views50, sum(VWR_VIDEO_VIEW_75_PC_COUNT) as Views75,sum(VWR_VIDEO_VIEW_100_PC_COUNT) as Video_Completions, sum(CPCV_COUNT) as Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		self.logger.info("Start executing: "+'Placement_info_preroll.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_mv = open('Placement_info_preroll.sql')
+		sql_preroll_mv = read_preroll_mv.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
-		sql_video_details = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,FEV_INT_VIDEO_DESC,sum(VWR_VIDEO_VIEW_0_PC_COUNT) as Views0,sum(VWR_VIDEO_VIEW_25_PC_COUNT) as Views25,sum(VWR_VIDEO_VIEW_50_PC_COUNT) as Views50,sum(VWR_VIDEO_VIEW_75_PC_COUNT) as Views75,sum(VWR_VIDEO_VIEW_100_PC_COUNT) as Video_Completions FROM TFR_REP.VIDEO_DETAIL_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC,FEV_INT_VIDEO_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		self.logger.info("Start executing: "+'Video_info_preroll.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_video = open('Video_info_preroll.sql')
+		sql_preroll_video_views = read_preroll_video.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
-		sql_preroll_day_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') as DAY_DESC, sum(IMPRESSIONS) as Impression, sum(CPCV_COUNT) as Completions, sum(VWR_CLICK_THROUGHS) as Clickthroughs , sum(VWR_VIDEO_VIEW_100_PC_COUNT) as Video_Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC,DAY_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		self.logger.info("Start executing: "+'Video_details_info_preroll.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_video_details = open('Video_details_info_preroll.sql')
+		sql_video_details = read_preroll_video_details.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
-		sql_preroll_interaction = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,BLAZE_TAG_NAME_DESC as Click_Tag, sum(VWR_INTERACTION) as VWR_Clickthrough from TFR_REP.INTERACTION_DETAIL_MV WHERE IO_ID = {} and BLAZE_ACTION_TYPE_DESC = 'Click-thru' GROUP BY PLACEMENT_ID, PLACEMENT_DESC, BLAZE_TAG_NAME_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		self.logger.info("Start executing: "+'Placement_info_preroll_day.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_day = open('Placement_info_preroll_day.sql')
+		sql_preroll_day_mv = read_preroll_day.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
-		sql_preroll_video_player = "SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement,sum(VWR_MUTE) as Vwrmute,sum(VWR_UNMUTE) as Vwrunmute,sum(VWR_PAUSE) as Vwrpause,sum(VWR_REWIND) as Vwrrewind, sum(VWR_RESUME) as Vwrresume,sum(VWR_REPLAY) as Vwrreplay, sum(VWR_FULL_SCREEN) as Vwrfullscreen FROM TFR_REP.VIDEO_DETAIL_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid)
+		self.logger.info("Start executing: "+'Placement_player_int_preroll.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_intraction = open('Placement_player_int_preroll.sql')
+		sql_preroll_interaction = read_preroll_intraction.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
+		
+		self.logger.info("Start executing: "+'Placement_player_video_preroll.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
+		read_preroll_video = open('Placement_player_video_preroll.sql')
+		sql_preroll_video_player = read_preroll_video.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
 		self.sql_preroll_summary = sql_preroll_summary
 		self.sql_preroll_mv = sql_preroll_mv
@@ -58,7 +72,7 @@ Reading Queries Data directly from TFR
 		"""
 		
 		self.logger.info ('Running Query for Preroll placements for IO {}'.format (self.config.ioid))
-		#sql_preroll_summary, sql_preroll_mv, sql_preroll_video_views, sql_preroll_day_mv, sql_preroll_interaction = self.connect_TFR_Intraction()
+		
 		
 		read_sql_preroll_summary = pd.read_sql(self.sql_preroll_summary,self.config.conn)
 		
@@ -73,10 +87,6 @@ Reading Queries Data directly from TFR
 		read_sql_preroll_interaction = pd.read_sql(self.sql_preroll_interaction, self.config.conn)
 	
 		read_sql_preroll_video_player = pd.read_sql(self.sql_preroll_video_player,self.config.conn)
-		
-		#self.read_sql_preroll_day = read_sql_preroll_day
-	
-		#return read_sql_preroll_summary, read_sql_preroll_mv, read_sql_preroll_video ,read_sql_preroll_day ,read_sql_preroll_interaction
 		
 		self.read_sql_preroll_summary = read_sql_preroll_summary
 		self.read_sql_preroll_mv = read_sql_preroll_mv
@@ -94,148 +104,166 @@ Accessing Columns from Query
 		"""
 		
 		self.logger.info ('Query Stored for further processing of IO - {}'.format (self.config.ioid))
-		#read_sql_preroll_summary, read_sql_preroll_mv, read_sql_preroll_video, read_sql_preroll_day, read_sql_preroll_interaction  = self.read_query_preroll()
 		
 		self.logger.info('Creating placement wise table of IO - {}'.format(self.config.ioid))
+		
 		prerollsummaryfinal = None
 		videoprerollsummarymvfinal = None
 		intraction_final = None
 		dayprerollsummaryfinal = None
 		video_player_summary_final = None
+		
 		try:
-			placementprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_mv, on = "PLACEMENT", how= "inner")
+			if self.read_sql_preroll_mv.empty:
+				pass
+			else:
+				placementprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_mv, on = "PLACEMENT#")
+				
+				prerollsummarymv = placementprerollmv.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST","IMPRESSION",
+				                                       "CLICKTHROUGHS","COMPLETIONS","VIDEO_COMPLETIONS"]]
+				
+				mask1 = prerollsummarymv["COST_TYPE"].isin(['CPM'])
+				choiceprerollsummarymvcpm = prerollsummarymv["VIDEO_COMPLETIONS"]
+				mask2 = prerollsummarymv["COST_TYPE"].isin(['CPCV'])
+				choiceprerollsummarymvcpcv = prerollsummarymv["COMPLETIONS"]
+				choicespendcpm = prerollsummarymv["IMPRESSION"]/1000*prerollsummarymv["UNIT_COST"]
+				choicespendcpcv = prerollsummarymv["VIDEO_COMPLETIONS"]*prerollsummarymv["UNIT_COST"]
+				
+				prerollsummarymv["Video Completions"] = np.select([mask1,mask2],[choiceprerollsummarymvcpm,
+				                                                                 choiceprerollsummarymvcpcv])
+				
+				prerollsummarymv["Spend"] = np.select ([mask1, mask2], [choicespendcpm, choicespendcpcv])
+				
+				prerollsummary = prerollsummarymv.loc[:,["PLACEMENT#","PLACEMENT_NAME", "COST_TYPE", "UNIT_COST"
+				                                        ,"IMPRESSION","CLICKTHROUGHS", "Video Completions","Spend"]]
+				
+				prerollsummary["Placement# Name"] = prerollsummary[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
+				
+				prerollsummary["CTR"] = prerollsummary["CLICKTHROUGHS"]/prerollsummary["IMPRESSION"]
+				prerollsummary["Video Completion Rate"] = prerollsummary["Video Completions"]/prerollsummary["IMPRESSION"]
+				
+				prerollsummaryfinal = prerollsummary.loc[:,["Placement# Name","COST_TYPE","UNIT_COST","IMPRESSION",
+				                                            "CLICKTHROUGHS","CTR","Video Completions","Video Completion Rate",
+				                                            "Spend"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
-			prerollsummarymv = placementprerollmv.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","UNIT_COST","IMPRESSION",
-			                                       "CLICKTHROUGHS","COMPLETIONS","VIDEO_COMPLETIONS"]]
+		self.logger.info ('Creating Video wise table of IO - {}'.format (self.config.ioid))
+		try:
+			if self.read_sql_preroll_video.empty:
+				pass
+			else:
+				videoprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_video, on="PLACEMENT#")
+				
+				videoprerollsummarymv = videoprerollmv.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","IMPRESSION","COMPLETIONS"]]
+				
+				placement_by_preroll_video = [videoprerollsummarymv, self.read_sql_video_details]
+				preroll_video_summary = reduce(lambda left, right:pd.merge (left, right, on=['PLACEMENT#']),placement_by_preroll_video)
+				
+				mask3 = preroll_video_summary["COST_TYPE"].isin(['CPM'])
+				choicevideoprerollcpm = preroll_video_summary["VIDEO_COMPLETIONS"]
+				mask4 = preroll_video_summary["COST_TYPE"].isin(['CPCV'])
+				choicevideoprerollcpcv = preroll_video_summary["COMPLETIONS"]
+				
+				preroll_video_summary["Video Completions"] = np.select([mask3,mask4],[choicevideoprerollcpm,
+				                                                                      choicevideoprerollcpcv])
+				mask8 = preroll_video_summary["COST_TYPE"].isin (['CPM', 'CPCV'])
+				
+				preroll_video_summary_new = preroll_video_summary.loc[preroll_video_summary.reset_index().groupby(['PLACEMENT#'])['VIEWS0'].idxmax()]
+				
+				preroll_video_summary_new.loc[mask8,'VIEWS0'] = preroll_video_summary_new['IMPRESSION']
+				
+				preroll_video_summary = preroll_video_summary.drop(preroll_video_summary_new.index).append(preroll_video_summary_new).sort_index()
+				
+				preroll_video_summary["Views"] = preroll_video_summary["VIEWS0"]
+				
+				preroll_video_summary["Video Completion Rate"] = preroll_video_summary["Video Completions"]/preroll_video_summary["Views"]
+				
+				preroll_video_summary["Placement# Name"] = preroll_video_summary[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
+				
+				videoprerollsummarymvfinal = preroll_video_summary.loc[:,["Placement# Name","FEV_INT_VIDEO_DESC","Views","VIEWS25","VIEWS50"
+				                                                          ,"VIEWS75","Video Completions","Video Completion Rate"]]
+				
+				videoprerollsummarymvfinal = videoprerollsummarymvfinal.loc[:, ["Placement# Name","FEV_INT_VIDEO_DESC","Views","VIEWS25","VIEWS50",
+				                                                                "VIEWS75", "Video Completions",
+				                                                                "Video Completion Rate"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
-			mask1 = prerollsummarymv["COST_TYPE"].isin(['CPM'])
-			choiceprerollsummarymvcpm = prerollsummarymv["VIDEO_COMPLETIONS"]
-			mask2 = prerollsummarymv["COST_TYPE"].isin(['CPCV'])
-			choiceprerollsummarymvcpcv = prerollsummarymv["COMPLETIONS"]
-			choicespendcpm = prerollsummarymv["IMPRESSION"]/1000*prerollsummarymv["UNIT_COST"]
-			choicespendcpcv = prerollsummarymv["VIDEO_COMPLETIONS"]*prerollsummarymv["UNIT_COST"]
+		self.logger.info('Creating placement by day wise table for IO - {}'.format(self.config.ioid))
+		try:
+			if self.read_sql_preroll_day.empty:
+				pass
+			else:
+				dayprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_day, on="PLACEMENT#")
+				
+				
+				dayprerollsummarymv = dayprerollmv.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST","DAY_DESC","IMPRESSION","CLICKTHROUGHS","VIDEO_COMPLETIONS",
+				                                          "COMPLETIONS"]]
+				
+				mask5 = dayprerollsummarymv["COST_TYPE"].isin(["CPM"])
+				choicedayprerollcpm = dayprerollsummarymv["VIDEO_COMPLETIONS"]
+				mask6 = dayprerollsummarymv["COST_TYPE"].isin(["CPCV"])
+				choicedayprerollcpcv = dayprerollsummarymv["COMPLETIONS"]
+				
+				dayprerollsummarymv["Video Completions"] = np.select([mask5,mask6],[choicedayprerollcpm,choicedayprerollcpcv])
+				choicedayspendcpm = dayprerollsummarymv["IMPRESSION"]/1000*dayprerollsummarymv["UNIT_COST"]
+				choicedayspendcpcv = dayprerollsummarymv["Video Completions"]*dayprerollsummarymv["UNIT_COST"]
+				dayprerollsummarymv["Spend"] = np.select([mask5,mask6],[choicedayspendcpm,choicedayspendcpcv])
+				dayprerollsummarymv["VCR%"] = dayprerollsummarymv["Video Completions"]/dayprerollsummarymv["IMPRESSION"]
+				dayprerollsummarymv["CTR"] = dayprerollsummarymv["CLICKTHROUGHS"]/dayprerollsummarymv["IMPRESSION"]
+				
+				dayprerollsummarymv["Placement# Name"] = dayprerollsummarymv[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
+				
+				dayprerollsummaryfinal = dayprerollsummarymv.loc[:,["Placement# Name","DAY_DESC","IMPRESSION","CLICKTHROUGHS","CTR",
+				                                                    "Video Completions","VCR%","Spend"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
-			prerollsummarymv["Video Completions"] = np.select([mask1,mask2],[choiceprerollsummarymvcpm,
-			                                                                 choiceprerollsummarymvcpcv])
+		self.logger.info('Creating Video player table for IO - {}'.format(self.config.ioid))
+		try:
+			if self.read_sql_preroll_video_player.empty:
+				pass
+			else:
+				video_player_mv = [self.read_sql_preroll_summary,self.read_sql_preroll_video_player]
+				video_player_summary = reduce (lambda left, right:pd.merge (left, right, on=['PLACEMENT#']),video_player_mv)
+				
+				video_player_summary["Placement# Name"] = video_player_summary[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
+				video_player_summary_final = video_player_summary.loc[:,["Placement# Name","VWRMUTE","VWRUNMUTE","VWRPAUSE",
+				                                                         "VWRREWIND","VWRRESUME","VWRREPLAY","VWRFULLSCREEN"]]
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
 			
-			prerollsummarymv["Spend"] = np.select ([mask1, mask2], [choicespendcpm, choicespendcpcv])
+		self.logger.info('Creating Intraction wise table for IO - {}'.format(self.config.ioid))
+		try:
+			if self.read_sql_preroll_interaction.empty:
+				pass
+			else:
+				intractionsummarymv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_interaction,on="PLACEMENT#")
+				
+				intractionclick = intractionsummarymv.loc[:,["PLACEMENT#","PLACEMENT_NAME","CLICK_TAG","VWR_CLICKTHROUGH"]]
+				intractionclick["Placement# Name"] = intractionclick[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
+				
+				intraction_final = None
+				intraction_table_clicks = pd.pivot_table(intractionclick,index = 'Placement# Name',values='VWR_CLICKTHROUGH',
+				                                       columns='CLICK_TAG',aggfunc=np.sum,fill_value=0)
+				intraction_table_clicks_new = intraction_table_clicks.reset_index()
+				intraction_table_clicks_r = intraction_table_clicks_new.loc[:, :]
 			
-			prerollsummary = prerollsummarymv.loc[:,["PLACEMENT","PLACEMENT_NAME", "COST_TYPE", "UNIT_COST"
-			                                        ,"IMPRESSION","CLICKTHROUGHS", "Video Completions","Spend"]]
+				intraction_click_table_new = intraction_table_clicks_r.merge(prerollsummaryfinal, on="Placement# Name", how="inner")
+				
+				cols_drop = ["COST_TYPE","UNIT_COST","IMPRESSION","CLICKTHROUGHS","Video Completions","Video Completion Rate",
+				             "CTR","Spend","Placement# Name"]
+				intraction_new_cols = intraction_click_table_new.drop(cols_drop,axis=1)
 			
-			prerollsummary["Placement# Name"] = prerollsummary[["PLACEMENT","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
-			
-			prerollsummary["CTR"] = prerollsummary["CLICKTHROUGHS"]/prerollsummary["IMPRESSION"]
-			prerollsummary["Video Completion Rate"] = prerollsummary["Video Completions"]/prerollsummary["IMPRESSION"]
-			
-			prerollsummaryfinal = prerollsummary.loc[:,["Placement# Name","COST_TYPE","UNIT_COST","IMPRESSION",
-			                                            "CLICKTHROUGHS","CTR","Video Completions","Video Completion Rate",
-			                                            "Spend"]]
-			
-			
-			self.logger.info ('Creating Video wise table of IO - {}'.format (self.config.ioid))
-			videoprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_video, on="PLACEMENT")
-			
-			videoprerollsummarymv = videoprerollmv.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","IMPRESSION","COMPLETIONS"]]
-			
-			placement_by_preroll_video = [videoprerollsummarymv, self.read_sql_video_details]
-			preroll_video_summary = reduce(lambda left, right:pd.merge (left, right, on=['PLACEMENT']),placement_by_preroll_video)
-			
-			
-			mask3 = preroll_video_summary["COST_TYPE"].isin(['CPM'])
-			choicevideoprerollcpm = preroll_video_summary["VIDEO_COMPLETIONS"]
-			mask4 = preroll_video_summary["COST_TYPE"].isin(['CPCV'])
-			choicevideoprerollcpcv = preroll_video_summary["COMPLETIONS"]
-			
-			preroll_video_summary["Video Completions"] = np.select([mask3,mask4],[choicevideoprerollcpm,
-			                                                                      choicevideoprerollcpcv])
-			mask8 = preroll_video_summary["COST_TYPE"].isin (['CPM', 'CPCV'])
-			
-			
-			preroll_video_summary_new = preroll_video_summary.loc[preroll_video_summary.reset_index().groupby(['PLACEMENT'])['VIEWS0'].idxmax()]
-			
-			
-			preroll_video_summary_new.loc[mask8,'VIEWS0'] = preroll_video_summary_new['IMPRESSION']
-			
-			
-			preroll_video_summary = preroll_video_summary.drop(preroll_video_summary_new.index).append(preroll_video_summary_new).sort_index()
-			
-			preroll_video_summary["Views"] = preroll_video_summary["VIEWS0"]
-			
-			preroll_video_summary["Video Completion Rate"] = preroll_video_summary["Video Completions"]/preroll_video_summary["Views"]
-			
-			preroll_video_summary["Placement# Name"] = preroll_video_summary[["PLACEMENT","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
-			
-			videoprerollsummarymvfinal = preroll_video_summary.loc[:,["Placement# Name","FEV_INT_VIDEO_DESC","Views","VIEWS25","VIEWS50"
-			                                                          ,"VIEWS75","Video Completions","Video Completion Rate"]]
-			
-			videoprerollsummarymvfinal = videoprerollsummarymvfinal.loc[:, ["Placement# Name","FEV_INT_VIDEO_DESC","Views","VIEWS25","VIEWS50",
-			                                                                "VIEWS75", "Video Completions",
-			                                                                "Video Completion Rate"]]
-			
-			
-			self.logger.info('Creating placement by day wise table for IO - {}'.format(self.config.ioid))
-			dayprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_day, on="PLACEMENT")
-			
-			
-			dayprerollsummarymv = dayprerollmv.loc[:,["PLACEMENT","PLACEMENT_NAME","COST_TYPE","UNIT_COST","DAY_DESC","IMPRESSION","CLICKTHROUGHS","VIDEO_COMPLETIONS",
-			                                          "COMPLETIONS"]]
-			
-			mask5 = dayprerollsummarymv["COST_TYPE"].isin(["CPM"])
-			choicedayprerollcpm = dayprerollsummarymv["VIDEO_COMPLETIONS"]
-			mask6 = dayprerollsummarymv["COST_TYPE"].isin(["CPCV"])
-			choicedayprerollcpcv = dayprerollsummarymv["COMPLETIONS"]
-			
-			dayprerollsummarymv["Video Completions"] = np.select([mask5,mask6],[choicedayprerollcpm,choicedayprerollcpcv])
-			choicedayspendcpm = dayprerollsummarymv["IMPRESSION"]/1000*dayprerollsummarymv["UNIT_COST"]
-			choicedayspendcpcv = dayprerollsummarymv["Video Completions"]*dayprerollsummarymv["UNIT_COST"]
-			dayprerollsummarymv["Spend"] = np.select([mask5,mask6],[choicedayspendcpm,choicedayspendcpcv])
-			dayprerollsummarymv["VCR%"] = dayprerollsummarymv["Video Completions"]/dayprerollsummarymv["IMPRESSION"]
-			dayprerollsummarymv["CTR"] = dayprerollsummarymv["CLICKTHROUGHS"]/dayprerollsummarymv["IMPRESSION"]
-			
-			dayprerollsummarymv["Placement# Name"] = dayprerollsummarymv[["PLACEMENT","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
-			
-			dayprerollsummaryfinal = dayprerollsummarymv.loc[:,["Placement# Name","DAY_DESC","IMPRESSION","CLICKTHROUGHS","CTR",
-			                                                    "Video Completions","VCR%","Spend"]]
-			
-			self.logger.info('Creating Video player table for IO - {}'.format(self.config.ioid))
-			video_player_mv = [self.read_sql_preroll_summary,self.read_sql_preroll_video_player]
-			video_player_summary = reduce (lambda left, right:pd.merge (left, right, on=['PLACEMENT']),video_player_mv)
-			
-			video_player_summary["Placement# Name"] = video_player_summary[["PLACEMENT","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
-			video_player_summary_final = video_player_summary.loc[:,["Placement# Name","VWRMUTE","VWRUNMUTE","VWRPAUSE",
-			                                                         "VWRREWIND","VWRRESUME","VWRREPLAY","VWRFULLSCREEN"]]
-			
-			
-			self.logger.info('Creating Intraction wise table for IO - {}'.format(self.config.ioid))
-			intractionsummarymv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_interaction,on="PLACEMENT")
-			
-			intractionclick = intractionsummarymv.loc[:,["PLACEMENT","PLACEMENT_NAME","CLICK_TAG","VWR_CLICKTHROUGH"]]
-			intractionclick["Placement# Name"] = intractionclick[["PLACEMENT","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
-			
-			intraction_final = None
-			intraction_table_clicks = pd.pivot_table(intractionclick,index = 'Placement# Name',values='VWR_CLICKTHROUGH',
-			                                       columns='CLICK_TAG',aggfunc=np.sum,fill_value=0)
-			intraction_table_clicks_new = intraction_table_clicks.reset_index()
-			intraction_table_clicks_r = intraction_table_clicks_new.loc[:, :]
-			
-			
+				intraction_final = intraction_new_cols.loc[:, :]
 		
-			intraction_click_table_new = intraction_table_clicks_r.merge(prerollsummaryfinal, on="Placement# Name", how="inner")
-			
-			#intraction_click_table_new["CTR"] = intraction_click_table_new["CLICKTHROUGHS"]/intraction_click_table_new["IMPRESSION"]
-		
-			
-			cols_drop = ["COST_TYPE","UNIT_COST","IMPRESSION","CLICKTHROUGHS","Video Completions","Video Completion Rate",
-			             "CTR","Spend","Placement# Name"]
-			intraction_new_cols = intraction_click_table_new.drop(cols_drop,axis=1)
-		
-			#intraction_new_cols["Total Clickthroughs"] = intraction_new_cols.iloc[:,1:-1].sum(axis=1)
-		
-			intraction_final = intraction_new_cols.loc[:, :]
-		
-		except (KeyError,AttributeError,TypeError,IOError) as e:
-			self.logger.error(str(e)+ ' Not found in intraction table for IO - {}'.format(self.config.ioid))
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 		
 	
@@ -251,59 +279,96 @@ Accessing Columns from Query
 Renaming COlumns
 		:return:
 		"""
-		#prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal = self.accessing_preroll_columns()
-		
 		self.logger.info('Renaming columns for all tables')
-		rename_preroll_summary_final = self.prerollsummaryfinal.rename(columns={"COST_TYPE":"Cost Type","UNIT_COST":"Unit Cost",
-		                                                                "IMPRESSION":"Impressions",
-		                                                                "CLICKTHROUGHS":"Clickthroughs","CTR":"CTR %",
-		                                                                        "Video Completion Rate":"VCR %"},inplace=True)
-		
-		rename_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.rename(columns={"FEV_INT_VIDEO_DESC":"Video Name",
-		                                                                                        "VIEWS25":"25% View",
-		                                                                                        "VIEWS50":"50% View",
-		                                                                                        "VIEWS75":"75% View"},inplace=True)
-		
-		renameday_preroll_summary_final = self.dayprerollsummaryfinal.rename(columns={"DAY_DESC":"Date","IMPRESSION":"Impressions",
-		                                                                      "CLICKTHROUGHS":"Clickthroughs"},inplace=True)
-		
-		rename_video_player_summary_final = self.video_player_summary_final.rename(columns = {"VWRMUTE":"Mute",
-		                                                                                      "VWRUNMUTE":"Unmute",
-		                                                                                      "VWRPAUSE":"Pause",
-		                                                                                      "VWRREWIND":"Rewind",
-		                                                                                      "VWRRESUME":"Resume",
-		                                                                                      "VWRREPLAY":"Replay",
-		                                                                                      "VWRFULLSCREEN":"Fullscreen"},inplace=True)
-		
-	def writePreroll(self):
-		"""
-writing to excel all data
-		:return:
-		"""
-		data_common_columns = self.config.common_columns_summary()
+		try:
+			if self.read_sql_preroll_mv.empty:
+				pass
+			else:
+				rename_preroll_summary_final = self.prerollsummaryfinal.rename(columns={"COST_TYPE":"Cost Type","UNIT_COST":"Unit Cost",
+				                                                                "IMPRESSION":"Impressions",
+				                                                                "CLICKTHROUGHS":"Clickthroughs","CTR":"CTR %",
+				                                                                        "Video Completion Rate":"VCR %"},inplace=True)
+		except (AttributeError, KeyError) as e:
+			self.logger.error(str(e))
+			pass
 		
 		try:
-			check_preroll_summary_final = self.prerollsummaryfinal.empty
-			check_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.empty
-			check_intraction_final = self.intraction_final.empty
-			check_day_preroll_summary_final = self.dayprerollsummaryfinal.empty
-			check_video_player_summary_final = self.video_player_summary_final.empty
-			
-			self.logger.info('Writing Campaign information on preroll for IO - {}'.format(self.config.ioid))
-			writing_data_common_columns = data_common_columns[1].to_excel(self.config.writer,sheet_name="Standard Pre Roll Details"
-			                                                           .format(self.config.ioid),startcol=1,startrow=1,
-			                                                                   index=False,header=False)
-			
-			self.logger.info ('Writing placement information on preroll for IO - {}'.format (self.config.ioid))
-			if check_day_preroll_summary_final is True:
+			if self.read_sql_preroll_video.empty:
+				pass
+			else:
+				rename_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.rename(columns={"FEV_INT_VIDEO_DESC":"Video Name",
+				                                                                                        "VIEWS25":"25% View",
+				                                                                                        "VIEWS50":"50% View",
+				                                                                                        "VIEWS75":"75% View"},inplace=True)
+		except (AttributeError, KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		
+		try:
+			if self.read_sql_preroll_day.empty:
+				pass
+			else:
+				renameday_preroll_summary_final = self.dayprerollsummaryfinal.rename(columns={"DAY_DESC":"Date","IMPRESSION":"Impressions",
+				                                                                      "CLICKTHROUGHS":"Clickthroughs"},inplace=True)
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		
+		try:
+			if self.read_sql_preroll_interaction.empty:
+				pass
+			else:
+				rename_video_player_summary_final = self.video_player_summary_final.rename(columns = {"VWRMUTE":"Mute",
+				                                                                                      "VWRUNMUTE":"Unmute",
+				                                                                                      "VWRPAUSE":"Pause",
+				                                                                                      "VWRREWIND":"Rewind",
+				                                                                                      "VWRRESUME":"Resume",
+				                                                                                      "VWRREPLAY":"Replay",
+				                                                                                      "VWRFULLSCREEN":"Fullscreen"},inplace=True)
+		except (AttributeError, KeyError) as e:
+			self.logger.error(str(e))
+			pass
+	
+	def writePreroll(self):
+		"""
+			writing to excel all data
+		:return:
+		"""
+		
+		self.logger.info('Writing Campaign information on preroll for IO - {}'.format(self.config.ioid))
+		try:
+			info_client = self.config.client_info.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",
+			                                                startcol=1, startrow=1, index=True, header=False)
+			info_campaign = self.config.campaign_info.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",
+			                                                    startcol=1, startrow=2, index=True, header=False)
+			info_ac_mgr = self.config.ac_mgr.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details", startcol=4,
+			                                           startrow=1, index=True, header=False)
+			info_sales_rep = self.config.sales_rep.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",
+			                                                 startcol=4, startrow=2, index=True, header=False)
+			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
+			                                                             sheet_name="Standard Pre Roll Details", startcol=7,
+			                                                             startrow=1, index=True, header=False)
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		
+		self.logger.info ('Writing placement information on preroll for IO - {}'.format (self.config.ioid))
+		
+		try:
+			if self.read_sql_preroll_mv.empty:
 				pass
 			else:
 				writing_preroll_summary_final = self.prerollsummaryfinal.to_excel(self.config.writer,
 				                                                          sheet_name="Standard Pre Roll Details".format(self.config.ioid),
 				                                                          startcol=1,startrow=8,index=False,header=True)
-			
-			self.logger.info('Writing Video information on preroll for IO - {}'.format (self.config.ioid))
-			if check_video_preroll_summary_mv_final is True:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		
+		self.logger.info('Writing Video information on preroll for IO - {}'.format (self.config.ioid))
+		
+		try:
+			if self.read_sql_preroll_video.empty:
 				pass
 			else:
 				writing_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.to_excel(self.config.writer,
@@ -311,19 +376,28 @@ writing to excel all data
 				                                                                        startcol=1,
 				                                                                        startrow=len(self.prerollsummaryfinal)+13,
 				                                                                        index=False,header=True)
-			
-			self.logger.info ('Writing Intractions information on preroll for IO - {}'.format (self.config.ioid))
-			if check_intraction_final is True:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		
+		self.logger.info ('Writing Intractions information on preroll for IO - {}'.format (self.config.ioid))
+		
+		try:
+			if self.video_player_summary_final.empty:
 				pass
 			else:
 				writing_video_player_final = self.video_player_summary_final.to_excel(self.config.writer,
 				                                                  sheet_name="Standard Pre Roll Details".format(self.config.ioid),
 				                                                  startcol=1,startrow=len(self.prerollsummaryfinal)+len(self.videoprerollsummarymvfinal)+18
 				                                                  ,index=False,header=True)
-				
-			
-			self.logger.info('Writing Video player information on preroll for IO - {}'.format (self.config.ioid))
-			if check_video_player_summary_final is True:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		
+		self.logger.info('Writing Video player information on preroll for IO - {}'.format (self.config.ioid))
+		
+		try:
+			if self.read_sql_preroll_interaction.empty:
 				pass
 			else:
 				writing_intraction_player_final = self.intraction_final.to_excel(self.config.writer,
@@ -331,9 +405,13 @@ writing to excel all data
 				                                                            startcol=self.video_player_summary_final.shape[1]+1,
 				                                                            startrow = len(self.prerollsummaryfinal)+len(self.videoprerollsummarymvfinal)+18,
 				                                                            index=False,header=True)
-			
-			self.logger.info('Writing placement by day informaton on preroll for IO - {}'.format(self.config.ioid))
-			if check_day_preroll_summary_final is True:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
+			pass
+		self.logger.info('Writing placement by day informaton on preroll for IO - {}'.format(self.config.ioid))
+		
+		try:
+			if self.dayprerollsummaryfinal.empty:
 				pass
 			else:
 				start_line = len( self.prerollsummaryfinal )+len( self.videoprerollsummarymvfinal )+len( self.intraction_final )+23
@@ -365,40 +443,26 @@ writing to excel all data
 					worksheet.conditional_format(start_row-2,7,start_line,7,{"type":"no_blanks","format":percent_fmt})
 					worksheet.conditional_format(start_row-2,8,start_line,8,{"type":"no_blanks","format":money_fmt})
 					
-		except (AttributeError,TypeError,IOError,KeyError) as e:
-			self.logger.error(str(e)+"Not Found")
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
-			#self.logger.error(str(e)+' Not found in intraction')
-				
-		#return prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal
+		
 	
 	def formatting(self):
 		
 		"""
 Applying Formatting
 		"""
-		#prerollsummaryfinal, videoprerollsummarymvfinal, intraction_final, dayprerollsummaryfinal = self.writePreroll()
-		
 		self.logger.info('Applying Formatting on preroll sheet for IO - {}'.format(self.config.ioid))
 		try:
 			workbook = self.config.writer.book
 			worksheet = self.config.writer.sheets["Standard Pre Roll Details".format(self.config.ioid)]
 			worksheet.set_zoom (75)
 			
-			check_preroll_summary_final = self.prerollsummaryfinal.empty
-			check_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.empty
-			check_interaction_final = self.intraction_final.empty
-			check_day_preroll_summary_final = self.dayprerollsummaryfinal.empty
-			
-			
 			unique_day_preroll_summary_final = self.dayprerollsummaryfinal["Placement# Name"].nunique()
-			data_common_columns = self.config.common_columns_summary()
-			
 			number_rows_preroll_summary = self.prerollsummaryfinal.shape[0]
 			number_cols_preroll_summary = self.prerollsummaryfinal.shape[1]
 			number_rows_video_preroll_summary = self.videoprerollsummarymvfinal.shape[0]
-			number_cols_video_preroll_summary = self.videoprerollsummarymvfinal.shape[1]
-			number_rows_interaction_final = self.intraction_final.shape[0]
 			number_cols_interaction_final = self.intraction_final.shape[1]
 			number_rows_day_preroll_summary = self.dayprerollsummaryfinal.shape[0]
 			number_cols_day_preroll_summary = self.dayprerollsummaryfinal.shape[1]
@@ -416,6 +480,10 @@ Applying Formatting
 			worksheet.insert_image("O7", "Exponential.png", {"url":"https://www.tribalfusion.com"})
 			worksheet.insert_image("O2", "Client_Logo.png")
 			
+			worksheet.write_string (2, 8, self.config.status)
+			worksheet.write_string (2, 7, "Campaign Status")
+			worksheet.write_string (3, 1, "Agency Name")
+			worksheet.write_string (3, 7, "Currency")
 			
 			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
 			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
@@ -428,8 +496,6 @@ Applying Formatting
 			worksheet.conditional_format("A1:R5", {"type":"blanks", "format":format_campaign_info} )
 			worksheet.conditional_format("A1:R5", {"type":"no_blanks", "format":format_campaign_info} )
 			
-			format_headers = workbook.add_format({"bold":True,"bg_color": '#E7E6E6'})
-			
 			money_fmt = workbook.add_format( {"num_format":"$#,###0.00","align":"right"})
 			money_fmt_spend = workbook.add_format ({"num_format":"$#,###0.00", "align":"right","bg_color":"#A5A5A5"})
 			format_num = workbook.add_format ({"num_format":"#,##0"})
@@ -437,14 +503,11 @@ Applying Formatting
 			percent_fmt = workbook.add_format( {"num_format":"0.00%", "align":"right"})
 			percent_fmt_ctr_vcr = workbook.add_format ({"num_format":"0.00%", "align":"right","bg_color":"#A5A5A5"})
 			
-			#formatting preroll summary
 			worksheet.write_string(7,1,"Standard Pre Roll Performance - Summary",format_header_left)
 			worksheet.write_string (9+number_rows_preroll_summary, 1, "Grand Total", format_grand)
 			worksheet.conditional_format (7, 2, 7, number_cols_preroll_summary, {"type":"blanks", "format":format_colour})
 			worksheet.conditional_format (7, 2, 7, number_cols_preroll_summary, {"type":"no_blanks", "format":format_colour})
 			worksheet.conditional_format (8, 1, 8, 1, {"type":"no_blanks", "format":format_header_left})
-			#worksheet.conditional_format (8, 2, 8, 2, {"type":"no_blanks", "format":format_header})
-			#worksheet.conditional_format (8, 3, 8, 9, {"type":"no_blanks", "format":format_header})
 			
 			for col in range (2, number_cols_preroll_summary+1):
 				worksheet.write_string(7,col,"",format_colour)
@@ -549,9 +612,6 @@ Applying Formatting
 				worksheet.conditional_format (start_range_format, col, start_range_format, col,
 				                              {"type":"no_blanks", "format":format_grand})
 			
-				
-				
-			#formatting video summary
 			worksheet.write_string(9+number_rows_preroll_summary+3,1,"Standard Pre Roll - Video Details",format_header_left)
 			worksheet.conditional_format (13+number_rows_preroll_summary, 1, 13+number_rows_preroll_summary, 1, {"type":"no_blanks", "format":format_header_left})
 			worksheet.write_string (13+number_rows_preroll_summary+number_rows_video_player_summary_final+1, 1, "Grand Total", format_grand)
@@ -611,7 +671,6 @@ Applying Formatting
 					"format":format_grand
 				})
 			
-			#formatting video player table
 			worksheet.write_string (16+number_rows_preroll_summary+number_rows_video_preroll_summary, 1, "Standard Pre Roll - Interaction Details",format_header_left)
 			worksheet.write_string (17+number_rows_preroll_summary+number_rows_video_preroll_summary, 2,"Video Player Interactions",format_header)
 			worksheet.write_string (17+number_rows_preroll_summary+number_rows_video_preroll_summary,
@@ -642,12 +701,9 @@ Applying Formatting
 				start_range_plc = 19+number_rows_preroll_summary+number_rows_video_preroll_summary
 				end_range_plc = 19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final-1
 				worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"no_blanks","format":format_num})
-				#worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"blanks","format":format_num})
 				range_grand = 19+number_rows_preroll_summary+number_rows_video_preroll_summary+number_rows_video_player_summary_final
 				worksheet.conditional_format(range_grand,col,range_grand,col,{"type":"no_blanks","format":format_grand})
-				# worksheet.conditional_format (range_grand, col, range_grand, col,
-				#                               {"type":"no_blanks", "format":format_grand})
-			
+				
 			for col in range(2,3):
 				cell_location = xl_rowcol_to_cell (19+number_rows_preroll_summary+number_rows_video_preroll_summary
 					+number_rows_video_player_summary_final,
@@ -664,8 +720,7 @@ Applying Formatting
 				                +number_rows_video_player_summary_final-1
 				worksheet.conditional_format (start_range_plc, col, end_range_plc, col,
 				                              {"type":"no_blanks", "format":format_num})
-				#worksheet.conditional_format(start_range_plc,col,end_range_plc,col,{"type":"blanks","format":format_num})
-			
+
 			start_range_video = 19+number_rows_preroll_summary+number_rows_video_preroll_summary
 			start_col_video = number_cols_video_player_summary_final+number_cols_interaction_final+1
 			for row in range(number_rows_video_player_summary_final):
@@ -676,7 +731,7 @@ Applying Formatting
 				worksheet.write_formula(start_range_video,start_col_video,formula)
 				start_range_video += 1
 				
-			#formatting_Day_Information
+			
 			worksheet.write_string (21+number_rows_preroll_summary+
 			                        number_rows_video_preroll_summary+
 			                        number_rows_video_player_summary_final,1,"Standard Pre Roll - by Date",format_header_left)
@@ -757,7 +812,8 @@ Applying Formatting
 			worksheet.set_column (2, 2, 15, alignment_center)
 			worksheet.set_column (3, number_cols_interaction_final+18, 20, alignment_right)
 			
-		except AttributeError:
+		except (AttributeError,KeyError) as e:
+			self.logger.error(str(e))
 			pass
 	def main(self):
 		"""
@@ -766,7 +822,7 @@ main function
 		self.config.common_columns_summary()
 		self.connect_TFR_Intraction()
 		self.read_query_preroll()
-		if self.read_sql_preroll_mv.empty:
+		if self.read_sql_preroll_mv.empty or self.read_sql_preroll_summary.empty:
 			self.logger.info ("No instream placements for IO - {}".format (self.config.ioid))
 			pass
 		else:
