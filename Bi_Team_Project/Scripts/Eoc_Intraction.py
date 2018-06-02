@@ -757,7 +757,7 @@ Applying Formatting
 			worksheet.set_column (2, 2, 15, alignment_center)
 			worksheet.set_column (3, number_cols_interaction_final+18, 20, alignment_right)
 			
-		except AttributeError as e:
+		except AttributeError:
 			pass
 	def main(self):
 		"""
@@ -766,7 +766,7 @@ main function
 		self.config.common_columns_summary()
 		self.connect_TFR_Intraction()
 		self.read_query_preroll()
-		if self.read_sql_preroll_summary.empty:
+		if self.read_sql_preroll_mv.empty:
 			self.logger.info ("No instream placements for IO - {}".format (self.config.ioid))
 			pass
 		else:
@@ -778,10 +778,10 @@ main function
 			self.logger.info('Instream Sheet created for IO {}'.format(self.config.ioid))
 
 if __name__=="__main__":
-	#pass
+	pass
 	
 	# enable it when running for individual file
-	c = config.Config('Test', 608607,'2018-01-01','2018-02-01')
-	o = Intraction( c )
-	o.main()
-	c.saveAndCloseWriter()
+	#c = config.Config('Test', 608607,'2018-01-01','2018-02-01')
+	#o = Intraction( c )
+	#o.main()
+	#c.saveAndCloseWriter()

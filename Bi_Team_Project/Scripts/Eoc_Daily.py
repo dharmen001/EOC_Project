@@ -34,63 +34,27 @@ To create display placements
 		TFR Quries for making connection
 		"""
 		self.logger.info ('Starting to build Display Sheet for IO - {}'.format (self.config.ioid))
-		sql_sales_summary = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'","\
-		                    "CREATIVE_DESC  as "'Placement_Name'", COST_TYPE_DESC as "'Cost_type'",UNIT_COST as "\
-		                    ""'Unit_Cost'", BOOKED_QTY as "'Booked_Imp#Booked_Eng'" FROM TFR_REP.SUMMARY_MV where "\
-		                    "IO_ID = {} AND DATA_SOURCE = 'SalesFile' ORDER BY PLACEMENT_ID".format(
-			self.config.ioid )
 		
-		sql_sales_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-		               "sum(VIEWS) "\
-		               "as "'Delivered_Impresion'", sum(CLICKS) as "'Clicks'", sum(CONVERSIONS) as "'Conversion'" "\
-		               "from "\
-		               ""\
-		               ""\
-		               ""\
-		               ""\
-		               ""\
-		               ""\
-		               ""\
-		               ""\
-		               "TFR_REP.DAILY_SALES_MV WHERE IO_ID = {} GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY "\
-		               "PLACEMENT_ID".format(
-			self.config.ioid )
+		read_display_summary = open("Display_Summary.sql")
+		sql_sales_summary = read_display_summary.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
+		# self.logger.info ("Start executing: "+'Display_Summary.sql'+" at "+str (
+		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_summary)
 		
-		sql_sales_adsize_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-		                      "MEDIA_SIZE_DESC as "'Adsize'", sum(VIEWS) as "'Delivered_Impresion'", sum(CLICKS) as "\
-		                      ""'Clicks'", sum(CONVERSIONS) as "'Conversion'" from TFR_REP.ADSIZE_SALES_MV WHERE "\
-		                      "IO_ID "\
-		                      ""\
-		                      ""\
-		                      ""\
-		                      ""\
-		                      ""\
-		                      ""\
-		                      ""\
-		                      ""\
-		                      "= {} GROUP BY PLACEMENT_ID,PLACEMENT_DESC, MEDIA_SIZE_DESC ORDER BY "\
-		                      "PLACEMENT_ID".format( self.config.ioid )
-		sql_sales_daily_mv = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as "'Placement#'", "\
-		                     "DAY_DESC as "'Day'", sum(VIEWS) as "'Delivered_Impresion'", sum(CLICKS) as "'Clicks'", "\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     "sum(CONVERSIONS) as "'Conversion'" from TFR_REP.DAILY_SALES_MV WHERE IO_ID = {} GROUP "\
-		                     "BY "\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     ""\
-		                     "PLACEMENT_ID,PLACEMENT_DESC, DAY_DESC ORDER BY PLACEMENT_ID".format( self.config.ioid )
+		read_plc_info = open("Placement_info_display.sql")
+		sql_sales_mv = read_plc_info.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
+		# self.logger.info ("Start executing: "+'Placement_info_display.sql'+" at "+str (
+		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_mv)
+		
+		read_adsize_display = open("Placement_info_display_adsize.sql")
+		sql_sales_adsize_mv = read_adsize_display.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
+		# self.logger.info ("Start executing: "+'Placement_info_display_adsize.sql'+" at "+str (
+		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_adsize_mv)
+		
+		read_by_day_display = open("Placement_info_display_day.sql")
+		sql_sales_daily_mv = read_by_day_display.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
+		# self.logger.info ("Start executing: "+'Placement_info_display_day.sql'+" at "+str (
+		# 	datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M"))+"\n"+sql_sales_daily_mv)
+		
 		
 		self.sql_sales_summary = sql_sales_summary
 		self.sql_sales_mv = sql_sales_mv
@@ -446,17 +410,29 @@ To create display placements
 
 		:return: writing Data
 		"""
-		data_common_columns = self.config.common_columns_summary()
+		#data_common_columns = self.config.common_columns_summary()
 		unqiue_final_day_wise = self.final_day_wise['Placement# Name'].nunique ()
 		
 		
 		
 		self.logger.info("Writing Summary on Display Sheet for IO - {}".format(self.config.ioid))
 		
-		writing_data_common_columns = data_common_columns[1].to_excel( self.config.writer,
+		"""writing_data_common_columns = data_common_columns[1].to_excel( self.config.writer,
 		                                                               sheet_name="Performance Details", startcol=1,
 		                                                               startrow=1,
-		                                                               index=False, header=False )
+		                                                               index=False, header=False )"""
+		
+		info_client = self.config.client_info.to_excel (self.config.writer, sheet_name="Performance Details",
+		                                                startcol=1, startrow=1, index=True, header=False)
+		info_campaign = self.config.campaign_info.to_excel (self.config.writer, sheet_name="Performance Details",
+		                                                    startcol=1, startrow=2, index=True, header=False)
+		info_ac_mgr = self.config.ac_mgr.to_excel (self.config.writer, sheet_name="Performance Details", startcol=4,
+		                                           startrow=1, index=True, header=False)
+		info_sales_rep = self.config.sales_rep.to_excel (self.config.writer, sheet_name="Performance Details",
+		                                                 startcol=4, startrow=2, index=True, header=False)
+		info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
+		                                                             sheet_name="Performance Details", startcol=7,
+		                                                             startrow=1, index=True, header=False)
 		
 		self.logger.info ("Writing Placement level information on Display Sheet for IO - {}".format (self.config.ioid))
 		
@@ -851,7 +827,7 @@ Adding Main Function
 		self.config.common_columns_summary()
 		self.connect_TFR_daily()
 		self.read_Query_daily()
-		if self.read_sql_sales.empty:
+		if self.read_sql_sales_mv.empty:
 			self.logger.info("No Display placements for IO - {}".format(self.config.ioid))
 			pass
 		else:
@@ -862,14 +838,14 @@ Adding Main Function
 			self.accessing_nan_values()
 			self.accessing_main_column()
 			self.write_KM_Sales_summary()
-			self.formatting_daily()
+			#self.formatting_daily()
 			self.logger.info("Display Sheet Created for IO {}".format(self.config.ioid))
 
 if __name__=="__main__":
-	#pass
+	pass
 	
 	#enable it when running for individual file
-	c = config.Config('test', 606087,'2018-01-02','2018-02-02')
-	o = Daily( c )
-	o.main()
-	c.saveAndCloseWriter()
+	#c = config.Config('test', 606087,'2018-01-02','2018-02-02')
+	#o = Daily( c )
+	#o.main()
+	#c.saveAndCloseWriter()
