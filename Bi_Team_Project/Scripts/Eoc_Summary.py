@@ -22,7 +22,7 @@ class Summary (object):
 		"""
 		self.config = config
 		self.logger = self.config.logger
-	
+		
 	def connect_TFR_summary(self):
 		"""
 	    
@@ -103,7 +103,7 @@ class Summary (object):
 				'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format (self.config.ioid))
 			read_sql_preroll_mv = pd.read_sql (self.sqlprerollmv, self.config.conn)
 			
-		except (AttributeError,KeyError) as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -136,7 +136,7 @@ class Summary (object):
 				displayfirsttable = display_first__summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                             "COST_TYPE", "UNIT_COST", "PLANNED_COST",
 				                                             "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -171,7 +171,7 @@ class Summary (object):
 				                                      "UNIT_COST", "PLANNED_COST","BOOKED_IMP#BOOKED_ENG",
 				                                      "Delivered_Engagements","Delivered_Impressions"]]
 		
-		except (AttributeError,KeyError) as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -200,7 +200,7 @@ class Summary (object):
 				                                            "COST_TYPE","UNIT_COST", "PLANNED_COST",
 				                                            "BOOKED_IMP#BOOKED_ENG","Delivered_Impressions"]]
 		
-		except (KeyError,AttributeError) as e:
+		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -226,7 +226,7 @@ class Summary (object):
 				self.displayfirsttable['Spend'] = self.displayfirsttable['DELIVERED_IMPRESION']/1000*self.displayfirsttable[
 					'UNIT_COST']
 				self.displayfirsttable["PLACEMENT#"] = self.displayfirsttable["PLACEMENT#"].astype (int)
-		except (KeyError,AttributeError) as e:
+		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -261,7 +261,7 @@ class Summary (object):
 				                                       default=0.00)
 				self.vdx_access_table['Delivery%'] = self.vdx_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.vdx_access_table['Spend'] = self.vdx_access_table['Spend'].replace (np.inf, 0.00)
-		except (KeyError,AttributeError) as e:
+		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:
 			self.logger.error (str (e))
 			pass
 			
@@ -280,7 +280,7 @@ class Summary (object):
 					"UNIT_COST"]
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace (np.inf, 0.00)
-		except (KeyError,AttributeError) as e:
+		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 	
@@ -323,12 +323,15 @@ class Summary (object):
 		Writing Campaign_information to File
 		:return:
 		"""
-		info_client = self.config.client_info.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=1, startrow=1, index=True, header=False)
-		info_campaign = self.config.campaign_info.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=1, startrow=2, index=True, header=False)
-		info_ac_mgr = self.config.ac_mgr.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=1, index=True, header=False)
-		info_sales_rep = self.config.sales_rep.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=2, index=True, header=False)
-		info_campaign_date = self.config.sdate_edate_final.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=7, startrow=1, index=True, header=False)
-		
+		try:
+			info_client = self.config.client_info.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=1, startrow=1, index=True, header=False)
+			info_campaign = self.config.campaign_info.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=1, startrow=2, index=True, header=False)
+			info_ac_mgr = self.config.ac_mgr.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=1, index=True, header=False)
+			info_sales_rep = self.config.sales_rep.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=2, index=True, header=False)
+			info_campaign_date = self.config.sdate_edate_final.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=7, startrow=1, index=True, header=False)
+		except (KeyError, AttributeError, TypeError, IOError, ValueError) as e:
+			self.logger.error(str(e))
+			pass
 	def write_summary_display(self):
 		
 		"""
@@ -377,7 +380,7 @@ class Summary (object):
 		:return:
 		"""
 		workbook = self.config.writer.book
-		worksheet = self.config.writer.sheets["Delivery Summary".format (self.config.ioid)]
+		worksheet = self.config.writer.sheets["Delivery Summary"]
 		worksheet.set_zoom(75)
 		worksheet.hide_gridlines (2)
 		worksheet.set_row (0, 6)
@@ -476,7 +479,7 @@ class Summary (object):
 					startrowmoney = start_row+end_row
 					endrowmoney = start_row+self.displayfirsttable.shape[0]+1
 					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
-		except (AttributeError,KeyError) as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 
@@ -564,7 +567,7 @@ class Summary (object):
 					endrowmoney = start_row+display_row+self.vdx_access_table.shape[0]+1
 					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
 		
-		except (AttributeError,KeyError) as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 
@@ -663,8 +666,14 @@ class Summary (object):
 					endrowmoney = start_row+display_row+vdx_row+self.preroll_access_table.shape[0]+1
 					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
 					                              {"type":"no_blanks", "format":money_fmt})
-					
-		except (AttributeError,KeyError) as e:
+			
+			"""worksheet_new = self.config.writernew.get_sheet_names("Delivery Summary")
+			for col in range (0, 13):
+				#worksheet_new = self.config.writernew.sheets["Delivery Summary"]
+				cell = worksheet_new.cell(row=1, column=col)
+				cell.style.alignment.horizontal = cell.style.alignment.HORIZONTAL_left"""
+				
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 	
@@ -715,7 +724,7 @@ class Summary (object):
 			else:
 				self.logger.info ("Preroll Placements found to rename columns for IO - {}".format (self.config.ioid))
 				self.rename_preroll()
-		except AttributeError as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -741,7 +750,7 @@ class Summary (object):
 			else:
 				self.logger.info("Preroll Placements found for IO - {}".format(self.config.ioid))
 				self.write_summary_preroll()
-		except AttributeError as e:
+		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		self.format_campaign_info ()

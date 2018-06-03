@@ -145,7 +145,7 @@ Accessing Columns from Query
 				prerollsummaryfinal = prerollsummary.loc[:,["Placement# Name","COST_TYPE","UNIT_COST","IMPRESSION",
 				                                            "CLICKTHROUGHS","CTR","Video Completions","Video Completion Rate",
 				                                            "Spend"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -188,7 +188,7 @@ Accessing Columns from Query
 				videoprerollsummarymvfinal = videoprerollsummarymvfinal.loc[:, ["Placement# Name","FEV_INT_VIDEO_DESC","Views","VIEWS25","VIEWS50",
 				                                                                "VIEWS75", "Video Completions",
 				                                                                "Video Completion Rate"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -219,7 +219,7 @@ Accessing Columns from Query
 				
 				dayprerollsummaryfinal = dayprerollsummarymv.loc[:,["Placement# Name","DAY_DESC","IMPRESSION","CLICKTHROUGHS","CTR",
 				                                                    "Video Completions","VCR%","Spend"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -234,7 +234,7 @@ Accessing Columns from Query
 				video_player_summary["Placement# Name"] = video_player_summary[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x:".".join(x), axis=1)
 				video_player_summary_final = video_player_summary.loc[:,["Placement# Name","VWRMUTE","VWRUNMUTE","VWRPAUSE",
 				                                                         "VWRREWIND","VWRRESUME","VWRREPLAY","VWRFULLSCREEN"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -262,7 +262,7 @@ Accessing Columns from Query
 			
 				intraction_final = intraction_new_cols.loc[:, :]
 		
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -288,7 +288,7 @@ Renaming COlumns
 				                                                                "IMPRESSION":"Impressions",
 				                                                                "CLICKTHROUGHS":"Clickthroughs","CTR":"CTR %",
 				                                                                        "Video Completion Rate":"VCR %"},inplace=True)
-		except (AttributeError, KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -300,7 +300,7 @@ Renaming COlumns
 				                                                                                        "VIEWS25":"25% View",
 				                                                                                        "VIEWS50":"50% View",
 				                                                                                        "VIEWS75":"75% View"},inplace=True)
-		except (AttributeError, KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -310,7 +310,7 @@ Renaming COlumns
 			else:
 				renameday_preroll_summary_final = self.dayprerollsummaryfinal.rename(columns={"DAY_DESC":"Date","IMPRESSION":"Impressions",
 				                                                                      "CLICKTHROUGHS":"Clickthroughs"},inplace=True)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -325,7 +325,7 @@ Renaming COlumns
 				                                                                                      "VWRRESUME":"Resume",
 				                                                                                      "VWRREPLAY":"Replay",
 				                                                                                      "VWRFULLSCREEN":"Fullscreen"},inplace=True)
-		except (AttributeError, KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 	
@@ -348,7 +348,7 @@ Renaming COlumns
 			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
 			                                                             sheet_name="Standard Pre Roll Details", startcol=7,
 			                                                             startrow=1, index=True, header=False)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -361,7 +361,7 @@ Renaming COlumns
 				writing_preroll_summary_final = self.prerollsummaryfinal.to_excel(self.config.writer,
 				                                                          sheet_name="Standard Pre Roll Details".format(self.config.ioid),
 				                                                          startcol=1,startrow=8,index=False,header=True)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -376,7 +376,7 @@ Renaming COlumns
 				                                                                        startcol=1,
 				                                                                        startrow=len(self.prerollsummaryfinal)+13,
 				                                                                        index=False,header=True)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -390,7 +390,7 @@ Renaming COlumns
 				                                                  sheet_name="Standard Pre Roll Details".format(self.config.ioid),
 				                                                  startcol=1,startrow=len(self.prerollsummaryfinal)+len(self.videoprerollsummarymvfinal)+18
 				                                                  ,index=False,header=True)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -405,7 +405,7 @@ Renaming COlumns
 				                                                            startcol=self.video_player_summary_final.shape[1]+1,
 				                                                            startrow = len(self.prerollsummaryfinal)+len(self.videoprerollsummarymvfinal)+18,
 				                                                            index=False,header=True)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		self.logger.info('Writing placement by day informaton on preroll for IO - {}'.format(self.config.ioid))
@@ -443,7 +443,7 @@ Renaming COlumns
 					worksheet.conditional_format(start_row-2,7,start_line,7,{"type":"no_blanks","format":percent_fmt})
 					worksheet.conditional_format(start_row-2,8,start_line,8,{"type":"no_blanks","format":money_fmt})
 					
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -812,7 +812,7 @@ Applying Formatting
 			worksheet.set_column (2, 2, 15, alignment_center)
 			worksheet.set_column (3, number_cols_interaction_final+18, 20, alignment_right)
 			
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 	def main(self):

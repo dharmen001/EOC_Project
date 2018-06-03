@@ -122,7 +122,7 @@ Class for VDX Placements
 		unique_plc_summary = 0
 		try:
 			unique_plc_summary = self.read_sql_vdx_km['Placement# Name'].nunique ()
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -252,7 +252,7 @@ Class for VDX Placements
 				                                                         "Viewer CTR", "Engager CTR", "Viewer VCR",
 				                                                         "Engager VCR", "Interaction Rate",
 				                                                         "Active Time Spent"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 	
@@ -381,7 +381,7 @@ Class for VDX Placements
 				                                                            "Viewer CTR", "Engager CTR", "Viewer VCR",
 				                                                            "Engager VCR",
 				                                                            "Interaction Rate", "Active Time Spent"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -500,7 +500,7 @@ Class for VDX Placements
 				                           ["Placement# Name", "PRODUCT", "VIDEONAME", "Views",
 				                            "25_pc_video", "50_pc_video", "75_pc_video", "100_pc_video",
 				                            "Video Completion Rate"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -549,7 +549,7 @@ Class for VDX Placements
 				
 				video_player_final = video_player.loc[:,
 				                     ["Product", "Mute", "Unmute", "Pause", "Rewind", "Resume", "Replay", "Fullscreen"]]
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -574,7 +574,7 @@ Class for VDX Placements
 				intractions_intrac = intractions_intrac_ad_new.loc[:, :]
 				intractions_intrac_new = intractions_intrac.drop (cols_drop, axis=1)
 		
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -607,7 +607,7 @@ Class for VDX Placements
 			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
 			                                                             sheet_name="VDX Details", startcol=7,
 			                                                             startrow=1, index=True, header=False)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -638,7 +638,7 @@ Class for VDX Placements
 					
 					startline_placement += len (placement_df)+1
 				
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -666,7 +666,7 @@ Class for VDX Placements
 					                                   header=False, index=False)
 					
 					startline_adsize += len (adsize_df)+1
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -692,7 +692,7 @@ Class for VDX Placements
 					                                                                                  "Video Completion Rate"],
 					                                 header=False, index=False)
 					startline_video += len (video_df)+2
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 		
@@ -708,7 +708,7 @@ Class for VDX Placements
 					                                                             self.config.ioid),
 				                                                             startcol=1, startrow=startline_player,
 				                                                             index=False)
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 			
@@ -727,7 +727,7 @@ Class for VDX Placements
 					                                                         startcol=9+self.intractions_clicks_new.shape[1],
 					                                                         startrow=startline_player, index=False,
 					                                                         merge_cells=False)
-			except (AttributeError,KeyError) as e:
+			except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 				self.logger.error(str(e))
 				pass
 			
@@ -1054,7 +1054,7 @@ Class for VDX Placements
 			                      alignment)
 			worksheet.set_column ("B:B", 47)
 		
-		except (AttributeError,KeyError) as e:
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
 	

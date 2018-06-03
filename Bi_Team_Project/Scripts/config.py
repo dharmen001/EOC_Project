@@ -8,9 +8,6 @@ import datetime
 import pandas as pd
 import cx_Oracle
 import logging
-import openpyxl
-from openpyxl.cell import cell
-
 
 class Config(object):
 	"""
@@ -18,7 +15,6 @@ class Config(object):
 	"""
 	def __init__(self, start_date, ioid, end_date):#start_date,end_date):
 		
-		self.opj ()
 		self.start_date = start_date
 		self.ioid = ioid
 		self.end_date = end_date
@@ -29,8 +25,9 @@ class Config(object):
 		except Exception as e:
 			self.logger.error (str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format (self.ioid))
 		self.path = ("C://EOC_Project//Bi_Team_Project//Reports//{}.xlsx".format(self.ioid))
+		#self.pathnew = self.path
 		self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter", datetime_format="YYYY-MM-DD")
-		self.writer = pd.ExcelWriter (self.path, engine="openpyxl", datetime_format="YYYY-MM-DD")
+		#self.writernew = pd.ExcelWriter (self.pathnew, engine="openpyxl", datetime_format="YYYY-MM-DD")
 
 	def saveAndCloseWriter(self):
 		"""
@@ -98,8 +95,12 @@ class Config(object):
 			pass
 		sdate_edate_new = sdate_edate.iloc[-1:,-1]
 		sdate_edate_new = sdate_edate_new.to_frame()
-		sdate_edate_final = sdate_edate_new.set_index('Campaign Report date').reset_index().transpose()
-		
+		sdate_edate_final = None
+		try:
+			sdate_edate_final = sdate_edate_new.set_index('Campaign Report date').reset_index().transpose()
+		except KeyError as e:
+			self.logger.error(str(e))
+			pass
 		u_date = datetime.date.today()-datetime.timedelta(1)
 		#e_date = datetime.date(1)
 		new_date = u_date.strftime('%Y-%m-%d')
@@ -150,9 +151,3 @@ class Config(object):
 		
 		self.logger = logger
 	
-	def opj(self):
-		"""
-		Info style
-		:return:
-		"""
-		cell.style.alignment.horizontal = cell.style.alignment.HORIZONTAL_left
