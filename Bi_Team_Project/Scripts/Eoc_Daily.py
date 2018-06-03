@@ -805,7 +805,8 @@ Adding Main Function
 		self.config.common_columns_summary()
 		self.connect_TFR_daily()
 		self.read_Query_daily()
-		if self.read_sql_sales_mv.empty or self.read_sql_sales.empty:
+		if self.read_sql_sales_mv.empty or self.read_sql_sales.empty or self.read_sql_adsize_mv.empty \
+				or self.read_sql_daily_mv.empty:
 			self.logger.info("No Display placements for IO - {}".format(self.config.ioid))
 			pass
 		else:

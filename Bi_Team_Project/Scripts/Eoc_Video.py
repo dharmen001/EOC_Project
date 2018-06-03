@@ -1065,7 +1065,10 @@ Main Function
 		self.config.common_columns_summary ()
 		self.connect_tfr_video ()
 		self.read_query_video ()
-		if self.read_sql_vdx_km.empty or self.read_sql_vdx_summary.empty:
+		if self.read_sql_vdx_km.empty or self.read_sql_vdx_summary.empty \
+				or self.read_sql_adsize_km.empty or self.read_sql_video_km.empty\
+				or self.read_sql_video_player_interaction.empty or self.read_sql_ad_intraction.empty\
+				or self.read_sql_km_for_video.empty:
 			self.logger.info ("No VDX placements for IO - {}".format (self.config.ioid))
 			pass
 		else:

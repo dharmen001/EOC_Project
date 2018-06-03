@@ -8,6 +8,9 @@ import datetime
 import pandas as pd
 import cx_Oracle
 import logging
+import openpyxl
+from openpyxl.cell import cell
+
 
 class Config(object):
 	"""
@@ -15,6 +18,7 @@ class Config(object):
 	"""
 	def __init__(self, start_date, ioid, end_date):#start_date,end_date):
 		
+		self.opj ()
 		self.start_date = start_date
 		self.ioid = ioid
 		self.end_date = end_date
@@ -26,7 +30,7 @@ class Config(object):
 			self.logger.error (str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format (self.ioid))
 		self.path = ("C://EOC_Project//Bi_Team_Project//Reports//{}.xlsx".format(self.ioid))
 		self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter", datetime_format="YYYY-MM-DD")
-		
+		self.writer = pd.ExcelWriter (self.path, engine="openpyxl", datetime_format="YYYY-MM-DD")
 
 	def saveAndCloseWriter(self):
 		"""
@@ -145,3 +149,10 @@ class Config(object):
 		logger.addHandler(ch)
 		
 		self.logger = logger
+	
+	def opj(self):
+		"""
+		Info style
+		:return:
+		"""
+		cell.style.alignment.horizontal = cell.style.alignment.HORIZONTAL_left

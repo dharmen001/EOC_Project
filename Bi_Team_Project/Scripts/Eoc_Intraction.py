@@ -822,7 +822,10 @@ main function
 		self.config.common_columns_summary()
 		self.connect_TFR_Intraction()
 		self.read_query_preroll()
-		if self.read_sql_preroll_mv.empty or self.read_sql_preroll_summary.empty:
+		if self.read_sql_preroll_mv.empty or self.read_sql_preroll_summary.empty\
+				or self.read_sql_preroll_video.empty or self.read_sql_video_details.empty\
+				or self.read_sql_preroll_day.empty or self.read_sql_preroll_interaction.empty\
+				or self.read_sql_preroll_video_player.empty:
 			self.logger.info ("No instream placements for IO - {}".format (self.config.ioid))
 			pass
 		else:
