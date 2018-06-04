@@ -71,7 +71,6 @@ class Config(object):
 		read_last_row_sales_rep.rename(columns = {"SALES_REP":"Expo Sales Contact"},inplace = True)
 		sales_rep =  read_last_row_sales_rep.set_index('Expo Sales Contact').reset_index().transpose()
 		
-		
 		read_sql_sdate = pd.read_sql(sql_sdate,self.conn)
 		read_last_row_sdate = read_sql_sdate.iloc[-1:]
 		read_last_row_sdate.rename(columns = {"SDATE":"Start_Date"},inplace = True)
@@ -79,6 +78,7 @@ class Config(object):
 		read_sql_edate = pd.read_sql(sql_edate,self.conn)
 		read_last_row_edate = read_sql_edate.iloc[-1:]
 		read_last_row_edate.rename (columns={"EDATE":"End_Date"}, inplace=True)
+		read_new = pd.DataFrame({'End_Date':[self.end_date]})
 		
 		
 		read_sql_end_date = pd.read_sql(sql_end_date,self.conn)
@@ -87,7 +87,7 @@ class Config(object):
 		final_end_date = read_last_row_end_date.iloc[0,0]
 		
 		
-		sdate_edate = pd.concat([read_last_row_sdate,read_last_row_edate],axis =1)
+		sdate_edate = pd.concat([read_last_row_sdate,read_new],axis =1)
 		try:
 			sdate_edate["Campaign Report date"] = sdate_edate[["Start_Date", "End_Date"]].apply (lambda x:" to ".join (x), axis=1)
 		except TypeError as e:

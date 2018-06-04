@@ -38,6 +38,7 @@ class Summary (object):
 		self.logger.info ("Start executing: "+'VDX_MV.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_vdx_mv = open("VDX_MV.sql")
 		sqlvdxmv = read_vdx_mv.read().format(self.config.ioid,self.config.start_date,self.config.end_date)
+		#sqlvdxmv  = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#,sum(IMPRESSIONS) as Impression, sum(ENGAGEMENTS) as Eng, sum(DPE_ENGAGEMENTS) as Deep,sum(CPCV_COUNT) as Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {0} AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{1}' AND '{2}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid,self.config.start_date,self.config.end_date)
 		
 		self.logger.info ("Start executing: "+'Display_Summary.sql'+" at "+str (datetime.datetime.now ().strftime ("%Y-%m-%d %H:%M")))
 		read_display_summary = open("Display_Summary.sql")
@@ -70,42 +71,32 @@ class Summary (object):
 		:param self:
 		:return:
 		"""
-		read_sql__v_d_x = None
-		read_sql__display = None
-		read_sql_preroll = None
-		read_sql__display_mv = None
-		read_sql__v_d_x_mv = None
-		read_sql_preroll_mv = None
-		try:
-			self.logger.info (
-				'Running Query on 10.29.20.76 in Summary MV for VDX placements for IO - {}'.format (self.config.ioid))
-			read_sql__v_d_x = pd.read_sql (self.sqlvdxsummary, self.config.conn)
-			
-			self.logger.info (
-				'Running Query on 10.29.20.76 in Summary MV for Display placements for IO - {}'.format (self.config.ioid))
-			read_sql__display= pd.read_sql (self.sqldisplaysummary, self.config.conn)
-			
-			
-			self.logger.info (
-				'Running Query on 10.29.20.76 in Summary MV for Preroll placements for IO - {}'.format (self.config.ioid))
-			read_sql_preroll = pd.read_sql (self.sqlprerollsummary, self.config.conn)
-			
-			self.logger.info (
-				'Running Query on 10.29.20.76 in DailySales MV for Display placements for IO - {}'.format (self.config.ioid))
-			read_sql__display_mv = pd.read_sql (self.sqldisplaymv, self.config.conn)
-			
-			
-			self.logger.info(
-				'Running Query on 10.29.20.76 in KeyMetric MV for VDX placements for IO - {}'.format(self.config.ioid))
-			read_sql__v_d_x_mv = pd.read_sql (self.sqlvdxmv, self.config.conn)
-			
-			self.logger.info(
-				'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format (self.config.ioid))
-			read_sql_preroll_mv = pd.read_sql (self.sqlprerollmv, self.config.conn)
-			
-		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
-			self.logger.error(str(e))
-			pass
+		
+		self.logger.info (
+			'Running Query on 10.29.20.76 in Summary MV for VDX placements for IO - {}'.format (self.config.ioid))
+		read_sql__v_d_x = pd.read_sql (self.sqlvdxsummary, self.config.conn)
+		
+		self.logger.info (
+			'Running Query on 10.29.20.76 in Summary MV for Display placements for IO - {}'.format (self.config.ioid))
+		read_sql__display= pd.read_sql (self.sqldisplaysummary, self.config.conn)
+		
+		
+		self.logger.info (
+			'Running Query on 10.29.20.76 in Summary MV for Preroll placements for IO - {}'.format (self.config.ioid))
+		read_sql_preroll = pd.read_sql (self.sqlprerollsummary, self.config.conn)
+		
+		self.logger.info (
+			'Running Query on 10.29.20.76 in DailySales MV for Display placements for IO - {}'.format (self.config.ioid))
+		read_sql__display_mv = pd.read_sql (self.sqldisplaymv, self.config.conn)
+		
+		
+		self.logger.info(
+			'Running Query on 10.29.20.76 in KeyMetric MV for VDX placements for IO - {}'.format(self.config.ioid))
+		read_sql__v_d_x_mv = pd.read_sql (self.sqlvdxmv, self.config.conn)
+		
+		self.logger.info(
+			'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format (self.config.ioid))
+		read_sql_preroll_mv = pd.read_sql (self.sqlprerollmv, self.config.conn)
 		
 		self.read_sql__v_d_x = read_sql__v_d_x
 		self.read_sql__display = read_sql__display
@@ -148,11 +139,11 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("VDX placements found for IO - {}".format (self.config.ioid))
-				vdx_second_summary = self.read_sql__v_d_x.merge (self.read_sql__v_d_x_mv, on="PLACEMENT#",suffixes=('_1', '_2'))
+				vdx_second_summary = self.read_sql__v_d_x.merge (self.read_sql__v_d_x_mv, on="PLACEMENT#")
+				
 				vdx_second__table = vdx_second_summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                       "COST_TYPE", "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
 				                                       "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
-				
 				
 				conditionseng = [(vdx_second__table.loc[:, ['COST_TYPE']]=='CPE'),
 				                  (vdx_second__table.loc[:, ['COST_TYPE']]=='CPE+')]

@@ -119,12 +119,6 @@ Class for VDX Placements
 		"""
 		self.logger.info ('Query Stored for further processing of IO - {}'.format (self.config.ioid))
 		self.logger.info ('Creating placement wise table of IO - {}'.format (self.config.ioid))
-		unique_plc_summary = 0
-		try:
-			unique_plc_summary = self.read_sql_vdx_km['Placement# Name'].nunique ()
-		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-			self.logger.error(str(e))
-			pass
 		
 		placementsummaryfinal = None
 		placementadsizefinal = None
@@ -579,7 +573,7 @@ Class for VDX Placements
 			pass
 		
 		self.placementsummaryfinal = placementsummaryfinal
-		self.unique_plc_summary = unique_plc_summary
+		#self.unique_plc_summary = unique_plc_summary
 		self.placementadsizefinal = placementadsizefinal
 		self.placement_by_video_final = placement_by_video_final
 		self.video_player_final = video_player_final
@@ -592,8 +586,11 @@ Class for VDX Placements
 		Writing Video Data
 		:return:
 		"""
-		
+		unique_plc_summary = self.placementsummaryfinal['Placement# Name'].nunique ()
+		self.unique_plc_summary = unique_plc_summary
 		self.logger.info ('writing data to excel of IO - {}'.format (self.config.ioid))
+		#print("Dha",self.intractions_clicks_new)
+		#print("hhh",self.intractions_intrac_new)
 		
 		try:
 			info_client = self.config.client_info.to_excel (self.config.writer, sheet_name="VDX Details",
@@ -611,8 +608,8 @@ Class for VDX Placements
 			self.logger.error(str(e))
 			pass
 		
+		startline_placement = 9
 		try:
-			startline_placement = 9
 			if self.read_sql_vdx_km.empty:
 				pass
 			else:
@@ -642,8 +639,9 @@ Class for VDX Placements
 			self.logger.error(str(e))
 			pass
 		
+		startline_adsize = 9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+3
 		try:
-			startline_adsize = 9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+3
+			
 			if self.read_sql_adsize_km.empty:
 				pass
 			else:
@@ -670,9 +668,10 @@ Class for VDX Placements
 			self.logger.error(str(e))
 			pass
 			
-		
+		startline_video = 9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+3+len (
+			self.placementadsizefinal)+self.unique_plc_summary*2+3
 		try:
-			startline_video = 9+len(self.placementsummaryfinal)+self.unique_plc_summary*2+3+len(self.placementadsizefinal)+self.unique_plc_summary*2+3
+			
 			
 			if self.read_sql_video_km.empty:
 				pass
@@ -692,6 +691,7 @@ Class for VDX Placements
 					                                                                                  "Video Completion Rate"],
 					                                 header=False, index=False)
 					startline_video += len (video_df)+2
+		
 		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -711,25 +711,25 @@ Class for VDX Placements
 		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
-			
-			try:
-				if self.read_sql_ad_intraction.empty:
-					pass
-				else:
-					write_intraction_clicks = self.intractions_clicks_new.to_excel (self.config.writer,
-					                                                                sheet_name="VDX Details".format (
-						                                                                self.config.ioid),
-					                                                                startcol=9, startrow=startline_player,
-					                                                                index=False, merge_cells=False)
-					
-					write_intraction = self.intractions_intrac_new.to_excel (self.config.writer,
-					                                                         sheet_name="VDX Details".format (self.config.ioid),
-					                                                         startcol=9+self.intractions_clicks_new.shape[1],
-					                                                         startrow=startline_player, index=False,
-					                                                         merge_cells=False)
-			except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-				self.logger.error(str(e))
+		
+		
+		try:
+			if self.read_sql_ad_intraction.empty:
 				pass
+			else:
+				write_intraction_clicks = self.intractions_clicks_new.to_excel (self.config.writer,
+				                                                                sheet_name="VDX Details".format(self.config.ioid),
+				                                                                startcol=9, startrow=startline_player,
+				                                                                index=False, merge_cells=False)
+				
+				write_intraction = self.intractions_intrac_new.to_excel (self.config.writer,
+				                                                         sheet_name="VDX Details".format(self.config.ioid),
+				                                                         startcol=9+self.intractions_clicks_new.shape[1],
+				                                                         startrow=startline_player, index=False,
+				                                                         merge_cells=False)
+		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
+			self.logger.error(str(e))
+			pass
 			
 	def formatting_Video(self):
 		"""
@@ -921,6 +921,8 @@ Class for VDX Placements
 			                        self.video_player_final.shape[0]+1,
 			                        1, "Grand Total", format_grand)
 			
+			
+			
 			for col in range (2, 9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1]+1):
 				cell_location = xl_rowcol_to_cell (
 					9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
@@ -955,6 +957,7 @@ Class for VDX Placements
 				                         9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],
 				                         formula, format_num)
 				start_range_x += 1
+			
 			worksheet.conditional_format (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
 			                              self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
 			                              self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+5, 1,
@@ -963,6 +966,15 @@ Class for VDX Placements
 			                              self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+5,
 			                              9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],
 			                              {"type":"no_blanks", "format":format_hearder_left})
+			
+			worksheet.conditional_format (9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
+			                              self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
+			                              self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+5, 1,
+			                              9+self.placementsummaryfinal.shape[0]+self.unique_plc_summary*2+1+
+			                              self.placementadsizefinal.shape[0]+self.unique_plc_summary*2+3+
+			                              self.placement_by_video_final.shape[0]+self.unique_plc_summary*2+5,
+			                              9+self.intractions_clicks_new.shape[1]+self.intractions_intrac_new.shape[1],
+			                              {"type":"blanks", "format":format_hearder_left})
 			
 			
 			worksheet.conditional_format (9+len (self.placementsummaryfinal)+self.unique_plc_summary*2+1-4, 1,
@@ -1047,6 +1059,7 @@ Class for VDX Placements
 				
 				worksheet.conditional_format (start_intraction_row, col, end_intraction_row, col,
 				                              {"type":"no_blanks", "format":format_num})
+				
 			
 			alignment = workbook.add_format ({"align":"right"})
 			
