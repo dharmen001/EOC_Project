@@ -15,6 +15,13 @@ class Config(object):
 	"""
 	def __init__(self, start_date, ioid, end_date):#start_date,end_date):
 		
+		self.client_info = None
+		self.campaign_info = None
+		self.ac_mgr = None
+		self.sales_rep = None
+		self.sdate_edate_final = None
+		self.status = None
+		
 		self.start_date = start_date
 		self.ioid = ioid
 		self.end_date = end_date
@@ -47,8 +54,8 @@ class Config(object):
 		sql_campaign_info = "SELECT DISTINCT IO_DESC FROM TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		sql_acct_mgr = "SELECT DISTINCT ACCOUNT_MGR FROM TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		sql_sales_rep = "SELECT DISTINCT SALES_REP FROM TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
-		sql_sdate = "SELECT TO_CHAR(MIN(SDATE),'YYYY-MM-DD') as SDATE from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
-		sql_edate = "select (CASE WHEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) <= TO_CHAR(sysdate-1,'YYYY-MM-DD') THEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) ELSE TO_CHAR(sysdate-1,'YYYY-MM-DD') END) AS EDATE FROM TFR_REP.SUMMARY_MV where IO_ID = {}".format(self.ioid)
+		#sql_sdate = "SELECT TO_CHAR(MIN(SDATE),'YYYY-MM-DD') as SDATE from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
+		#sql_edate = "select (CASE WHEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) <= TO_CHAR(sysdate-1,'YYYY-MM-DD') THEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) ELSE TO_CHAR(sysdate-1,'YYYY-MM-DD') END) AS EDATE FROM TFR_REP.SUMMARY_MV where IO_ID = {}".format(self.ioid)
 		sql_end_date = "SELECT TO_CHAR(MAX(EDATE),'YYYY-MM-DD') as EDATENEW from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		
 		read_sql_client_info = pd.read_sql(sql_client_info,self.conn)
@@ -71,14 +78,15 @@ class Config(object):
 		read_last_row_sales_rep.rename(columns = {"SALES_REP":"Expo Sales Contact"},inplace = True)
 		sales_rep =  read_last_row_sales_rep.set_index('Expo Sales Contact').reset_index().transpose()
 		
-		read_sql_sdate = pd.read_sql(sql_sdate,self.conn)
-		read_last_row_sdate = read_sql_sdate.iloc[-1:]
-		read_last_row_sdate.rename(columns = {"SDATE":"Start_Date"},inplace = True)
+		#read_sql_sdate = pd.read_sql(sql_sdate,self.conn)
+		#read_last_row_sdate = read_sql_sdate.iloc[-1:]
+		#read_last_row_sdate.rename(columns = {"SDATE":"Start_Date"},inplace = True)
+		read_new_start_date = pd.DataFrame({"Start_Date":[self.start_date]})
 		
-		read_sql_edate = pd.read_sql(sql_edate,self.conn)
-		read_last_row_edate = read_sql_edate.iloc[-1:]
-		read_last_row_edate.rename (columns={"EDATE":"End_Date"}, inplace=True)
-		read_new = pd.DataFrame({'End_Date':[self.end_date]})
+		#read_sql_edate = pd.read_sql(sql_edate,self.conn)
+		#read_last_row_edate = read_sql_edate.iloc[-1:]
+		#read_last_row_edate.rename (columns={"EDATE":"End_Date"}, inplace=True)
+		read_new_end_date = pd.DataFrame({'End_Date':[self.end_date]})
 		
 		
 		read_sql_end_date = pd.read_sql(sql_end_date,self.conn)
@@ -87,7 +95,7 @@ class Config(object):
 		final_end_date = read_last_row_end_date.iloc[0,0]
 		
 		
-		sdate_edate = pd.concat([read_last_row_sdate,read_new],axis =1)
+		sdate_edate = pd.concat([read_new_start_date,read_new_end_date],axis =1)
 		try:
 			sdate_edate["Campaign Report date"] = sdate_edate[["Start_Date", "End_Date"]].apply (lambda x:" to ".join (x), axis=1)
 		except TypeError as e:
@@ -113,8 +121,6 @@ class Config(object):
 			#word = "Campaign Status"
 			status = "Ended"
 			
-		
-		
 		#self.data_common_columns = data_common_columns
 		self.client_info = client_info
 		self.campaign_info = campaign_info

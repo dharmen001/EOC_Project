@@ -774,7 +774,7 @@ To create display placements
 			
 			worksheet.write_formula (grand_total_row, 5,'=IFERROR(E{}/D{},0)'.format (grand_total_row+1,grand_total_row+1),percent_fmt)
 			
-			worksheet.write_formula(grand_total_row, 6,'=SUMIF(B{}:B{},"Sub-Total",G{}:G{})'.format(formula_range_grand,
+			worksheet.write_formula(grand_total_row, 6,'=SUMIF(B{}:B{},"Subtotal",G{}:G{})'.format(formula_range_grand,
 			                                                                                        grand_total_row,
 			                                                                                        formula_range_grand,
 			                                                                                        grand_total_row),format_num)

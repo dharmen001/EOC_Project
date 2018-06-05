@@ -126,11 +126,13 @@ Accessing Columns from Query
 				choiceprerollsummarymvcpm = prerollsummarymv["VIDEO_COMPLETIONS"]
 				mask2 = prerollsummarymv["COST_TYPE"].isin(['CPCV'])
 				choiceprerollsummarymvcpcv = prerollsummarymv["COMPLETIONS"]
-				choicespendcpm = prerollsummarymv["IMPRESSION"]/1000*prerollsummarymv["UNIT_COST"]
-				choicespendcpcv = prerollsummarymv["VIDEO_COMPLETIONS"]*prerollsummarymv["UNIT_COST"]
+				
 				
 				prerollsummarymv["Video Completions"] = np.select([mask1,mask2],[choiceprerollsummarymvcpm,
 				                                                                 choiceprerollsummarymvcpcv])
+				
+				choicespendcpm = prerollsummarymv["IMPRESSION"]/1000*prerollsummarymv["UNIT_COST"]
+				choicespendcpcv = prerollsummarymv["Video Completions"]*prerollsummarymv["UNIT_COST"]
 				
 				prerollsummarymv["Spend"] = np.select ([mask1, mask2], [choicespendcpm, choicespendcpcv])
 				

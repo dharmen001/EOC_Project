@@ -264,11 +264,16 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ('Preroll Placement found for IO {}'.format (self.config.ioid))
+				mask5 = self.preroll_access_table["COST_TYPE"].isin (['CPCV'])
+				mask6 = self.preroll_access_table["COST_TYPE"].isin (['CPM'])
+				
+				choice_preroll_cpcv = self.preroll_access_table["Delivered_Impressions"]*self.preroll_access_table["UNIT_COST"]
+				choice_preroll_cpm = self.preroll_access_table["Delivered_Impressions"]/1000*self.preroll_access_table["UNIT_COST"]
+				
 				self.preroll_access_table["PLACEMENT#"] = self.preroll_access_table["PLACEMENT#"].astype (int)
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table["Delivered_Impressions"]/self.preroll_access_table[
 					"BOOKED_IMP#BOOKED_ENG"]
-				self.preroll_access_table['Spend'] = self.preroll_access_table["Delivered_Impressions"]/1000*self.preroll_access_table[
-					"UNIT_COST"]
+				self.preroll_access_table['Spend'] = np.select([mask5,mask6],[choice_preroll_cpcv,choice_preroll_cpm])
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace (np.inf, 0.00)
 		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:

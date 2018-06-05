@@ -13,12 +13,12 @@ class definition():
     
     def writing_definition(self):
         read_definition = self.reading_def()
-        write_defitntion = read_definition.to_excel(self.config.writer,sheet_name="Definition({})".format(self.config.ioid),index=False, header=False)
+        write_defitntion = read_definition.to_excel(self.config.writer,sheet_name="Definition",index=False, header=False)
         return write_defitntion
     
     def format_definition(self):
         workbook=self.config.writer.book
-        worksheet=self.config.writer.sheets["Definition({})".format(self.config.ioid)]
+        worksheet=self.config.writer.sheets["Definition".format(self.config.ioid)]
         worksheet.insert_image("A1","Exponential.png")
         worksheet.hide_gridlines(2)
         worksheet.set_zoom(80)
