@@ -350,6 +350,11 @@ Renaming COlumns
 			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
 			                                                             sheet_name="Standard Pre Roll Details", startcol=7,
 			                                                             startrow=1, index=True, header=False)
+			info_agency = self.config.agency_info.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",
+			                                                startcol=1, startrow=3, index=True, header=False)
+			info_currency = self.config.currency_info.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",
+			                                                    startcol=7, startrow=3, index=True, header=False)
+			
 		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -484,8 +489,8 @@ Applying Formatting
 			
 			worksheet.write_string (2, 8, self.config.status)
 			worksheet.write_string (2, 7, "Campaign Status")
-			worksheet.write_string (3, 1, "Agency Name")
-			worksheet.write_string (3, 7, "Currency")
+			#worksheet.write_string (3, 1, "Agency Name")
+			#worksheet.write_string (3, 7, "Currency")
 			
 			format_campaign_info = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
 			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})

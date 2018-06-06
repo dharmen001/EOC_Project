@@ -12,6 +12,7 @@ import numpy as np
 from xlsxwriter.utility import xl_range, xl_rowcol_to_cell
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
+from functools import reduce
 
 class Summary (object):
 	"""This class in for creating summary sheet"""
@@ -122,11 +123,19 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("Display placements found for IO - {}".format (self.config.ioid))
-				display_first__summary = self.read_sql__display.merge (self.read_sql__display_mv, on="PLACEMENT#",suffixes=('_1', '_2'))
+				disaplay_first_exchange = [self.read_sql__display, self.read_sql__display_mv]
+				#display_first__summary = self.read_sql__display.merge (self.read_sql__display_mv, on="PLACEMENT#")
+				display_first__summary = reduce (lambda left, right:pd.merge (left, right, on='PLACEMENT#'), disaplay_first_exchange)
 				
 				displayfirsttable = display_first__summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                             "COST_TYPE", "UNIT_COST", "PLANNED_COST",
 				                                             "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION"]]
+
+				# display_merge = [displayfirsttable,self.config.cdb_io_exchange]
+				# display_exchange = reduce (lambda left, right:pd.merge (left, right, on='IO_ID'), display_merge)
+				# display_exchange["UNIT_COST"] = display_exchange["UNIT_COST"]*display_exchange["Currency Exchange Rate"]
+				# print (display_exchange)
+				# exit()
 		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -325,6 +334,8 @@ class Summary (object):
 			info_ac_mgr = self.config.ac_mgr.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=1, index=True, header=False)
 			info_sales_rep = self.config.sales_rep.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=4, startrow=2, index=True, header=False)
 			info_campaign_date = self.config.sdate_edate_final.to_excel(self.config.writer, sheet_name="Delivery Summary", startcol=7, startrow=1, index=True, header=False)
+			info_agency = self.config.agency_info.to_excel(self.config.writer,sheet_name="Delivery Summary",startcol=1,startrow=3,index=True,header=False)
+			info_currency = self.config.currency_info.to_excel(self.config.writer,sheet_name="Delivery Summary",startcol=7,startrow=3,index=True,header=False)
 		except (KeyError, AttributeError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -396,8 +407,8 @@ class Summary (object):
 		money_fmt = workbook.add_format ({"num_format":"$#,###0.00"})
 		worksheet.write_string(2,8,self.config.status)
 		worksheet.write_string(2,7,"Campaign Status")
-		worksheet.write_string (3, 1, "Agency Name")
-		worksheet.write_string (3, 7, "Currency")
+		#worksheet.write_string (3, 8, "Agency Name")
+		#worksheet.write_string (3, 7, "Currency")
 		start_row = 7
 		start_col = 2
 		end_row =2

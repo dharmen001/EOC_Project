@@ -415,6 +415,10 @@ To create display placements
 			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
 			                                                             sheet_name="Performance Details", startcol=7,
 			                                                             startrow=1, index=True, header=False)
+			info_agency = self.config.agency_info.to_excel (self.config.writer, sheet_name="Performance Details",
+			                                                startcol=1, startrow=3, index=True, header=False)
+			info_currency = self.config.currency_info.to_excel (self.config.writer, sheet_name="Performance Details",
+			                                                    startcol=7, startrow=3, index=True, header=False)
 		
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
@@ -596,8 +600,8 @@ To create display placements
 			worksheet.conditional_format (8, 3, 8, 9, {"type":"no_blanks", "format":format_header})
 			worksheet.write_string (2, 8, self.config.status)
 			worksheet.write_string (2, 7, "Campaign Status")
-			worksheet.write_string (3, 1, "Agency Name")
-			worksheet.write_string (3, 7, "Currency")
+			#worksheet.write_string (3, 1, "Agency Name")
+			#worksheet.write_string (3, 7, "Currency")
 			
 			for col in range(3,6):
 				cell_location = xl_rowcol_to_cell(9+number_rows_placement,col)

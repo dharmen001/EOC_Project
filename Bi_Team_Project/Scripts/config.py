@@ -21,6 +21,12 @@ class Config(object):
 		self.sales_rep = None
 		self.sdate_edate_final = None
 		self.status = None
+		self.logger = None
+		self.cdb_value = None
+		self.agency_info = None
+		self.cdb_value_currency = None
+		self.cdb_io_exchange = None
+		self.currency_info = None
 		
 		self.start_date = start_date
 		self.ioid = ioid
@@ -29,13 +35,14 @@ class Config(object):
 		self.logger.info('Trying to connect with TFR for io: {}'.format(self.ioid))
 		try:
 			self.conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
-		except Exception as e:
-			self.logger.error (str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format (self.ioid))
+		except (cx_Oracle.DatabaseError, Exception):
+			raise ('Failed to connect to 10.29.20.76: Please Retry for IO: {}'.format (self.ioid))
+			#self.logger.error (str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format (self.ioid))
 		self.path = ("C://EOC_Project//Bi_Team_Project//Reports//{}.xlsx".format(self.ioid))
 		#self.pathnew = self.path
 		self.writer = pd.ExcelWriter(self.path, engine="xlsxwriter", datetime_format="YYYY-MM-DD")
 		#self.writernew = pd.ExcelWriter (self.pathnew, engine="openpyxl", datetime_format="YYYY-MM-DD")
-
+		
 	def saveAndCloseWriter(self):
 		"""
 		To finally Save and close file
@@ -57,6 +64,23 @@ class Config(object):
 		#sql_sdate = "SELECT TO_CHAR(MIN(SDATE),'YYYY-MM-DD') as SDATE from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		#sql_edate = "select (CASE WHEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) <= TO_CHAR(sysdate-1,'YYYY-MM-DD') THEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) ELSE TO_CHAR(sysdate-1,'YYYY-MM-DD') END) AS EDATE FROM TFR_REP.SUMMARY_MV where IO_ID = {}".format(self.ioid)
 		sql_end_date = "SELECT TO_CHAR(MAX(EDATE),'YYYY-MM-DD') as EDATENEW from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
+		
+		read_cdb = pd.read_csv ("C://BiUiGit//data//mapping//commission//cdbIoDetails.csv")
+		
+		cdb_value = read_cdb.loc[read_cdb['IO Id'] == self.ioid]
+		
+		cdb_value_agency = cdb_value.loc[:,['Agency Name']]
+		#cdb_value_agency.rename (columns={"Agency Name":"Agency"}, inplace=True)
+		agency_info = cdb_value_agency.set_index('Agency Name').reset_index().transpose()
+		
+		
+		cdb_value_currency = cdb_value.loc[:,['Currency Type']]
+		cdb_value_currency.rename (columns={"Currency Type":"Currency"}, inplace=True)
+		currency_info = cdb_value_currency.set_index('Currency').reset_index().transpose()
+	
+		cdb_io_exchange_currency = cdb_value.loc[:,['IO Id','Currency Exchange Rate']]
+		cdb_io_exchange_currency.rename (columns={"IO Id":"IO_ID"}, inplace=True)
+		cdb_io_exchange = cdb_io_exchange_currency.loc[:,["IO_ID","Currency Exchange Rate"]]
 		
 		read_sql_client_info = pd.read_sql(sql_client_info,self.conn)
 		read_last_row_client_info = read_sql_client_info.iloc[-1:]
@@ -128,6 +152,10 @@ class Config(object):
 		self.sales_rep = sales_rep
 		self.sdate_edate_final = sdate_edate_final
 		self.status = status
+		self.cdb_value = cdb_value
+		self.agency_info = agency_info
+		self.currency_info = currency_info
+		self.cdb_io_exchange = cdb_io_exchange
 		#self.word = word
 		#return read_common_columns, data_common_columns,final_new
 	
