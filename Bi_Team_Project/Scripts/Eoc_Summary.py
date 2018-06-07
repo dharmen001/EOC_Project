@@ -123,19 +123,35 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("Display placements found for IO - {}".format (self.config.ioid))
-				disaplay_first_exchange = [self.read_sql__display, self.read_sql__display_mv]
+				display_first_exchange = [self.read_sql__display, self.read_sql__display_mv]
 				#display_first__summary = self.read_sql__display.merge (self.read_sql__display_mv, on="PLACEMENT#")
-				display_first__summary = reduce (lambda left, right:pd.merge (left, right, on='PLACEMENT#'), disaplay_first_exchange)
+				display_table_info = reduce (lambda left, right:pd.merge (left, right, on='PLACEMENT#'), display_first_exchange)
 				
-				displayfirsttable = display_first__summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+				display_table = display_table_info[["IO_ID","PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+				                                   "COST_TYPE", "UNIT_COST", "PLANNED_COST","BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION","CLICKS"]]
+				
+				
+				mask_display_imp = display_table["COST_TYPE"].isin(['CPM'])
+				mask_display_click = display_table["COST_TYPE"].isin(['CPC'])
+				
+				choice_display_imp = display_table["DELIVERED_IMPRESION"]
+				choice_display_click = display_table["CLICKS"]
+				
+				display_table["Delivered_Impressions"] = np.select([mask_display_imp,mask_display_click],
+				                                                   [choice_display_imp,choice_display_click])
+				
+				display_merge = [display_table, self.config.cdb_io_exchange]
+				
+				display_table_info = reduce (lambda left, right:pd.merge (left, right, on='IO_ID'), display_merge)
+				
+				display_table_info["UNIT_COST"] = display_table_info["UNIT_COST"]*display_table_info["Currency Exchange Rate"]
+				
+				display_table_info["PLANNED_COST"] = display_table_info["PLANNED_COST"]*display_table_info["Currency Exchange Rate"]
+				
+				displayfirsttable = display_table_info[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                             "COST_TYPE", "UNIT_COST", "PLANNED_COST",
-				                                             "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION"]]
-
-				# display_merge = [displayfirsttable,self.config.cdb_io_exchange]
-				# display_exchange = reduce (lambda left, right:pd.merge (left, right, on='IO_ID'), display_merge)
-				# display_exchange["UNIT_COST"] = display_exchange["UNIT_COST"]*display_exchange["Currency Exchange Rate"]
-				# print (display_exchange)
-				# exit()
+				                                             "BOOKED_IMP#BOOKED_ENG", "Delivered_Impressions"]]
+				
 		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -149,28 +165,38 @@ class Summary (object):
 			else:
 				self.logger.info ("VDX placements found for IO - {}".format (self.config.ioid))
 				vdx_second_summary = self.read_sql__v_d_x.merge (self.read_sql__v_d_x_mv, on="PLACEMENT#")
-				
-				vdx_second__table = vdx_second_summary[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
-				                                       "COST_TYPE", "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
-				                                       "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
+				vdx_second__table = vdx_second_summary[["IO_ID","PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+				                                        "COST_TYPE", "UNIT_COST", "PLANNED_COST",
+				                                        "BOOKED_IMP#BOOKED_ENG",
+				                                        "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
 				
 				conditionseng = [(vdx_second__table.loc[:, ['COST_TYPE']]=='CPE'),
-				                  (vdx_second__table.loc[:, ['COST_TYPE']]=='CPE+')]
+				                 (vdx_second__table.loc[:, ['COST_TYPE']]=='CPE+')]
 				choiceseng = [vdx_second__table.loc[:, ["ENG"]],
-				               vdx_second__table.loc[:, ["DEEP"]]]
+				              vdx_second__table.loc[:, ["DEEP"]]]
 				
 				vdx_second__table['Delivered_Engagements'] = np.select (conditionseng, choiceseng)
-			
+				
 				conditionsimp = [(vdx_second__table.loc[:, ['COST_TYPE']]=='CPCV'),
-			                      (vdx_second__table.loc[:, ['COST_TYPE']]=='CPM')]
+				                 (vdx_second__table.loc[:, ['COST_TYPE']]=='CPM')]
 				choiceimp = [vdx_second__table.loc[:, ["COMPLETIONS"]],
-			                   vdx_second__table.loc[:, ["IMPRESSION"]]]
-			
+				             vdx_second__table.loc[:, ["IMPRESSION"]]]
+				
 				vdx_second__table['Delivered_Impressions'] = np.select (conditionsimp, choiceimp)
-				vdx_access_table = vdx_second__table[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME","COST_TYPE",
-				                                      "UNIT_COST", "PLANNED_COST","BOOKED_IMP#BOOKED_ENG",
-				                                      "Delivered_Engagements","Delivered_Impressions"]]
-		
+				
+				vdx_exchange_table = [vdx_second__table,self.config.cdb_io_exchange]
+				vdx_table = reduce (lambda left, right:pd.merge (left, right, on='IO_ID'), vdx_exchange_table)
+				
+				vdx_table['UNIT_COST'] = vdx_table['UNIT_COST']*vdx_table['Currency Exchange Rate']
+				
+				vdx_table['PLANNED_COST'] = vdx_table['PLANNED_COST']*vdx_table['Currency Exchange Rate']
+				
+				vdx_access_table = vdx_table[
+					["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
+					 "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
+					 "Delivered_Engagements", "Delivered_Impressions"]]
+				
+				
 		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -184,8 +210,21 @@ class Summary (object):
 				pass
 			else:
 				self.logger.info ("Preroll placements found for IO - {}".format (self.config.ioid))
-				preroll_third_summary = self.read_sql_preroll.merge (self.read_sql_preroll_mv, on="PLACEMENT#",suffixes=('_1', '_2'))
-				preroll_third_table = preroll_third_summary[
+				preroll_third_summary = self.read_sql_preroll.merge (self.read_sql_preroll_mv, on="PLACEMENT#")
+				
+				preroll_table = preroll_third_summary[["IO_ID","PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+				                                                "COST_TYPE","UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
+				                                                "IMPRESSION","COMPLETIONS"]]
+				
+				preroll_exchange_table = [preroll_table,self.config.cdb_io_exchange]
+				
+				preroll_final_table = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), preroll_exchange_table)
+				
+				preroll_final_table["UNIT_COST"] = preroll_final_table["UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
+				
+				preroll_final_table["PLANNED_COST"] = preroll_final_table["PLANNED_COST"]*preroll_final_table["Currency Exchange Rate"]
+				
+				preroll_third_table = preroll_final_table[
 					["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
 				    "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG", "IMPRESSION",
 				    "COMPLETIONS"]]
@@ -220,12 +259,23 @@ class Summary (object):
 				self.logger.info('No Display Placement for IO {}'.format(self.config.ioid))
 				pass
 			else:
+				
+				mask_display_spend_cpm = self.displayfirsttable["COST_TYPE"].isin(['CPM'])
+				mask_display_spend_cpc = self.displayfirsttable["COST_TYPE"].isin(['CPC'])
+				
+				choice_display_spend_cpm = self.displayfirsttable['Delivered_Impressions']/1000*self.displayfirsttable['UNIT_COST']
+				choice_display_spend_cpc = self.displayfirsttable['Delivered_Impressions']*self.displayfirsttable['UNIT_COST']
+				
 				self.logger.info ('Display Placement found for IO {}'.format (self.config.ioid))
-				self.displayfirsttable['Delivery%'] = self.displayfirsttable['DELIVERED_IMPRESION']/self.displayfirsttable[
+				
+				self.displayfirsttable['Delivery%'] = self.displayfirsttable['Delivered_Impressions']/self.displayfirsttable[
 					'BOOKED_IMP#BOOKED_ENG']
-				self.displayfirsttable['Spend'] = self.displayfirsttable['DELIVERED_IMPRESION']/1000*self.displayfirsttable[
-					'UNIT_COST']
+				
+				self.displayfirsttable['Spend'] = np.select([mask_display_spend_cpm,mask_display_spend_cpc],
+				                                            [choice_display_spend_cpm,choice_display_spend_cpc])
+				
 				self.displayfirsttable["PLACEMENT#"] = self.displayfirsttable["PLACEMENT#"].astype (int)
+				
 		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -300,7 +350,7 @@ class Summary (object):
 		                                                         "COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
 		                                                         "PLANNED_COST":"Planned Cost",
 		                                                         "BOOKED_IMP#BOOKED_ENG":"Booked",
-		                                                         "DELIVERED_IMPRESION":"Delivered_Impressions"},inplace=True)
+		                                                         "Delivered_Impressions":"Delivered_Impressions"},inplace=True)
 	
 	def rename_vdx(self):
 		"""
@@ -400,7 +450,7 @@ class Summary (object):
 		format_subtotal = workbook.add_format({"bg_color":"#A5A5A5","bold":True,"align":"center"})
 		format_subtotal_row = workbook.add_format({"bg_color":"#A5A5A5","bold":True})
 		number_fmt = workbook.add_format({"num_format":"#,##0","bg_color":"#A5A5A5","bold":True})
-		number_fmt_new = workbook.add_format ({"num_format":"#,##0"})
+		number_fmt_new = workbook.add_format ({"num_format":'#,##0'})
 		percent_fmt = workbook.add_format({"num_format":"0.00%","bg_color":"#A5A5A5","bold":True})
 		percent_fmt_new = workbook.add_format ({"num_format":"0.00%"})
 		money_fmt_total = workbook.add_format ({"num_format":"$#,###0.00","bg_color":"#A5A5A5","bold":True})

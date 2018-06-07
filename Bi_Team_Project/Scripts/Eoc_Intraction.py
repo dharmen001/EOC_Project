@@ -119,8 +119,14 @@ Accessing Columns from Query
 			else:
 				placementprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_mv, on = "PLACEMENT#")
 				
-				prerollsummarymv = placementprerollmv.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST","IMPRESSION",
+				prerollsummary = placementprerollmv.loc[:,["IO_ID","PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST","IMPRESSION",
 				                                       "CLICKTHROUGHS","COMPLETIONS","VIDEO_COMPLETIONS"]]
+				
+				preroll_table_exchange = [prerollsummary,self.config.cdb_io_exchange]
+				
+				prerollsummarymv = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), preroll_table_exchange)
+				
+				prerollsummarymv["UNIT_COST"] = prerollsummarymv["UNIT_COST"] * prerollsummarymv ["Currency Exchange Rate"]
 				
 				mask1 = prerollsummarymv["COST_TYPE"].isin(['CPM'])
 				choiceprerollsummarymvcpm = prerollsummarymv["VIDEO_COMPLETIONS"]

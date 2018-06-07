@@ -36,7 +36,7 @@ class Config(object):
 		try:
 			self.conn = cx_Oracle.connect("TFR_REP/welcome@10.29.20.76/tfrdb")
 		except (cx_Oracle.DatabaseError, Exception):
-			raise ('Failed to connect to 10.29.20.76: Please Retry for IO: {}'.format (self.ioid))
+			raise (str('Failed to connect to 10.29.20.76: Please Retry for IO: {}').format (self.ioid))
 			#self.logger.error (str(e)+'TNS:Connect timeout occurred: Please Retry for IO: {}'.format (self.ioid))
 		self.path = ("C://EOC_Project//Bi_Team_Project//Reports//{}.xlsx".format(self.ioid))
 		#self.pathnew = self.path

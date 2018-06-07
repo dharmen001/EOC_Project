@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell
 import pandas.io.formats.excel
+from functools import reduce
 pandas.io.formats.excel.header_style = None
 
 class Daily(object):
@@ -89,9 +90,20 @@ To create display placements
 				pass
 			else:
 				standard_sales_first_table = self.read_sql_sales.merge( self.read_sql_sales_mv, on="PLACEMENT#")
-				display_sales_first_table = standard_sales_first_table[
-					["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
-					 "CLICKS", "CONVERSION"]]
+				display_exchange_first = standard_sales_first_table[["IO_ID","PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
+				                                                     "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
+				                                                     "CLICKS", "CONVERSION"]]
+				display_first_table = [display_exchange_first,self.config.cdb_io_exchange]
+				
+				disaply_first_table_io = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), display_first_table)
+				
+				disaply_first_table_io["UNIT_COST"] = disaply_first_table_io["UNIT_COST"] * disaply_first_table_io["Currency Exchange Rate"]
+				
+				display_sales_first_table = disaply_first_table_io[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
+				                                                    "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
+				                                                    "DELIVERED_IMPRESION","CLICKS", "CONVERSION"]]
+				
+				
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
@@ -105,9 +117,22 @@ To create display placements
 				pass
 			else:
 				standard_sales_second_table = self.read_sql_sales.merge( self.read_sql_adsize_mv, on="PLACEMENT#")
-				adsize_sales_second_table = standard_sales_second_table[
-					["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
-					 "ADSIZE", "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+				
+				display_exchange_second = standard_sales_second_table[["IO_ID","PLACEMENT#", "PLACEMENT_NAME",
+				                                                       "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
+				                                                       "ADSIZE", "DELIVERED_IMPRESION", "CLICKS",
+				                                                       "CONVERSION"]]
+				
+				display_second_table = [display_exchange_second,self.config.cdb_io_exchange]
+				
+				display_second = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), display_second_table)
+				
+				display_second ["UNIT_COST"] = display_second["UNIT_COST"]*display_second["Currency Exchange Rate"]
+				
+				adsize_sales_second_table = display_second[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST",
+				                                            "BOOKED_IMP#BOOKED_ENG","ADSIZE", "DELIVERED_IMPRESION",
+				                                            "CLICKS", "CONVERSION"]]
+				
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
@@ -119,9 +144,21 @@ To create display placements
 				pass
 			else:
 				standard_sales_third_table = self.read_sql_sales.merge( self.read_sql_daily_mv, on="PLACEMENT#")
-				daily_sales_third_table = standard_sales_third_table[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
+				
+				display_io = standard_sales_third_table[["IO_ID","PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE","UNIT_COST",
+				                                         "BOOKED_IMP#BOOKED_ENG", "DAY","DELIVERED_IMPRESION",
+				                                         "CLICKS", "CONVERSION"]]
+				
+				display_exchange = [display_io,self.config.cdb_io_exchange]
+				
+				display_info = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), display_exchange)
+				
+				display_info["UNIT_COST"] = display_info["UNIT_COST"] * display_info["Currency Exchange Rate"]
+				
+				daily_sales_third_table = display_info[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
 				                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
 				                                                      "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+				
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
