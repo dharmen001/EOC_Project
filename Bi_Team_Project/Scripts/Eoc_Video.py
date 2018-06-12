@@ -485,7 +485,7 @@ Class for VDX Placements
 				placement_by_video_summary_new.loc[mask17 & mask21, 'Views'] = placement_by_video_summary_new['DPEENGAMENTS']
 				
 				placement_by_video_summary = placement_by_video_summary.drop (placement_by_video_summary_new.index).append (
-					placement_by_video_summary_new).sort_index ()
+					placement_by_video_summary_new, sort = False).sort_index ()
 				
 				placement_by_video_summary["Video Completion Rate"] = placement_by_video_summary["100_pc_video"]/\
 				                                                      placement_by_video_summary["Views"]

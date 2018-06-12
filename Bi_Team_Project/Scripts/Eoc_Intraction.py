@@ -208,7 +208,18 @@ Accessing Columns from Query
 				dayprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_day, on="PLACEMENT#")
 				
 				
-				dayprerollsummarymv = dayprerollmv.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST","DAY_DESC","IMPRESSION","CLICKTHROUGHS","VIDEO_COMPLETIONS",
+				dayprerollsummary = dayprerollmv.loc[:,["IO_ID","PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST","DAY_DESC","IMPRESSION","CLICKTHROUGHS","VIDEO_COMPLETIONS",
+				                                          "COMPLETIONS"]]
+				
+				day_pre_roll_exchange = [dayprerollsummary,self.config.cdb_io_exchange]
+				
+				day_pre_roll = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), day_pre_roll_exchange)
+				
+				day_pre_roll["UNIT_COST"] = day_pre_roll["UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
+				
+				dayprerollsummarymv = day_pre_roll.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","UNIT_COST",
+				                                          "DAY_DESC","IMPRESSION","CLICKTHROUGHS",
+				                                          "VIDEO_COMPLETIONS",
 				                                          "COMPLETIONS"]]
 				
 				mask5 = dayprerollsummarymv["COST_TYPE"].isin(["CPM"])
@@ -227,6 +238,7 @@ Accessing Columns from Query
 				
 				dayprerollsummaryfinal = dayprerollsummarymv.loc[:,["Placement# Name","DAY_DESC","IMPRESSION","CLICKTHROUGHS","CTR",
 				                                                    "Video Completions","VCR%","Spend"]]
+				
 		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -356,6 +368,7 @@ Renaming COlumns
 			info_campaign_date = self.config.sdate_edate_final.to_excel (self.config.writer,
 			                                                             sheet_name="Standard Pre Roll Details", startcol=7,
 			                                                             startrow=1, index=True, header=False)
+			
 			info_agency = self.config.agency_info.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",
 			                                                startcol=1, startrow=3, index=True, header=False)
 			info_currency = self.config.currency_info.to_excel (self.config.writer, sheet_name="Standard Pre Roll Details",

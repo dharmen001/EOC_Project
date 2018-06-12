@@ -259,14 +259,13 @@ class Summary (object):
 				self.logger.info('No Display Placement for IO {}'.format(self.config.ioid))
 				pass
 			else:
+				self.logger.info ('Display Placement found for IO {}'.format (self.config.ioid))
 				
 				mask_display_spend_cpm = self.displayfirsttable["COST_TYPE"].isin(['CPM'])
 				mask_display_spend_cpc = self.displayfirsttable["COST_TYPE"].isin(['CPC'])
 				
 				choice_display_spend_cpm = self.displayfirsttable['Delivered_Impressions']/1000*self.displayfirsttable['UNIT_COST']
 				choice_display_spend_cpc = self.displayfirsttable['Delivered_Impressions']*self.displayfirsttable['UNIT_COST']
-				
-				self.logger.info ('Display Placement found for IO {}'.format (self.config.ioid))
 				
 				self.displayfirsttable['Delivery%'] = self.displayfirsttable['Delivered_Impressions']/self.displayfirsttable[
 					'BOOKED_IMP#BOOKED_ENG']
@@ -330,11 +329,14 @@ class Summary (object):
 				choice_preroll_cpm = self.preroll_access_table["Delivered_Impressions"]/1000*self.preroll_access_table["UNIT_COST"]
 				
 				self.preroll_access_table["PLACEMENT#"] = self.preroll_access_table["PLACEMENT#"].astype (int)
+				
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table["Delivered_Impressions"]/self.preroll_access_table[
 					"BOOKED_IMP#BOOKED_ENG"]
+				
 				self.preroll_access_table['Spend'] = np.select([mask5,mask6],[choice_preroll_cpcv,choice_preroll_cpm])
 				self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace (np.inf, 0.00)
 				self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace (np.inf, 0.00)
+				
 		except (KeyError,AttributeError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass

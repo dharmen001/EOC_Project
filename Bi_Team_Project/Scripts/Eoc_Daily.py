@@ -456,6 +456,8 @@ To create display placements
 			                                                startcol=1, startrow=3, index=True, header=False)
 			info_currency = self.config.currency_info.to_excel (self.config.writer, sheet_name="Performance Details",
 			                                                    startcol=7, startrow=3, index=True, header=False)
+			
+			
 		
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
@@ -751,7 +753,7 @@ To create display placements
 			                                                                    +number_rows_adsize+unqiue_final_day_wise*2,
 			                                                                    15+number_rows_placement,
 			                                                                    13+number_rows_placement
-			                                                                    +number_rows_adsize+unqiue_final_day_wise*2))
+			                                                                    +number_rows_adsize+unqiue_final_day_wise*2),format_num)
 			
 			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,5,
 			                        '=IFERROR(E{}/D{},0)'.format(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2+1,
