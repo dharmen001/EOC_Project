@@ -91,7 +91,7 @@ To create display placements
 			else:
 				standard_sales_first_table = self.read_sql_sales.merge( self.read_sql_sales_mv, on="PLACEMENT#")
 				display_exchange_first = standard_sales_first_table[["IO_ID","PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
-				                                                     "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESION",
+				                                                     "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESSION",
 				                                                     "CLICKS", "CONVERSION"]]
 				display_first_table = [display_exchange_first,self.config.cdb_io_exchange]
 				
@@ -101,7 +101,7 @@ To create display placements
 				
 				display_sales_first_table = disaply_first_table_io[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
 				                                                    "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
-				                                                    "DELIVERED_IMPRESION","CLICKS", "CONVERSION"]]
+				                                                    "DELIVERED_IMPRESSION","CLICKS", "CONVERSION"]]
 				
 				
 		except (AttributeError,KeyError) as e:
@@ -120,7 +120,7 @@ To create display placements
 				
 				display_exchange_second = standard_sales_second_table[["IO_ID","PLACEMENT#", "PLACEMENT_NAME",
 				                                                       "COST_TYPE", "UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
-				                                                       "ADSIZE", "DELIVERED_IMPRESION", "CLICKS",
+				                                                       "ADSIZE", "DELIVERED_IMPRESSION", "CLICKS",
 				                                                       "CONVERSION"]]
 				
 				display_second_table = [display_exchange_second,self.config.cdb_io_exchange]
@@ -130,7 +130,7 @@ To create display placements
 				display_second ["UNIT_COST"] = display_second["UNIT_COST"]*display_second["Currency Exchange Rate"]
 				
 				adsize_sales_second_table = display_second[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST",
-				                                            "BOOKED_IMP#BOOKED_ENG","ADSIZE", "DELIVERED_IMPRESION",
+				                                            "BOOKED_IMP#BOOKED_ENG","ADSIZE", "DELIVERED_IMPRESSION",
 				                                            "CLICKS", "CONVERSION"]]
 				
 		except (AttributeError,KeyError) as e:
@@ -146,7 +146,7 @@ To create display placements
 				standard_sales_third_table = self.read_sql_sales.merge( self.read_sql_daily_mv, on="PLACEMENT#")
 				
 				display_io = standard_sales_third_table[["IO_ID","PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE","UNIT_COST",
-				                                         "BOOKED_IMP#BOOKED_ENG", "DAY","DELIVERED_IMPRESION",
+				                                         "BOOKED_IMP#BOOKED_ENG", "DAY","DELIVERED_IMPRESSION",
 				                                         "CLICKS", "CONVERSION"]]
 				
 				display_exchange = [display_io,self.config.cdb_io_exchange]
@@ -157,7 +157,7 @@ To create display placements
 				
 				daily_sales_third_table = display_info[["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
 				                                                      "UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DAY",
-				                                                      "DELIVERED_IMPRESION", "CLICKS", "CONVERSION"]]
+				                                                      "DELIVERED_IMPRESSION", "CLICKS", "CONVERSION"]]
 				
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
@@ -179,78 +179,123 @@ To create display placements
 			if self.read_sql_sales_mv.empty:
 				pass
 			else:
+				
+				mask1 = self.display_sales_first_table["COST_TYPE"].isin (['CPM'])
+				mask4 = self.display_sales_first_table["COST_TYPE"].isin (['CPC'])
+				
 				self.display_sales_first_table["PLACEMENTNAME"] = self.display_sales_first_table[
 					["PLACEMENT#", "PLACEMENT_NAME"]].apply (
 					lambda x:".".join (x), axis=1)
+				
 				choices_display_ctr = self.display_sales_first_table["CLICKS"]/self.display_sales_first_table[
-					"DELIVERED_IMPRESION"]
+					"DELIVERED_IMPRESSION"]
+				
 				choices_display_conversion = self.display_sales_first_table["CONVERSION"]/\
 				                             self.display_sales_first_table[
-					                             "DELIVERED_IMPRESION"]
-				choices_display_spend = self.display_sales_first_table["DELIVERED_IMPRESION"]/1000*\
+					                             "DELIVERED_IMPRESSION"]
+				
+				choices_display_spend_cpm = self.display_sales_first_table["DELIVERED_IMPRESSION"]/1000*\
 				                        self.display_sales_first_table[
 					                        "UNIT_COST"]
 				
-				choices_display_ecpa = (self.display_sales_first_table["DELIVERED_IMPRESION"]/1000*
+				choices_display_spend_cpc = self.display_sales_first_table["CLICKS"] * self.display_sales_first_table["UNIT_COST"]
+				
+				"""choices_display_ecpa = (self.display_sales_first_table["DELIVERED_IMPRESSION"]/1000*
 				                        self.display_sales_first_table[
-					                        "UNIT_COST"])/self.display_sales_first_table["CONVERSION"]
+					                        "UNIT_COST"])/self.display_sales_first_table["CONVERSION"]"""
 				
-				mask1 = self.display_sales_first_table["COST_TYPE"].isin (['CPM'])
+				self.display_sales_first_table["CTR%"] = np.select ([mask1,mask4], [choices_display_ctr,choices_display_ctr],
+				                                                    default=0.00)
 				
-				self.display_sales_first_table["CTR%"] = np.select ([mask1], [choices_display_ctr], default=0.00)
 				self.display_sales_first_table["CONVERSIONRATE%"] = np.select ([mask1], [choices_display_conversion],
 				                                                               default=0.00)
-				self.display_sales_first_table["SPEND"] = np.select ([mask1], [choices_display_spend], default=0.00)
-				self.display_sales_first_table["EPCA"] = np.select ([mask1], [choices_display_ecpa], default=0.00)
+				
+				self.display_sales_first_table["SPEND"] = np.select ([mask1, mask4],
+				                                                     [choices_display_spend_cpm,
+				                                                      choices_display_spend_cpc],
+				                                                     default=0.00)
+				
+				#self.display_sales_first_table["EPCA"] = np.select ([mask1], [choices_display_ecpa], default=0.00)
+				
+				self.display_sales_first_table["EPCA"] = self.display_sales_first_table["SPEND"]/\
+				                                         self.display_sales_first_table["CONVERSION"]
+
 				
 			self.logger.info(
 				'Putting creative and placement together for adsize information of IO {}'.format(self.config.ioid))
 			if self.read_sql_adsize_mv.empty:
 				pass
 			else:
+				
+				mask2 = self.adsize_sales_second_table["COST_TYPE"].isin (["CPM"])
+				mask5 = self.adsize_sales_second_table["COST_TYPE"].isin (["CPC"])
+				
 				self.adsize_sales_second_table["PLACEMENTNAME"] = self.adsize_sales_second_table[
 					["PLACEMENT#", "PLACEMENT_NAME"]].apply (
 					lambda x:".".join (x), axis=1)
 				
 				choices_adsize_ctr = self.adsize_sales_second_table["CLICKS"]/self.adsize_sales_second_table[
-					"DELIVERED_IMPRESION"]
+					"DELIVERED_IMPRESSION"]
+				
 				choices_adsize_conversion = self.adsize_sales_second_table[
 					                            "CONVERSION"]/self.adsize_sales_second_table[
-					                            "DELIVERED_IMPRESION"]
-				choices_adsize_spend = self.adsize_sales_second_table["DELIVERED_IMPRESION"]/1000*\
+					                            "DELIVERED_IMPRESSION"]
+				
+				choices_adsize_spend_cpm = self.adsize_sales_second_table["DELIVERED_IMPRESSION"]/1000*\
 				                       self.adsize_sales_second_table[
 					                       "UNIT_COST"]
-				choices_adsize_ecpa = choices_adsize_spend/(self.adsize_sales_second_table["CONVERSION"])
 				
-				mask2 = self.adsize_sales_second_table["COST_TYPE"].isin (["CPM"])
+				choices_adsize_spend_cpc = self.adsize_sales_second_table["CLICKS"] * self.adsize_sales_second_table["UNIT_COST"]
 				
-				self.adsize_sales_second_table["CTR%"] = np.select ([mask2], [choices_adsize_ctr], default=0.00)
+				#choices_adsize_ecpa = choices_adsize_spend_cpm/(self.adsize_sales_second_table["CONVERSION"])
+				
+				self.adsize_sales_second_table["CTR%"] = np.select ([mask2, mask5], [choices_adsize_ctr,
+				                                                                     choices_adsize_ctr], default=0.00)
+				
 				self.adsize_sales_second_table["CONVERSIONRATE%"] = np.select ([mask2], [choices_adsize_conversion],
 				                                                               default=0.00)
-				self.adsize_sales_second_table["SPEND"] = np.select ([mask2], [choices_adsize_spend], default=0.00)
-				self.adsize_sales_second_table["ECPA"] = np.select ([mask2], [choices_adsize_ecpa], default=0.00)
-			
+				
+				self.adsize_sales_second_table["SPEND"] = np.select ([mask2, mask5], [choices_adsize_spend_cpm,
+				                                                                      choices_adsize_spend_cpc], default=0.00)
+				
+				#self.adsize_sales_second_table["ECPA"] = np.select ([mask2], [choices_adsize_ecpa], default=0.00)
+				
+				self.adsize_sales_second_table["ECPA"] = self.adsize_sales_second_table["SPEND"]/\
+				                                         self.adsize_sales_second_table["CONVERSION"]
+				
 			self.logger.info('Putting creative and placement for by day information of IO {}'.format(self.config.ioid))
 			if self.read_sql_daily_mv.empty:
 				pass
 			else:
+				mask3 = self.daily_sales_third_table["COST_TYPE"].isin (["CPM"])
+				mask6 = self.daily_sales_third_table["COST_TYPE"].isin (["CPC"])
+				
+				
 				self.daily_sales_third_table["PLACEMENTNAME"] = self.daily_sales_third_table[
 					["PLACEMENT#", "PLACEMENT_NAME"]].apply (
 					lambda x:".".join (x), axis=1)
 				
 				choice_daily_ctr = self.daily_sales_third_table["CLICKS"]/self.daily_sales_third_table[
-					"DELIVERED_IMPRESION"]
-				choice_daily_spend = self.daily_sales_third_table["DELIVERED_IMPRESION"]/1000*\
+					"DELIVERED_IMPRESSION"]
+				
+				choice_daily_spend_cpm = self.daily_sales_third_table["DELIVERED_IMPRESSION"]/1000*\
 				                     self.daily_sales_third_table["UNIT_COST"]
-				choice_daily_cpa = (self.daily_sales_third_table["DELIVERED_IMPRESION"]/1000*
+				
+				choice_daily_spend_cpc = self.daily_sales_third_table["CLICKS"] * self.daily_sales_third_table["UNIT_COST"]
+				
+				choice_daily_cpa = (self.daily_sales_third_table["DELIVERED_IMPRESSION"]/1000*
 				                    self.daily_sales_third_table[
 					                    "UNIT_COST"])/self.daily_sales_third_table["CONVERSION"]
 				
-				mask3 = self.daily_sales_third_table["COST_TYPE"].isin (["CPM"])
+				self.daily_sales_third_table["CTR%"] = np.select ([mask3, mask6], [choice_daily_ctr, choice_daily_ctr], default=0.00)
+				self.daily_sales_third_table["SPEND"] = np.select ([mask3, mask6], [choice_daily_spend_cpm,
+				                                                                    choice_daily_spend_cpc],
+				                                                   default=0.00)
+				#self.daily_sales_third_table["ECPA"] = np.select ([mask3], [choice_daily_cpa], default=0.00)
 				
-				self.daily_sales_third_table["CTR%"] = np.select ([mask3], [choice_daily_ctr], default=0.00)
-				self.daily_sales_third_table["SPEND"] = np.select ([mask3], [choice_daily_spend], default=0.00)
-				self.daily_sales_third_table["ECPA"] = np.select ([mask3], [choice_daily_cpa], default=0.00)
+				self.daily_sales_third_table["ECPA"] = self.daily_sales_third_table["SPEND"]/\
+				                                       self.daily_sales_third_table["CONVERSION"]
+			
 			
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
@@ -267,7 +312,7 @@ To create display placements
 					columns={
 						"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
 						"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
-						"BOOKED_IMP#BOOKED_ENG":"Booked Impressions", "DELIVERED_IMPRESION":"Delivered Impressions"
+						"BOOKED_IMP#BOOKED_ENG":"Booked Impressions", "DELIVERED_IMPRESSION":"Delivered Impressions"
 						, "CLICKS":"Clicks",
 						"CONVERSION":"Conversion"
 						, "PLACEMENTNAME":"Placement# Name", "CTR%":"CTR"
@@ -287,7 +332,7 @@ To create display placements
 						"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
 						"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost",
 						"BOOKED_IMP#BOOKED_ENG":"Booked", "ADSIZE":"Adsize"
-						, "DELIVERED_IMPRESION":"Delivered Impressions", "CLICKS":"Clicks", "CONVERSION":"Conversion",
+						, "DELIVERED_IMPRESSION":"Delivered Impressions", "CLICKS":"Clicks", "CONVERSION":"Conversion",
 						"PLACEMENTNAME":"Placement# Name"
 						, "CTR%":"CTR", "CONVERSIONRATE%":"Conversion Rate", "SPEND":"Spend", "ECPA":"eCPA"
 						}, inplace=True )
@@ -303,7 +348,7 @@ To create display placements
 					columns={
 						"PLACEMENT#":"Placement#", "PLACEMENT_NAME":"Placement Name",
 						"COST_TYPE":"Cost Type", "UNIT_COST":"Unit Cost", "BOOKED_IMP#BOOKED_ENG":"Booked",
-						"DAY":"Date", "DELIVERED_IMPRESION":"Delivered Impressions", "CLICKS":"Clicks",
+						"DAY":"Date", "DELIVERED_IMPRESSION":"Delivered Impressions", "CLICKS":"Clicks",
 						"CONVERSION":"Conversion", "PLACEMENTNAME":"Placement# Name",
 						"CTR%":"CTR", "SPEND":"Spend", "ECPA":"eCPA"
 						}, inplace=True )

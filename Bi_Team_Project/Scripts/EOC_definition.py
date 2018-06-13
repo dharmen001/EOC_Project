@@ -1,6 +1,7 @@
 import pandas as pd
-import config
-import logging
+"""
+Class Added
+"""
 
 class definition():
     def __init__(self, config):

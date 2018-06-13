@@ -14,6 +14,7 @@ import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 from functools import reduce
 
+
 class Summary (object):
 	"""This class in for creating summary sheet"""
 	
@@ -220,22 +221,29 @@ class Summary (object):
 				
 				preroll_final_table = reduce(lambda left, right:pd.merge (left, right, on='IO_ID'), preroll_exchange_table)
 				
+				
 				preroll_final_table["UNIT_COST"] = preroll_final_table["UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
 				
 				preroll_final_table["PLANNED_COST"] = preroll_final_table["PLANNED_COST"]*preroll_final_table["Currency Exchange Rate"]
 				
-				preroll_third_table = preroll_final_table[
+				"""preroll_third_table = preroll_final_table[
 					["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
 				    "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG", "IMPRESSION",
-				    "COMPLETIONS"]]
+				    "COMPLETIONS"]]"""
 				
-				conditionscpcv = [(preroll_third_table.loc[:, ['COST_TYPE']]=='CPCV')]
-				choicescpcv = [preroll_third_table.loc[:, ['COMPLETIONS']]]
+				#conditionscpcv = [(preroll_third_table.loc[:, ['COST_TYPE']]=='CPCV')]
+				conditionscpcv = preroll_final_table["COST_TYPE"].isin (["CPCV"])
+				conditionscpm = preroll_final_table["COST_TYPE"].isin (["CPM"])
 				
-				preroll_third_table['Delivered_Impressions'] = np.select (conditionscpcv, choicescpcv,
-				                                                          default=preroll_third_table.loc[:,
-				                                                                  ["IMPRESSION"]])
-				preroll_access_table = preroll_third_table[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+				#choicescpcv = [preroll_third_table.loc[:, ['COMPLETIONS']]]
+				
+				choicescpcv = preroll_final_table["COMPLETIONS"]
+				choicescpm = preroll_final_table["IMPRESSION"]
+				
+				preroll_final_table['Delivered_Impressions'] = np.select ([conditionscpcv,conditionscpm],
+				                                                          [choicescpcv,choicescpm])
+				
+				preroll_access_table = preroll_final_table[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
 				                                            "COST_TYPE","UNIT_COST", "PLANNED_COST",
 				                                            "BOOKED_IMP#BOOKED_ENG","Delivered_Impressions"]]
 		
@@ -457,6 +465,7 @@ class Summary (object):
 		percent_fmt_new = workbook.add_format ({"num_format":"0.00%"})
 		money_fmt_total = workbook.add_format ({"num_format":"$#,###0.00","bg_color":"#A5A5A5","bold":True})
 		money_fmt = workbook.add_format ({"num_format":"$#,###0.00"})
+		#money_fmt = workbook.add_format ({"num_format":'"MXN" #,###0.00'})
 		worksheet.write_string(2,8,self.config.status)
 		worksheet.write_string(2,7,"Campaign Status")
 		#worksheet.write_string (3, 8, "Agency Name")
