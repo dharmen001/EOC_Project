@@ -28,6 +28,7 @@ class Config(object):
 		self.cdb_io_exchange = None
 		self.currency_info = None
 		
+		
 		self.start_date = start_date
 		self.ioid = ioid
 		self.end_date = end_date
@@ -65,7 +66,7 @@ class Config(object):
 		#sql_edate = "select (CASE WHEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) <= TO_CHAR(sysdate-1,'YYYY-MM-DD') THEN (TO_CHAR(max(EDATE),'YYYY-MM-DD')) ELSE TO_CHAR(sysdate-1,'YYYY-MM-DD') END) AS EDATE FROM TFR_REP.SUMMARY_MV where IO_ID = {}".format(self.ioid)
 		sql_end_date = "SELECT TO_CHAR(MAX(EDATE),'YYYY-MM-DD') as EDATENEW from TFR_REP.SUMMARY_MV WHERE IO_ID = {}".format(self.ioid)
 		
-		read_cdb = pd.read_csv ("C://BiUiGit//data//mapping//commission//cdbIoDetails.csv")
+		read_cdb = pd.read_csv ("C://BiUiGit//data//mapping//ioIdExpo9ExchangeRates.csv")
 		
 		cdb_value = read_cdb.loc[read_cdb['IO Id'] == self.ioid]
 		
@@ -78,8 +79,8 @@ class Config(object):
 		cdb_value_currency.rename (columns={"Currency Type":"Currency"}, inplace=True)
 		currency_info = cdb_value_currency.set_index('Currency').reset_index().transpose()
 	
-		cdb_io_exchange_currency = cdb_value.loc[:,['IO Id','Currency Exchange Rate']]
-		cdb_io_exchange_currency.rename (columns={"IO Id":"IO_ID"}, inplace=True)
+		cdb_io_exchange_currency = cdb_value.loc[:,['IO Id','IO Exchange Rate']]
+		cdb_io_exchange_currency.rename (columns={"IO Id":"IO_ID","IO Exchange Rate":"Currency Exchange Rate"}, inplace=True)
 		cdb_io_exchange = cdb_io_exchange_currency.loc[:,["IO_ID","Currency Exchange Rate"]]
 		
 		read_sql_client_info = pd.read_sql(sql_client_info,self.conn)
@@ -156,6 +157,7 @@ class Config(object):
 		self.agency_info = agency_info
 		self.currency_info = currency_info
 		self.cdb_io_exchange = cdb_io_exchange
+		self.cdb_value_currency = cdb_value_currency
 		#self.word = word
 		#return read_common_columns, data_common_columns,final_new
 	

@@ -153,6 +153,7 @@ class Summary (object):
 				                                             "COST_TYPE", "UNIT_COST", "PLANNED_COST",
 				                                             "BOOKED_IMP#BOOKED_ENG", "Delivered_Impressions"]]
 				
+				
 		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -463,9 +464,34 @@ class Summary (object):
 		number_fmt_new = workbook.add_format ({"num_format":'#,##0'})
 		percent_fmt = workbook.add_format({"num_format":"0.00%","bg_color":"#A5A5A5","bold":True})
 		percent_fmt_new = workbook.add_format ({"num_format":"0.00%"})
+		
 		money_fmt_total = workbook.add_format ({"num_format":"$#,###0.00","bg_color":"#A5A5A5","bold":True})
 		money_fmt = workbook.add_format ({"num_format":"$#,###0.00"})
-		#money_fmt = workbook.add_format ({"num_format":'"MXN" #,###0.00'})
+		
+		money_fmt_total_mxn = workbook.add_format ({"num_format":'"MXN" #,###0.00', "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_mxn = workbook.add_format ({"num_format":'"MXN" #,###0.00'})
+		
+		money_fmt_total_ZAR = workbook.add_format ({"num_format":'"ZAR" #,###0.00', "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_ZAR = workbook.add_format ({"num_format":'"ZAR" #,###0.00'})
+		
+		money_fmt_total_CHF = workbook.add_format ({"num_format":'"CHF" #,###0.00', "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_CHF = workbook.add_format ({"num_format":'"CHF" #,###0.00'})
+		
+		money_fmt_total_INR = workbook.add_format ({"num_format":u"₹#,###0.00", "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_INR = workbook.add_format ({"num_format":u'₹#,###0.00'})
+		
+		money_fmt_total_myr = workbook.add_format ({"num_format":'"MYR" #,###0.00', "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_myr = workbook.add_format ({"num_format":'"MYR" #,###0.00'})
+		
+		money_fmt_total_thb = workbook.add_format ({"num_format":'"THB" #,###0.00', "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_thb = workbook.add_format ({"num_format":'"THB" #,###0.00'})
+		
+		money_fmt_total_eur = workbook.add_format ({"num_format":u"€#,###0.00", "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_eur = workbook.add_format ({"num_format":u'€#,###0.00'})
+		
+		money_fmt_total_gbp = workbook.add_format ({"num_format":u"£#,###0.00", "bg_color":"#A5A5A5", "bold":True})
+		money_fmt_gbp = workbook.add_format ({"num_format":u'£#,###0.00'})
+		
 		worksheet.write_string(2,8,self.config.status)
 		worksheet.write_string(2,7,"Campaign Status")
 		#worksheet.write_string (3, 8, "Agency Name")
@@ -498,11 +524,46 @@ class Summary (object):
 					worksheet.conditional_format (startrowformat, col, startrowformat, col,
 					                              {"type":"blanks", "format":format_subtotal_row})
 				
+				
 				for col in range(7,8):
 					startrowmoney = start_row+end_row
 					endrowmoney = start_row+self.displayfirsttable.shape[0]+1
-					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
-					                              {"type":"no_blanks", "format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
+					
 					startrowformat = start_row+self.displayfirsttable.shape[0]+end_row
 					worksheet.conditional_format(startrowformat,col,startrowformat,col,{"type":"no_blanks","format":format_subtotal_row})
 					worksheet.conditional_format (startrowformat, col, startrowformat, col,
@@ -514,10 +575,70 @@ class Summary (object):
 					start_range = xl_rowcol_to_cell (start_row+end_row, col)
 					end_range = xl_rowcol_to_cell (start_row+self.displayfirsttable.shape[0]+1, col)
 					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_ZAR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_mxn)
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_thb)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_eur)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_gbp)
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_INR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_MYR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_CHF)
+					else:
+						worksheet.write_formula (cell_location, formula, money_fmt_total)
+						
 					startrowmoney = start_row+end_row
 					endrowmoney = start_row+self.displayfirsttable.shape[0]+1
-					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format(startrowmoney,col,endrowmoney,col,
+						                             {"type":"no_blanks","format":money_fmt})
 
 				for col in range(9,11):
 					cell_location = xl_rowcol_to_cell(start_row+end_row+self.displayfirsttable.shape[0],col)
@@ -543,10 +664,71 @@ class Summary (object):
 					start_range = xl_rowcol_to_cell (start_row+end_row, col)
 					end_range = xl_rowcol_to_cell (start_row+self.displayfirsttable.shape[0]+1, col)
 					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_ZAR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_mxn)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_thb)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_eur)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_gbp)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_INR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_MYR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_CHF)
+					else:
+						worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
 					startrowmoney = start_row+end_row
 					endrowmoney = start_row+self.displayfirsttable.shape[0]+1
-					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
+					
 		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -585,11 +767,48 @@ class Summary (object):
 					worksheet.conditional_format(startrowformat,col,startrowformat,col,{"type":"no_blanks","format":format_subtotal_row})
 					worksheet.conditional_format (startrowformat, col, startrowformat, col,
 					                              {"type":"blanks", "format":format_subtotal_row})
+					
+				#print(self.config.cdb_value_currency.iloc[0,0])
+				#exit()
 				for col in range(7,8):
 					startrowmoney = start_row+display_row+end_row
 					endrowmoney = start_row+display_row+self.vdx_access_table.shape[0]+1
-					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
-					                      {"type":"no_blanks", "format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0,0] == 'ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0,0] == 'MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+						
+					elif self.config.cdb_value_currency.iloc[0,0] == 'THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0,0] == 'EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+						
+					elif self.config.cdb_value_currency.iloc[0,0] == 'GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+						
+					elif self.config.cdb_value_currency.iloc[0,0] == 'INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0,0] == 'MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0,0] == 'CHF':
+						worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                      {"type":"no_blanks", "format":money_fmt})
+						
 					startrowformat = start_row+end_row+display_row+self.vdx_access_table.shape[0]
 					worksheet.conditional_format(startrowformat,col,startrowformat,col,{"type":"no_blanks","format":format_subtotal_row})
 					worksheet.conditional_format (startrowformat, col, startrowformat, col,
@@ -600,10 +819,70 @@ class Summary (object):
 					start_range = xl_rowcol_to_cell (start_row+display_row+end_row, col)
 					end_range = xl_rowcol_to_cell (start_row+display_row+self.vdx_access_table.shape[0]+1, col)
 					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_ZAR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_mxn)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_thb)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_eur)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_gbp)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_INR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_MYR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_CHF)
+					else:
+						worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
 					startrowmoney = start_row+display_row+end_row
 					endrowmoney = start_row+display_row+self.vdx_access_table.shape[0]+1
-					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
 					
 				for col in range(9,12):
 					cell_location = xl_rowcol_to_cell(start_row+end_row+display_row+self.vdx_access_table.shape[0],col)
@@ -630,11 +909,71 @@ class Summary (object):
 					start_range = xl_rowcol_to_cell (start_row+display_row+end_row, col)
 					end_range = xl_rowcol_to_cell (start_row+display_row+self.vdx_access_table.shape[0]+1, col)
 					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_ZAR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_mxn)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_thb)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_eur)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_gbp)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_INR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_MYR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_CHF)
+					else:
+						worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
 					startrowmoney = start_row+display_row+end_row
 					endrowmoney = start_row+display_row+self.vdx_access_table.shape[0]+1
-					worksheet.conditional_format(startrowmoney,col,endrowmoney,col,{"type":"no_blanks","format":money_fmt})
-		
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
+			
 		except (AttributeError,KeyError,TypeError,IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -682,8 +1021,42 @@ class Summary (object):
 				for col in range (7, 8):
 					startrowmoney = start_row+display_row+vdx_row+end_row
 					endrowmoney = start_row+display_row+vdx_row+self.preroll_access_table.shape[0]+1
-					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
-					                              {"type":"no_blanks", "format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+						
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
 					
 					startrowformat = start_row+display_row+vdx_row+end_row+self.preroll_access_table.shape[0]
 					worksheet.conditional_format (startrowformat, col, startrowformat, col,
@@ -696,11 +1069,70 @@ class Summary (object):
 					start_range = xl_rowcol_to_cell (start_row+display_row+vdx_row+end_row, col)
 					end_range = xl_rowcol_to_cell (start_row+display_row+vdx_row+self.preroll_access_table.shape[0]+1, col)
 					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_ZAR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_mxn)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_thb)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_eur)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_gbp)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_INR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_MYR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_CHF)
+					else:
+						worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
 					startrowmoney = start_row+display_row+vdx_row+end_row
 					endrowmoney = start_row+display_row+vdx_row+self.preroll_access_table.shape[0]+1
-					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
-					                              {"type":"no_blanks", "format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
 				
 				for col in range (9, 11):
 					cell_location = xl_rowcol_to_cell (start_row+display_row+vdx_row+end_row+self.preroll_access_table.shape[0], col)
@@ -729,11 +1161,70 @@ class Summary (object):
 					start_range = xl_rowcol_to_cell (start_row+display_row+vdx_row+end_row, col)
 					end_range = xl_rowcol_to_cell (start_row+display_row+vdx_row+self.preroll_access_table.shape[0]+1, col)
 					formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-					worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_ZAR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_mxn)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_thb)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_eur)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_gbp)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_INR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_MYR)
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.write_formula (cell_location, formula, money_fmt_total_CHF)
+					else:
+						worksheet.write_formula (cell_location, formula, money_fmt_total)
+					
 					startrowmoney = start_row+display_row+vdx_row+end_row
 					endrowmoney = start_row+display_row+vdx_row+self.preroll_access_table.shape[0]+1
-					worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
-					                              {"type":"no_blanks", "format":money_fmt})
+					
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_ZAR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_INR})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt_CHF})
+					else:
+						worksheet.conditional_format (startrowmoney, col, endrowmoney, col,
+						                              {"type":"no_blanks", "format":money_fmt})
 			
 			"""worksheet_new = self.config.writernew.get_sheet_names("Delivery Summary")
 			for col in range (0, 13):

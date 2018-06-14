@@ -545,6 +545,16 @@ To create display placements
 					format_num = workbook.add_format ({"num_format":"#,##0"})
 					percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
 					money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
+					money_fmt_mxn = workbook.add_format ({"num_format":'"MXN" #,###0.00',"align":"right"})
+					money_fmt_zar = workbook.add_format ({"num_format":'"ZAR" #,###0.00',"align":"right"})
+					money_fmt_chf = workbook.add_format ({"num_format":'"CHF" #,###0.00',"align":"right"})
+					money_fmt_inr = workbook.add_format ({"num_format":u'₹#,###0.00',"align":"right"})
+					money_fmt_myr = workbook.add_format ({"num_format":'"MYR" #,###0.00',"align":"right"})
+					money_fmt_thb = workbook.add_format ({"num_format":'"THB" #,###0.00',"align":"right"})
+					money_fmt_eur = workbook.add_format ({"num_format":u'€#,###0.00',"align":"right"})
+					money_fmt_gbp = workbook.add_format ({"num_format":u'£#,###0.00',"align":"right"})
+					
+					
 					worksheet.write_formula(start_row_adsize-2,3,'=sum(D{}:D{})'.format(start_row_new,start_row_adsize-2),format_num)
 					
 					worksheet.write_formula (start_row_adsize-2, 4,
@@ -567,8 +577,41 @@ To create display placements
 					worksheet.conditional_format (start_row_new-1, 6, start_row_adsize-2, 6,
 					                              {"type":"no_blanks", "format":format_num})
 					
-					worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
-					                              {"type":"no_blanks", "format":money_fmt})
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_zar})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+						
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_inr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_chf})
+						
+					else:
+						worksheet.conditional_format (start_row_new-1, 7, start_row_adsize-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt})
 			
 		except(AttributeError, KeyError) as e:
 			self.logger.error(str(e))
@@ -595,7 +638,16 @@ To create display placements
 					
 					format_num = workbook.add_format ({"num_format":"#,##0"})
 					percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
+					
 					money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
+					money_fmt_mxn = workbook.add_format ({"num_format":'"MXN" #,###0.00', "align":"right"})
+					money_fmt_zar = workbook.add_format ({"num_format":'"ZAR" #,###0.00', "align":"right"})
+					money_fmt_chf = workbook.add_format ({"num_format":'"CHF" #,###0.00', "align":"right"})
+					money_fmt_inr = workbook.add_format ({"num_format":u'₹#,###0.00', "align":"right"})
+					money_fmt_myr = workbook.add_format ({"num_format":'"MYR" #,###0.00', "align":"right"})
+					money_fmt_thb = workbook.add_format ({"num_format":'"THB" #,###0.00', "align":"right"})
+					money_fmt_eur = workbook.add_format ({"num_format":u'€#,###0.00', "align":"right"})
+					money_fmt_gbp = workbook.add_format ({"num_format":u'£#,###0.00', "align":"right"})
 					
 					centre_date_format_wb = workbook.add_format ({'align':'center', 'num_format':'YYYY-MM-DD'})
 					worksheet.conditional_format(start_row_plc_day_new-1,2,start_row_plc_day-2,2,{"type":"no_blanks","format":centre_date_format_wb})
@@ -621,9 +673,41 @@ To create display placements
 					worksheet.conditional_format (start_row_plc_day_new-1, 6, start_row_plc_day-2, 6,
 					                              {"type":"no_blanks", "format":format_num})
 					
-					worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
-					                              {"type":"no_blanks", "format":money_fmt})
-		
+					if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_zar})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_mxn})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_thb})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_eur})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_gbp})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_inr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_myr})
+					
+					elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt_chf})
+					else:
+						worksheet.conditional_format (start_row_plc_day_new-1, 7, start_row_plc_day-2, 8,
+						                              {"type":"no_blanks", "format":money_fmt})
+			
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
@@ -673,7 +757,16 @@ To create display placements
 			format_header_left = workbook.add_format ({"bold":True, "bg_color":'#00B0F0', "align":"left"})
 			format_num = workbook.add_format ({"num_format":"#,##0"})
 			percent_fmt = workbook.add_format ({"num_format":"0.00%", "align":"right"})
+			
 			money_fmt = workbook.add_format ({"num_format":"$#,###0.00", "align":"right"})
+			money_fmt_mxn = workbook.add_format ({"num_format":'"MXN" #,###0.00', "align":"right"})
+			money_fmt_zar = workbook.add_format ({"num_format":'"ZAR" #,###0.00', "align":"right"})
+			money_fmt_chf = workbook.add_format ({"num_format":'"CHF" #,###0.00', "align":"right"})
+			money_fmt_inr = workbook.add_format ({"num_format":u'₹#,###0.00', "align":"right"})
+			money_fmt_myr = workbook.add_format ({"num_format":'"MYR" #,###0.00', "align":"right"})
+			money_fmt_thb = workbook.add_format ({"num_format":'"THB" #,###0.00', "align":"right"})
+			money_fmt_eur = workbook.add_format ({"num_format":u'€#,###0.00', "align":"right"})
+			money_fmt_gbp = workbook.add_format ({"num_format":u'£#,###0.00', "align":"right"})
 			
 			worksheet.write_string(7,1,"Performance by Placement",format_header_left)
 			worksheet.write_string(9+number_rows_placement,1,"Grand Total",format_grand)
@@ -736,10 +829,72 @@ To create display placements
 				start_range = xl_rowcol_to_cell(9,col)
 				end_range = xl_rowcol_to_cell(9+number_rows_placement-1,col)
 				formula = '=sum({:s}:{:s})'.format (start_range, end_range)
-				worksheet.write_formula(cell_location,formula,money_fmt)
+				
+				if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+					worksheet.write_formula (cell_location, formula, money_fmt_zar)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+					worksheet.write_formula (cell_location, formula, money_fmt_mxn)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+					worksheet.write_formula (cell_location, formula, money_fmt_thb)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+					worksheet.write_formula (cell_location, formula, money_fmt_eur)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+					worksheet.write_formula (cell_location, formula, money_fmt_gbp)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+					worksheet.write_formula (cell_location, formula, money_fmt_inr)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+					worksheet.write_formula (cell_location, formula, money_fmt_myr)
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+					worksheet.write_formula (cell_location, formula, money_fmt_chf)
+				else:
+					worksheet.write_formula(cell_location,formula,money_fmt)
+					
 				start_plc_row = 9
 				end_plc_row = 9+number_rows_placement-1
-				worksheet.conditional_format (start_plc_row, col, end_plc_row, col,{"type":"no_blanks", "format":money_fmt})
+				
+				if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_zar})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_mxn})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_thb})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_eur})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_gbp})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_inr})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_myr})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_chf})
+					
+				else:
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt})
+					
 				start_range_format = 9+number_rows_placement
 				worksheet.conditional_format (start_range_format, col, start_range_format, col,
 				                              {"type":"no_blanks", "format":format_grand})
@@ -749,7 +904,41 @@ To create display placements
 			for col in range(2,3):
 				start_plc_row = 9
 				end_plc_row = 9+number_rows_placement-1
-				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":money_fmt})
+				
+				if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_zar})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_mxn})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_thb})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_eur})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_gbp})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_inr})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_myr})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_chf})
+				else:
+					worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":money_fmt})
+					
 				start_range = 9+number_rows_placement
 				worksheet.conditional_format(start_range,col,start_range,col,{"type":"blanks","format":format_grand})
 				worksheet.conditional_format (start_range, col, start_range, col,
@@ -759,15 +948,49 @@ To create display placements
 			for col in range(9,10):
 				start_plc_row = 9
 				end_plc_row = 9+number_rows_placement-1
-				worksheet.conditional_format(start_plc_row,col,end_plc_row,col,{"type":"no_blanks","format":money_fmt})
+				
+				if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_zar})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_mxn})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_thb})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_eur})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_gbp})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_inr})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_myr})
+				
+				elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+					worksheet.conditional_format (start_plc_row, col, end_plc_row, col,
+					                              {"type":"no_blanks", "format":money_fmt_chf})
+					
+				else:
+					worksheet.conditional_format(start_plc_row,col,end_plc_row,col,
+					                             {"type":"no_blanks","format":money_fmt})
+				
 				start_range = 9+number_rows_placement
 				worksheet.conditional_format (start_range, col, start_range, col,
 				                              {"type":"blanks", "format":format_grand})
 				worksheet.conditional_format (start_range, col, start_range, col,
 				                              {"type":"no_blanks", "format":format_grand})
 				
-				
-			
 			worksheet.write_string(12+number_rows_placement,1,"Performance by Ad Size",format_header_left)
 			
 			for col in range(2,number_cols_adsize+1):
@@ -811,15 +1034,95 @@ To create display placements
 			                                                                    15+number_rows_placement,
 			                                                                    13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2),format_num)
 			
+			if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_zar)
 			
-			worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,7,
-			                        '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format(15+number_rows_placement,
-			                                                                    13+number_rows_placement
-			                                                                    +number_rows_adsize+unqiue_final_day_wise*2,
-			                                                                    15+number_rows_placement,
-			                                                                    13+number_rows_placement
-			                                                                    +number_rows_adsize+unqiue_final_day_wise*2),money_fmt)
+			elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_mxn)
 			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_thb)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_eur)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_gbp)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_inr)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_myr)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+				worksheet.write_formula (13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                      15+number_rows_placement,
+				                                                                      13+number_rows_placement
+				                                                                      +number_rows_adsize+unqiue_final_day_wise*2),
+				                         money_fmt_chf)
+			
+			else:
+				worksheet.write_formula(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,7,
+				                        '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format(15+number_rows_placement,
+				                                                                    13+number_rows_placement
+				                                                                    +number_rows_adsize+unqiue_final_day_wise*2,
+				                                                                    15+number_rows_placement,
+				                                                                    13+number_rows_placement
+				                                                                    +number_rows_adsize+unqiue_final_day_wise*2),money_fmt)
+				
 			for col in range(2,number_cols_adsize+1):
 				worksheet.conditional_format(13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,col,
 				                             13+number_rows_placement+number_rows_adsize+unqiue_final_day_wise*2,col,
@@ -867,10 +1170,66 @@ To create display placements
 			                                                                                        formula_range_grand,
 			                                                                                        grand_total_row),format_num)
 			
-			worksheet.write_formula(grand_total_row,7,'=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format(formula_range_grand,
-			                                                                                      grand_total_row,
-			                                                                                      formula_range_grand,
-			                                                                                      grand_total_row),money_fmt)
+			if self.config.cdb_value_currency.iloc[0, 0]=='ZAR':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_zar)
+			elif self.config.cdb_value_currency.iloc[0, 0]=='MXN':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_mxn)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='THB':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_thb)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='EUR':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_eur)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='GBP':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_gbp)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='INR':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_inr)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='MYR':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_myr)
+			
+			elif self.config.cdb_value_currency.iloc[0, 0]=='CHF':
+				worksheet.write_formula (grand_total_row, 7,
+				                         '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format (formula_range_grand,
+				                                                                      grand_total_row,
+				                                                                      formula_range_grand,
+				                                                                      grand_total_row), money_fmt_chf)
+			else:
+				worksheet.write_formula(grand_total_row,7,
+				                        '=SUMIF(B{}:B{},"Subtotal",H{}:H{})'.format(formula_range_grand,
+				                                                                    grand_total_row,
+				                                                                    formula_range_grand,
+				                                                                    grand_total_row),money_fmt)
 			
 			worksheet.set_column(1,1,45)
 			worksheet.set_column(2,2,13,alignment_center)
