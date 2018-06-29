@@ -1250,6 +1250,7 @@ class Summary (object):
 		worksheet.set_column ("J:R", 17, aligment_right)
 		worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
 		worksheet.conditional_format ("A1:R5", {"type":"no_blanks", "format":format_campaign_info})
+		#worksheet.conditional_format("B1:C3",{"type":"no_errors","format":aligment_left})
 		
 		
 	def main(self):

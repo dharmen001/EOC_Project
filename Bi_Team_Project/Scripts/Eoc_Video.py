@@ -171,13 +171,18 @@ Class for VDX Placements
 				placementvdxsummaryfirst["Engagements Rate"] = np.select ([mask1, mask2],
 				                                                          [choicedeepengagement, choiceengagements],
 				                                                          default=0.00)
+
+				placementvdxsummaryfirst["Engagements Rate"] = placementvdxsummaryfirst["Engagements Rate"].replace(np.inf, 0.00)
+
 				
 				mask3 = placementvdxsummaryfirst["COST_TYPE"].isin (['CPE+', 'CPE', 'CPM', 'CPCV'])
 				mask_vdx_first = placementvdxsummaryfirst["COST_TYPE"].isin (['CPCV'])
 				choicevwrctr = placementvdxsummaryfirst['VWRCLICKTHROUGH']/placementvdxsummaryfirst['IMPRESSIONS']
 				
 				placementvdxsummaryfirst["Viewer CTR"] = np.select ([mask3], [choicevwrctr], default=0.00)
-				
+
+				placementvdxsummaryfirst["Viewer CTR"] = placementvdxsummaryfirst["Viewer CTR"].replace(np.inf, 0.00)
+
 				choiceengctr = placementvdxsummaryfirst["ENGCLICKTHROUGH"]/placementvdxsummaryfirst["ENGAGEMENTS"]
 				choicedeepctr = placementvdxsummaryfirst["DPECLICKTHROUGH"]/placementvdxsummaryfirst["DPEENGAMENTS"]
 				placementvdxsummaryfirst["Engager CTR"] = np.select ([mask1, mask2], [choicedeepctr, choiceengctr],
@@ -246,6 +251,7 @@ Class for VDX Placements
 				                                                         "Viewer CTR", "Engager CTR", "Viewer VCR",
 				                                                         "Engager VCR", "Interaction Rate",
 				                                                         "Active Time Spent"]]
+
 		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
@@ -306,11 +312,15 @@ Class for VDX Placements
 				placementadsizegroup["Engagements Rate"] = np.select ([mask9, mask10], [choiceadsizeengagementcpe_plus,
 				                                                                        choiceplacementadsizegroupcpe],
 				                                                      default=0.00)
-				
+
+				placementadsizegroup["Engagements Rate"] = placementadsizegroup["Engagements Rate"].replace(np.inf, 0.00)
+
 				mask11 = placementadsizegroup["COST_TYPE"].isin (["CPE", "CPM", "CPCV", "CPE+"])
 				choiceadsizeengagementvwrctr = placementadsizegroup["VWRCLICKTHROUGHS"]/placementadsizegroup["IMPRESSIONS"]
 				
 				placementadsizegroup["Viewer CTR"] = np.select ([mask11], [choiceadsizeengagementvwrctr], default=0.00)
+
+				placementadsizegroup["Viewer CTR"] = placementadsizegroup["Viewer CTR"].replace(np.inf, 0.00)
 				
 				choiceadsizeengagementengctr = placementadsizegroup["ENGCLICKTHROUGHS"]/placementadsizegroup["ENGAGEMENTS"]
 				choiceadsizeengagementdpegctr = placementadsizegroup["DPECLICKTHROUGHS"]/placementadsizegroup[
@@ -557,17 +567,23 @@ Class for VDX Placements
 				
 				intractions_click_ad_new = intractions_click_ad.reset_index ()
 				intractions_clicks = intractions_click_ad_new.loc[:, :]
-				
+
 				cols_drop = ["PRODUCT"]
 				intractions_clicks_new = intractions_clicks.drop (cols_drop, axis=1)
-				
+
+				intractions_clicks_new = intractions_clicks_new.loc[:,(intractions_clicks_new != 0).any(axis = 0)]
+
+
 				intractions_intrac_ad = pd.pivot_table (self.read_sql_ad_intraction, index="PRODUCT", values="INTERACTION",
 				                                        columns="BLAZE_TAG_NAME_DESC", aggfunc=np.sum, fill_value=0)
 				
 				intractions_intrac_ad_new = intractions_intrac_ad.reset_index ()
 				intractions_intrac = intractions_intrac_ad_new.loc[:, :]
 				intractions_intrac_new = intractions_intrac.drop (cols_drop, axis=1)
-		
+
+				intractions_intrac_new = intractions_intrac_new.loc[:, (intractions_intrac_new != 0).any(axis=0)]
+
+
 		except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
 			self.logger.error(str(e))
 			pass
