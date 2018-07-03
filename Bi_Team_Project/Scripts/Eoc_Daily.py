@@ -745,7 +745,7 @@ To create display placements
 			worksheet.set_column( "A:A", 2)
 			worksheet.set_zoom(75)
 			alignment_center = workbook.add_format ({"align":"center"})
-			
+
 			alignment_right = workbook.add_format ({"align":"right"})
 			
 			worksheet.conditional_format ("A1:R5", {"type":"blanks", "format":format_campaign_info})
@@ -1230,7 +1230,8 @@ To create display placements
 				                                                                    grand_total_row,
 				                                                                    formula_range_grand,
 				                                                                    grand_total_row),money_fmt)
-			
+
+			alignment_left = workbook.add_format({"align": "left"})
 			worksheet.set_column(1,1,45)
 			worksheet.set_column(2,2,13,alignment_center)
 			worksheet.set_column(3,4,20,alignment_right)
@@ -1238,8 +1239,10 @@ To create display placements
 			worksheet.set_column(7,7,21,alignment_right)
 			worksheet.set_column(8,9,11,alignment_right)
 			worksheet.set_column(10,17,15,alignment_right)
-			
-			
+			worksheet.set_row(1, None, alignment_left)
+			worksheet.set_row(2, None, alignment_left)
+			worksheet.set_row(3, None, alignment_left)
+
 		except (AttributeError,KeyError) as e:
 			self.logger.error(str(e))
 			pass
