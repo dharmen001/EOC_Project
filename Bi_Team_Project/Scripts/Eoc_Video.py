@@ -192,7 +192,7 @@ Class for VDX Placements
                                                                          default=0.00)
 
                 placementvdxsummaryfirst["Engagements Rate"] = placementvdxsummaryfirst["Engagements Rate"].replace(
-                    np.inf, 0.00)
+                    [np.inf,np.nan], 0.00)
 
                 mask3 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE+', 'CPE', 'CPM', 'CPCV'])
                 mask_vdx_first = placementvdxsummaryfirst["COST_TYPE"].isin(['CPCV'])
@@ -220,6 +220,7 @@ Class for VDX Placements
                 placementvdxsummaryfirst['Viewer VCR'] = np.select(
                     [mask4 & mask_vdx_first_vwr_vcr, mask4 & mask_vdx_first],
                     [choicevwrvcr, choicevwrvcr_vdx_first], default='N/A')
+
                 placementvdxsummaryfirst['Viewer VCR'] = pd.to_numeric(placementvdxsummaryfirst['Viewer VCR'],
                                                                        errors='coerce')
 
@@ -242,6 +243,7 @@ Class for VDX Placements
 
                 choiceintratecpe_plus = placementvdxsummaryfirst['DPEINTRACTIVEENGAGEMENTS'] / placementvdxsummaryfirst[
                     'DPEENGAMENTS']
+
                 choiceintrateotherthancpe_plus = placementvdxsummaryfirst['ENGINTRACTIVEENGAGEMENTS'] / \
                                                  placementvdxsummaryfirst['ENGAGEMENTS']
 
@@ -257,17 +259,13 @@ Class for VDX Placements
                     (placementvdxsummaryfirst['DPETOTALTIMESPENT'] / placementvdxsummaryfirst[
                         'DPEENGAMENTS']) / 1000).apply(
                     '{0:.2f}'.format)
-                choiceatsotherthancpe_plus = (
-                    (placementvdxsummaryfirst['ENGTOTALTIMESPENT'] / placementvdxsummaryfirst[
-                        'ENGAGEMENTS']) / 1000).apply(
-                    '{0:.2f}'.format)
+                choiceatsotherthancpe_plus = ((placementvdxsummaryfirst['ENGTOTALTIMESPENT'] / placementvdxsummaryfirst['ENGAGEMENTS'])/1000).apply('{0:.2f}'.format)
 
                 placementvdxsummaryfirst['Active Time Spent'] = np.select([mask2, mask1], [choiceatsotherthancpe_plus,
                                                                                            choiceatscpe_plus],
                                                                           default=0.00)
 
-                placementvdxsummaryfirst['Active Time Spent'] = placementvdxsummaryfirst['Active Time Spent'].astype(
-                    float)
+                placementvdxsummaryfirst['Active Time Spent'] = placementvdxsummaryfirst['Active Time Spent'].astype(float)
 
                 placementvdxsummaryfirst["Active Time Spent"] = placementvdxsummaryfirst["Active Time Spent"].replace([np.inf, np.nan], 0.00)
 
@@ -379,27 +377,35 @@ Class for VDX Placements
                 mask12 = placementadsizegroup["ADSIZE"].isin(["1x10"])
                 mask13 = placementadsizegroup["COST_TYPE"].isin(["CPE", "CPE+", "CPM"])
                 mask14 = placementadsizegroup["COST_TYPE"].isin(["CPCV"])
-                choiceadsizevwrvcrcpe = placementadsizegroup["VIEW100"] / placementadsizegroup["IMPRESSIONS"]
-                choiceadsizevwrvcrcpcv = placementadsizegroup["COMPLETIONS"] / placementadsizegroup["IMPRESSIONS"]
+
+                choiceadsizevwrvcrcpe = (placementadsizegroup["VIEW100"] / placementadsizegroup["IMPRESSIONS"]).replace([np.inf,np.nan],0.00)
+                choiceadsizevwrvcrcpcv = (placementadsizegroup["COMPLETIONS"] / placementadsizegroup["IMPRESSIONS"]).replace([np.inf,np.nan],0.00)
+
                 placementadsizegroup["Viewer VCR"] = np.select([mask12 & mask13, mask12 & mask14],
                                                                [choiceadsizevwrvcrcpe,
-                                                                choiceadsizevwrvcrcpcv],
-                                                               default='N/A')
+                                                                choiceadsizevwrvcrcpcv],default='N/A')
 
                 placementadsizegroup['Viewer VCR'] = pd.to_numeric(placementadsizegroup['Viewer VCR'], errors='coerce')
 
+                #placementadsizegroup["Viewer VCR"] = placementadsizegroup["Viewer VCR"].replace([np.inf, np.nan],'N/A')
+
                 mask15 = ~placementadsizegroup["ADSIZE"].isin(["1x10"])
                 mask16 = placementadsizegroup["COST_TYPE"].isin(["CPE", "CPM"])
-                choiceadsizeengvcrcpe = placementadsizegroup["ENG100"] / placementadsizegroup["ENGAGEMENTS"]
-                choiceadsizeengvcrcpe_plus = placementadsizegroup["DPE100"] / placementadsizegroup["DPEENGAGEMENTS"]
-                choiceadsizeengvcrcpcv = placementadsizegroup["COMPLETIONS"] / placementadsizegroup["ENGAGEMENTS"]
+                choiceadsizeengvcrcpe = (placementadsizegroup["ENG100"] / placementadsizegroup["ENGAGEMENTS"]).replace([np.inf,np.nan],0.00)
+
+                choiceadsizeengvcrcpe_plus = (placementadsizegroup["DPE100"] / placementadsizegroup["DPEENGAGEMENTS"]).replace([np.inf,np.nan],0.00)
+                choiceadsizeengvcrcpcv = (placementadsizegroup["COMPLETIONS"] / placementadsizegroup["ENGAGEMENTS"]).replace([np.inf,np.nan],0.00)
 
                 placementadsizegroup["Engager VCR"] = np.select([mask15 & mask16, mask15 & mask9, mask15 & mask14],
                                                                 [choiceadsizeengvcrcpe, choiceadsizeengvcrcpe_plus,
-                                                                 choiceadsizeengvcrcpcv], default='N/A')
+                                                                 choiceadsizeengvcrcpcv],default='N/A')
+
 
                 placementadsizegroup['Engager VCR'] = pd.to_numeric(placementadsizegroup['Engager VCR'],
                                                                     errors='coerce')
+
+
+                #placementadsizegroup["Engager VCR"] = placementadsizegroup["Engager VCR"].replace('N/A',0.00)
 
                 choiceadsizeinteracratecpe = placementadsizegroup["ENGINTRACTIVEENGAGEMENTS"] / placementadsizegroup[
                     "ENGAGEMENTS"]
@@ -441,6 +447,8 @@ Class for VDX Placements
                                         "Viewer CTR", "Engager CTR", "Viewer VCR",
                                         "Engager VCR",
                                         "Interaction Rate", "Active Time Spent"]]
+
+
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
@@ -573,6 +581,9 @@ Class for VDX Placements
                                            ["Placement# Name", "PRODUCT", "VIDEONAME", "Views",
                                             "25_pc_video", "50_pc_video", "75_pc_video", "100_pc_video",
                                             "Video Completion Rate"]]
+
+                placement_by_video_final.sort_values(['Placement# Name', 'PRODUCT','Views'], ascending=[True, True,False], inplace=True)
+
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
@@ -911,6 +922,8 @@ Class for VDX Placements
 
             format_num = workbook.add_format({"num_format": "#,##0"})
 
+            format_new = workbook.add_format({"num_format": "0.00"})
+
             worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1, 1,
                                    "Ad Size Breakdown",
                                    format_hearder_left)
@@ -1143,6 +1156,7 @@ Class for VDX Placements
                 end_plc_row = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 6
                 worksheet.conditional_format(start_plc_row, col, end_plc_row, col,
                                              {"type": "no_blanks", "format": percent_fmt})
+
 
             for col in range(2, number_cols_adsize - 1):
                 start_adsize_row = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 4

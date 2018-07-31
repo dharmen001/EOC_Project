@@ -134,15 +134,36 @@ Accessing Columns from Query
                 placementprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_mv, on="PLACEMENT#")
 
                 prerollsummary = placementprerollmv.loc[:,
-                                 ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "IMPRESSION",
+                                 ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "NET_UNIT_COST",
+                                  "GROSS_UNIT_COST", "IMPRESSION",
                                   "CLICKTHROUGHS", "COMPLETIONS", "VIDEO_COMPLETIONS"]]
 
                 preroll_table_exchange = [prerollsummary, self.config.cdb_io_exchange]
 
                 prerollsummarymv = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), preroll_table_exchange)
 
-                prerollsummarymv["UNIT_COST"] = prerollsummarymv["UNIT_COST"] * prerollsummarymv[
-                    "Currency Exchange Rate"]
+                mask_preroll_unit_au_nz_gb_not_null = (prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["GROSS_UNIT_COST"].notnull())
+                choices_preroll_unit_au_nz_gb_not_null = prerollsummarymv["GROSS_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
+
+                mask_preroll_unit_au_nz_gb_is_null = (prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["GROSS_UNIT_COST"].isnull())
+                choices_preroll_unit_au_nz_gb_is_null = prerollsummarymv["NET_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
+
+
+                mask_preroll_unit_other_not_null = (~prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["NET_UNIT_COST"].notnull())
+                choices_preroll_unit_other_not_null = prerollsummarymv["NET_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
+
+                mask_preroll_unit_other_is_null = (~prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["NET_UNIT_COST"].isnull())
+                choices_preroll_unit_other_is_null = prerollsummarymv["GROSS_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
+
+
+                prerollsummarymv["UNIT_COST"] = np.select([mask_preroll_unit_au_nz_gb_not_null,
+                                                           mask_preroll_unit_au_nz_gb_is_null,
+                                                           mask_preroll_unit_other_not_null,
+                                                           mask_preroll_unit_other_is_null],
+                                                          [choices_preroll_unit_au_nz_gb_not_null,
+                                                           choices_preroll_unit_au_nz_gb_is_null,
+                                                           choices_preroll_unit_other_not_null,
+                                                           choices_preroll_unit_other_is_null],default=0.00)
 
                 mask1 = prerollsummarymv["COST_TYPE"].isin(['CPM'])
                 choiceprerollsummarymvcpm = prerollsummarymv["VIDEO_COMPLETIONS"]
@@ -164,13 +185,12 @@ Accessing Columns from Query
                     lambda x: ".".join(x), axis=1)
 
                 prerollsummary["CTR"] = prerollsummary["CLICKTHROUGHS"] / prerollsummary["IMPRESSION"]
-                prerollsummary["Video Completion Rate"] = prerollsummary["Video Completions"] / prerollsummary[
-                    "IMPRESSION"]
+                prerollsummary["Video Completion Rate"] = prerollsummary["Video Completions"] / prerollsummary["IMPRESSION"]
 
                 prerollsummaryfinal = prerollsummary.loc[:, ["Placement# Name", "COST_TYPE", "UNIT_COST", "IMPRESSION",
                                                              "CLICKTHROUGHS", "CTR", "Video Completions",
-                                                             "Video Completion Rate",
-                                                             "Spend"]]
+                                                             "Video Completion Rate","Spend"]]
+
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
@@ -222,6 +242,7 @@ Accessing Columns from Query
                                              ["Placement# Name", "FEV_INT_VIDEO_DESC", "Views", "VIEWS25", "VIEWS50",
                                               "VIEWS75", "Video Completions",
                                               "Video Completion Rate"]]
+
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
@@ -234,7 +255,8 @@ Accessing Columns from Query
                 dayprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_day, on="PLACEMENT#")
 
                 dayprerollsummary = dayprerollmv.loc[:,
-                                    ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST", "DAY_DESC",
+                                    ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "NET_UNIT_COST",
+                                     "GROSS_UNIT_COST", "DAY_DESC",
                                      "IMPRESSION", "CLICKTHROUGHS", "VIDEO_COMPLETIONS",
                                      "COMPLETIONS"]]
 
@@ -242,7 +264,26 @@ Accessing Columns from Query
 
                 day_pre_roll = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), day_pre_roll_exchange)
 
-                day_pre_roll["UNIT_COST"] = day_pre_roll["UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
+                mask_preroll_unit_au_nz_gb_not_null = (day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["GROSS_UNIT_COST"].notnull())
+                choices_preroll_unit_au_nz_gb_not_null = day_pre_roll["GROSS_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
+
+                mask_preroll_unit_au_nz_gb_is_null = (day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["GROSS_UNIT_COST"].isnull())
+                choices_preroll_unit_au_nz_gb_is_null = day_pre_roll["NET_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
+
+                mask_preroll_unit_other_not_null = (~day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["NET_UNIT_COST"].notnull())
+                choices_preroll_unit_other_not_null = day_pre_roll["NET_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
+
+                mask_preroll_unit_other_is_null = (~day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["NET_UNIT_COST"].isnull())
+                choices_preroll_unit_other_is_null = day_pre_roll["GROSS_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
+
+                day_pre_roll["UNIT_COST"] = np.select([mask_preroll_unit_au_nz_gb_not_null,
+                                                       mask_preroll_unit_au_nz_gb_is_null,
+                                                       mask_preroll_unit_other_not_null,
+                                                       mask_preroll_unit_other_is_null],
+                                                      [choices_preroll_unit_au_nz_gb_not_null,
+                                                       choices_preroll_unit_au_nz_gb_is_null,
+                                                       choices_preroll_unit_other_not_null,
+                                                       choices_preroll_unit_other_is_null],default=0.00)
 
                 dayprerollsummarymv = day_pre_roll.loc[:, ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "UNIT_COST",
                                                            "DAY_DESC", "IMPRESSION", "CLICKTHROUGHS",
@@ -503,7 +544,7 @@ Renaming COlumns
             else:
                 start_line = len(self.prerollsummaryfinal) + len(self.videoprerollsummarymvfinal) + len(
                     self.intraction_final) + 23
-                for placement, placement_df in self.dayprerollsummaryfinal.groupby('Placement# Name'):
+                for placement, placement_df in self.dayprerollsummaryfinal.groupby('Placement# Name', sort= False):
 
                     writing_day_preroll_summary_final = placement_df.to_excel(self.config.writer,
                                                                               sheet_name="Standard Pre Roll Details".format(

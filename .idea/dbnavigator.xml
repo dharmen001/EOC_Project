@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DataExportManager">
@@ -25,14 +25,28 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="03eb508c-c611-41ab-ba5f-1702cbade014">
-        <schema name="DB_ADMIN" object-types="cluster, dblink, dimension, function, materialized view, package, procedure, sequence, synonym, table, database trigger, type, view" />
-        <schema name="TFR_REP" object-types="cluster, dblink, dimension, function, materialized view, package, procedure, sequence, synonym, table, database trigger, type, view" />
+        <schema name="PUBLIC" object-types="function, materialized view, package, sequence, synonym, table, type, view" />
+        <schema name="TFR_REP" object-types="column, function, materialized view, package, sequence, synonym, table, type, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="03eb508c-c611-41ab-ba5f-1702cbade014">
-      <console name="Connection" type="STANDARD" />
+      <console name="Connection" type="STANDARD"><![CDATA[select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, 
+sum(VIEWS) as Delivered_Impresion, 
+sum(CLICKS) as Clicks, sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = 613697  AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-06-25' AND '2018-07-23' 
+GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID;
+
+
+select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, DAY_DESC as Day, sum(VIEWS) as Delivered_Impression, sum(CLICKS) as Clicks, 
+sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = 613697 AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-06-25' AND '2018-07-23' GROUP BY PLACEMENT_ID,PLACEMENT_DESC, DAY_DESC ORDER BY PLACEMENT_ID;
+
+
+select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, MEDIA_SIZE_DESC as Adsize, sum(VIEWS) as Delivered_Impression, sum(CLICKS) as Clicks, 
+sum(CONVERSIONS) as Conversion 
+from TFR_REP.ADSIZE_SALES_MV WHERE IO_ID = 613697 AND TO_CHAR(DAY_DESC, 'YYYY-MM-DD') BETWEEN '2018-06-25' AND '2018-07-23' GROUP BY PLACEMENT_ID,PLACEMENT_DESC, MEDIA_SIZE_DESC ORDER BY PLACEMENT_ID;
+
+select * from SUMMARY_MV where IO_ID = 615377;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
