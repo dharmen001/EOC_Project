@@ -142,17 +142,17 @@ Accessing Columns from Query
 
                 prerollsummarymv = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), preroll_table_exchange)
 
-                mask_preroll_unit_au_nz_gb_not_null = (prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["GROSS_UNIT_COST"].notnull())
+                mask_preroll_unit_au_nz_gb_not_null = (prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_preroll_unit_au_nz_gb_not_null = prerollsummarymv["GROSS_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
 
-                mask_preroll_unit_au_nz_gb_is_null = (prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["GROSS_UNIT_COST"].isnull())
+                mask_preroll_unit_au_nz_gb_is_null = (prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_preroll_unit_au_nz_gb_is_null = prerollsummarymv["NET_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
 
 
-                mask_preroll_unit_other_not_null = (~prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["NET_UNIT_COST"].notnull())
+                mask_preroll_unit_other_not_null = (~prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["NET_UNIT_COST"]!=0)#.notnull())
                 choices_preroll_unit_other_not_null = prerollsummarymv["NET_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
 
-                mask_preroll_unit_other_is_null = (~prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["NET_UNIT_COST"].isnull())
+                mask_preroll_unit_other_is_null = (~prerollsummarymv["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (prerollsummarymv["NET_UNIT_COST"]==0)#.isnull())
                 choices_preroll_unit_other_is_null = prerollsummarymv["GROSS_UNIT_COST"] * prerollsummarymv["Currency Exchange Rate"]
 
 
@@ -264,16 +264,16 @@ Accessing Columns from Query
 
                 day_pre_roll = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), day_pre_roll_exchange)
 
-                mask_preroll_unit_au_nz_gb_not_null = (day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["GROSS_UNIT_COST"].notnull())
+                mask_preroll_unit_au_nz_gb_not_null = (day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_preroll_unit_au_nz_gb_not_null = day_pre_roll["GROSS_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
 
-                mask_preroll_unit_au_nz_gb_is_null = (day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["GROSS_UNIT_COST"].isnull())
+                mask_preroll_unit_au_nz_gb_is_null = (day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_preroll_unit_au_nz_gb_is_null = day_pre_roll["NET_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
 
-                mask_preroll_unit_other_not_null = (~day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["NET_UNIT_COST"].notnull())
+                mask_preroll_unit_other_not_null = (~day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["NET_UNIT_COST"]!=0)#.notnull())
                 choices_preroll_unit_other_not_null = day_pre_roll["NET_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
 
-                mask_preroll_unit_other_is_null = (~day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["NET_UNIT_COST"].isnull())
+                mask_preroll_unit_other_is_null = (~day_pre_roll["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (day_pre_roll["NET_UNIT_COST"]==0)#.isnull())
                 choices_preroll_unit_other_is_null = day_pre_roll["GROSS_UNIT_COST"] * day_pre_roll["Currency Exchange Rate"]
 
                 day_pre_roll["UNIT_COST"] = np.select([mask_preroll_unit_au_nz_gb_not_null,

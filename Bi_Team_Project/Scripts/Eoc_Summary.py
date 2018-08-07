@@ -154,16 +154,16 @@ class Summary(object):
 
                 display_table_info = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), display_merge)
 
-                mask_display_unit_au_nz_gb_gross = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"].notnull())
+                mask_display_unit_au_nz_gb_gross = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_au_nz_gb_gross = display_table_info["GROSS_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-                mask_display_unit_au_nz_gb_net = (display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"].isnull())
+                mask_display_unit_au_nz_gb_net = (display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_au_nz_gb_net = display_table_info["NET_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-                mask_display_unit_net = (~display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"].notnull())
+                mask_display_unit_net = (~display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_net = display_table_info["NET_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-                mask_display_unit_gross = (~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"].isnull())
+                mask_display_unit_gross = (~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_gross = display_table_info["GROSS_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
                 display_table_info["UNIT_COST"] = np.select([mask_display_unit_au_nz_gb_gross,
@@ -176,16 +176,16 @@ class Summary(object):
                                                              choices_display_unit_gross],
                                                             default=0.00)
 
-                mask_gross_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"].notnull())
+                mask_gross_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"]!=0)#.notnull())
                 choice_gross_cost_au_nz_gb = display_table_info["GROSS_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-                mask_net_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"].isnull())
+                mask_net_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"]==0)#.isnull())
                 choice_net_cost_au_nz_gb = display_table_info["NET_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-                mask_display_budget_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"].notnull())
+                mask_display_budget_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"]!=0)#.notnull())
                 choice_net_budget = display_table_info["NET_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-                mask_display_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"].isnull())
+                mask_display_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"]==0)#.isnull())
                 choice_display_net = display_table_info["GROSS_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
                 display_table_info["PLANNED_COST"] = np.select([mask_gross_budget_au_nz_gb,
@@ -201,7 +201,6 @@ class Summary(object):
                 displayfirsttable = display_table_info[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
                                                         "COST_TYPE", "UNIT_COST", "PLANNED_COST",
                                                         "BOOKED_IMP#BOOKED_ENG", "Delivered_Impressions"]]
-
 
 
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
@@ -225,6 +224,9 @@ class Summary(object):
                                                         "GROSS_PLANNED_COST","BOOKED_IMP#BOOKED_ENG",
                                                         "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
 
+                #print(vdx_second__table[["GROSS_PLANNED_COST","NET_PLANNED_COST","NET_UNIT_COST","GROSS_UNIT_COST"]])
+                #exit()
+
                 conditionseng = [(vdx_second__table.loc[:, ['COST_TYPE']] == 'CPE'),
                                  (vdx_second__table.loc[:, ['COST_TYPE']] == 'CPE+')]
 
@@ -245,16 +247,20 @@ class Summary(object):
                 vdx_exchange_table = [vdx_second__table, self.config.cdb_io_exchange]
                 vdx_table = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), vdx_exchange_table)
 
-                mask_vdx_unit_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"].notnull())
+
+                #print(vdx_table[["GROSS_PLANNED_COST","NET_PLANNED_COST"]])
+                #exit()
+
+                mask_vdx_unit_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"]!=0) #.notnull())
                 choices_vdx_unit_au_nz_gb_not_null = vdx_table["GROSS_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
 
-                mask_vdx_unit_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"].isnull())
+                mask_vdx_unit_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_vdx_unit_au_is_null = vdx_table["NET_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
 
-                mask_vdx_unit_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"].notnull())
+                mask_vdx_unit_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"]!=0) #.notnull())
                 choices_vdx_unit_net_not_null = vdx_table["NET_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
 
-                mask_vdx_unit_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"].isnull())
+                mask_vdx_unit_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"]==0) #.isnull())
                 choices_vdx_unit_is_null = vdx_table["GROSS_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
 
                 vdx_table['UNIT_COST'] = np.select([mask_vdx_unit_au_nz_gb_not_null,
@@ -266,32 +272,39 @@ class Summary(object):
                                                     choices_vdx_unit_net_not_null,
                                                     choices_vdx_unit_is_null],default=0.00)
 
-                mask_vdx_cost_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"].notnull())
+                #vdx_table["GROSS_PLANNED_COST"] = pd.to_numeric(vdx_table.GROSS_PLANNED_COST,errors='coerce')
+
+                mask_vdx_cost_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"]!=0) #.notnull())
+                #mask_vdx_cost_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"] == 0)
                 choice_vdx_cost_au_nz_gb_not_null = vdx_table["GROSS_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
 
-                mask_vdx_cost_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"].isnull())
+                mask_vdx_cost_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"]==0) #.isnull())
+                #mask_vdx_cost_au_nz_gb_is_null_new = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"] == 0)
                 choice_vdx_cost_au_is_null = vdx_table["NET_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
 
-                mask_vdx_cost_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"].notnull())
+                mask_vdx_cost_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"]!=0) #.notnull())
+                #mask_vdx_cost_net_not_null_new =(~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"] != 0)
                 choices_vdx_cost_net_not_null = vdx_table["NET_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
 
-                mask_vdx_cost_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"].isnull())
+                mask_vdx_cost_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"]==0)  #.isnull())
+                #mask_vdx_cost_is_null_new = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"] == 0)
                 choices_vdx_cost_net_is_null = vdx_table["GROSS_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
 
                 vdx_table['PLANNED_COST'] = np.select([mask_vdx_cost_au_nz_gb_not_null,
-                                                       mask_vdx_cost_au_nz_gb_is_null,
-                                                       mask_vdx_cost_net_not_null,
+                                                        mask_vdx_cost_au_nz_gb_is_null ,
+                                                       mask_vdx_cost_net_not_null ,
                                                        mask_vdx_cost_is_null],
                                                       [choice_vdx_cost_au_nz_gb_not_null,
                                                        choice_vdx_cost_au_is_null,
-                                                       choices_vdx_cost_net_not_null,
-                                                       choices_vdx_cost_net_is_null],default=0.00)
+                                                       choices_vdx_cost_net_not_null,choices_vdx_cost_net_is_null],default=0.00)
 
                 vdx_access_table = vdx_table[
                     ["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
                      "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
                      "Delivered_Engagements", "Delivered_Impressions"]]
 
+                print(vdx_table["PLANNED_COST"])
+                exit()
 
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
@@ -318,16 +331,16 @@ class Summary(object):
                 preroll_final_table = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'),
                                              preroll_exchange_table)
 
-                mask_preroll_unit_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"].notnull())
+                mask_preroll_unit_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_preroll_unit_au_nz_gb_not_null = preroll_final_table["GROSS_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
 
-                mask_preroll_unit_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"].isnull())
+                mask_preroll_unit_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_preroll_unit_au_nz_gb_is_null = preroll_final_table["NET_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
 
-                mask_preroll_unit_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"].notnull())
+                mask_preroll_unit_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"]!=0)#.notnull())
                 choices_preroll_unit_net_not_null = preroll_final_table["NET_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
 
-                mask_preroll_unit_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"].isnull())
+                mask_preroll_unit_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"]==0)#.isnull())
                 choices_preroll_unit_net_is_null = preroll_final_table["GROSS_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
 
                 preroll_final_table["UNIT_COST"] = np.select([mask_preroll_unit_au_nz_gb_not_null,
@@ -340,16 +353,16 @@ class Summary(object):
                                                               choices_preroll_unit_net_is_null],
                                                              default=0.00)
 
-                mask_preroll_cost_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"].notnull())
+                mask_preroll_cost_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"]!=0)#.notnull())
                 choice_preroll_cost_au_nz_gb_not_null = preroll_final_table["GROSS_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
 
-                mask_preroll_cost_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"].isnull())
+                mask_preroll_cost_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"]==0)#.isnull())
                 choice_preroll_cost_au_nz_gb_is_null =  preroll_final_table["NET_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
 
-                mask_preroll_cost_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"].notnull())
+                mask_preroll_cost_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"]!=0)#.notnull())
                 choices_preroll_unit_net_not_null = preroll_final_table["NET_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
 
-                mask_preroll_cost_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"].isnull())
+                mask_preroll_cost_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"]==0)#.isnull())
                 choices_preroll_cost_net_is_null = preroll_final_table["GROSS_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
 
                 preroll_final_table["PLANNED_COST"] = np.select([mask_preroll_cost_au_nz_gb_not_null,

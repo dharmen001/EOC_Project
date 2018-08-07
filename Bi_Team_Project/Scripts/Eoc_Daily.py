@@ -101,22 +101,23 @@ To create display placements
                     ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
                      "NET_UNIT_COST","GROSS_UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESSION",
                      "CLICKS", "CONVERSION"]]
+
                 display_first_table = [display_exchange_first, self.config.cdb_io_exchange]
 
                 display_first_table_io = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'),
                                                 display_first_table)
 
 
-                mask_display_unit_au_nz_gb_not_null = (display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["GROSS_UNIT_COST"].notnull())
+                mask_display_unit_au_nz_gb_not_null = (display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_au_nz_gb_not_null = display_first_table_io["GROSS_UNIT_COST"] * display_first_table_io["Currency Exchange Rate"]
 
-                mask_display_unit_au_nz_gb_is_null = (display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["GROSS_UNIT_COST"].isnull())
+                mask_display_unit_au_nz_gb_is_null = (display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["GROSS_UNIT_COST"] == 0)#.isnull())
                 choices_display_unit_au_nz_is_null = display_first_table_io["NET_UNIT_COST"] * display_first_table_io["Currency Exchange Rate"]
 
-                mask_display_unit_net_not_null = (~display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["NET_UNIT_COST"].notnull())
+                mask_display_unit_net_not_null = (~display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["NET_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_net_not_null = display_first_table_io["NET_UNIT_COST"] * display_first_table_io["Currency Exchange Rate"]
 
-                mask_display_unit_net_is_null = (~display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["NET_UNIT_COST"].isnull())
+                mask_display_unit_net_is_null = (~display_first_table_io["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_first_table_io["NET_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_net_is_null = display_first_table_io["GROSS_UNIT_COST"] * display_first_table_io["Currency Exchange Rate"]
 
                 display_first_table_io["UNIT_COST"] = np.select([mask_display_unit_au_nz_gb_not_null,
@@ -159,16 +160,16 @@ To create display placements
 
                 display_second = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), display_second_table)
 
-                mask_display_unit_au_nz_gb_not_null = (display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["GROSS_UNIT_COST"].notnull())
+                mask_display_unit_au_nz_gb_not_null = (display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_au_nz_gb_not_null = display_second["GROSS_UNIT_COST"] * display_second["Currency Exchange Rate"]
 
-                mask_display_unit_au_nz_gb_is_null = (display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["GROSS_UNIT_COST"].isnull())
+                mask_display_unit_au_nz_gb_is_null = (display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_au_nz_gb_is_null = display_second["NET_UNIT_COST"] * display_second["Currency Exchange Rate"]
 
-                mask_display_unit_not_null = (~display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["NET_UNIT_COST"].notnull())
+                mask_display_unit_not_null = (~display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["NET_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_not_null = display_second["NET_UNIT_COST"] * display_second["Currency Exchange Rate"]
 
-                mask_display_unit_is_null = (~display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["NET_UNIT_COST"].isnull())
+                mask_display_unit_is_null = (~display_second["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_second["NET_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_is_null = display_second["GROSS_UNIT_COST"] * display_second["Currency Exchange Rate"]
 
                 display_second["UNIT_COST"] = np.select([mask_display_unit_au_nz_gb_not_null,
@@ -206,16 +207,16 @@ To create display placements
 
                 display_info = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), display_exchange)
 
-                mask_display_unit_aus_not_null = (display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["GROSS_UNIT_COST"].notnull())
+                mask_display_unit_aus_not_null = (display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["GROSS_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_aus_not_null= display_info["GROSS_UNIT_COST"] * display_info["Currency Exchange Rate"]
 
-                mask_display_unit_aus_is_null = (display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["GROSS_UNIT_COST"].isnull())
+                mask_display_unit_aus_is_null = (display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["GROSS_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_aus_is_null = display_info["NET_UNIT_COST"] * display_info["Currency Exchange Rate"]
 
-                mask_display_unit_other_not_null = (~display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["NET_UNIT_COST"].notnull())
+                mask_display_unit_other_not_null = (~display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["NET_UNIT_COST"]!=0)#.notnull())
                 choices_display_unit_other_not_null = display_info["NET_UNIT_COST"] * display_info["Currency Exchange Rate"]
 
-                mask_display_unit_other_is_null = (~display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["NET_UNIT_COST"].isnull())
+                mask_display_unit_other_is_null = (~display_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_info["NET_UNIT_COST"]==0)#.isnull())
                 choices_display_unit_other_is_null = display_info["GROSS_UNIT_COST"] * display_info["Currency Exchange Rate"]
 
 
