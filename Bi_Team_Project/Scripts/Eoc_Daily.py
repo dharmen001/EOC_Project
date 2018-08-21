@@ -11,92 +11,40 @@ np.seterr(divide='ignore')
 from xlsxwriter.utility import xl_rowcol_to_cell
 import pandas.io.formats.excel
 from functools import reduce
+from SQLScript import SqlScript
 
 pandas.io.formats.excel.header_style = None
 
 
-class Daily(object):
+class Daily(SqlScript):
     """
 To create display placements
     """
 
-    def __init__(self, config):
+    def __init__(self, config, sqlscript):
 
-        """
-        :param config: Accesing Files
-        """
+        """Accessing Files"""
+
+        super(Daily,self).__init__(self)
         self.config = config
+        self.sqlscript = sqlscript
         self.logger = self.config.logger
-
-    def connect_TFR_daily(self):
-        """
-        TFR Quries for making connection
-        """
-        self.logger.info('Starting to create Display Sheet for IO - {}'.format(self.config.ioid))
-
-        self.logger.info(
-            "Start executing: " + 'Display_Summary.sql' + " at " + str(
-                datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_display_summary = open("Display_Summary.sql")
-        sql_sales_summary = read_display_summary.read().format(self.config.ioid, self.config.start_date,
-                                                               self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_display.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_plc_info = open("Placement_info_display.sql")
-        sql_sales_mv = read_plc_info.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_display_adsize.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_adsize_display = open("Placement_info_display_adsize.sql")
-        sql_sales_adsize_mv = read_adsize_display.read().format(self.config.ioid, self.config.start_date,
-                                                                self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_display_day.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_by_day_display = open("Placement_info_display_day.sql")
-        sql_sales_daily_mv = read_by_day_display.read().format(self.config.ioid, self.config.start_date,
-                                                               self.config.end_date)
-
-        self.sql_sales_summary = sql_sales_summary
-        self.sql_sales_mv = sql_sales_mv
-        self.sql_sales_adsize_mv = sql_sales_adsize_mv
-        self.sql_sales_daily_mv = sql_sales_daily_mv
-
-    def read_Query_daily(self):
-
-        """
-
-        :return: Reading Quries Data
-        """
-        self.logger.info('Running Query for Display placements for IO {}'.format(self.config.ioid))
-
-        read_sql_sales = pd.read_sql(self.sql_sales_summary, self.config.conn)
-        read_sql_sales_mv = pd.read_sql(self.sql_sales_mv, self.config.conn)
-        read_sql_adsize_mv = pd.read_sql(self.sql_sales_adsize_mv, self.config.conn)
-        read_sql_daily_mv = pd.read_sql(self.sql_sales_daily_mv, self.config.conn)
-
-        self.read_sql_sales = read_sql_sales
-        self.read_sql_sales_mv = read_sql_sales_mv
-        self.read_sql_adsize_mv = read_sql_adsize_mv
-        self.read_sql_daily_mv = read_sql_daily_mv
+        self.display_sales_first_table = None
+        self.adsize_sales_second_table = None
+        self.daily_sales_third_table = None
+        self.placement_sales_data = None
+        self.final_adsize = None
+        self.final_day_wise = None
 
     def access_Data_KM_Sales_daily(self):
 
-        """
-
-        :return: Accessing Columns by merging with summary
-        """
-        self.logger.info('Query Stored for further processing of IO - {}'.format(self.config.ioid))
-
-        self.logger.info('Creating by placement information of IO {}'.format(self.config.ioid))
-
+        """Accessing Columns by merging with summary"""
         display_sales_first_table = None
         try:
-            if self.read_sql_sales_mv.empty:
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
-                standard_sales_first_table = self.read_sql_sales.merge(self.read_sql_sales_mv, on="PLACEMENT#")
+                standard_sales_first_table = self.sqlscript.read_sql__display.merge(self.sqlscript.read_sql__display_mv, on="PLACEMENT#")
                 display_exchange_first = standard_sales_first_table[
                     ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
                      "NET_UNIT_COST","GROSS_UNIT_COST", "BOOKED_IMP#BOOKED_ENG", "DELIVERED_IMPRESSION",
@@ -139,16 +87,12 @@ To create display placements
             self.logger.error(str(e))
             pass
 
-
-        self.logger.info(
-            'Creating by adsize information for display placements of IO {}'.format(self.config.ioid))
-
         adsize_sales_second_table = None
         try:
-            if self.read_sql_adsize_mv.empty:
+            if self.sqlscript.read_sql_adsize_mv.empty:
                 pass
             else:
-                standard_sales_second_table = self.read_sql_sales.merge(self.read_sql_adsize_mv, on="PLACEMENT#")
+                standard_sales_second_table = self.sqlscript.read_sql__display.merge(self.sqlscript.read_sql_adsize_mv, on="PLACEMENT#")
 
                 display_exchange_second = standard_sales_second_table[["IO_ID", "PLACEMENT#", "PLACEMENT_NAME",
                                                                        "COST_TYPE", "NET_UNIT_COST","GROSS_UNIT_COST", "BOOKED_IMP#BOOKED_ENG",
@@ -190,13 +134,12 @@ To create display placements
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Creating by day information for display placements of IO {}'.format(self.config.ioid))
         daily_sales_third_table = None
         try:
-            if self.read_sql_daily_mv.empty:
+            if self.sqlscript.read_sql_daily_mv.empty:
                 pass
             else:
-                standard_sales_third_table = self.read_sql_sales.merge(self.read_sql_daily_mv, on="PLACEMENT#")
+                standard_sales_third_table = self.sqlscript.read_sql__display.merge(self.sqlscript.read_sql_daily_mv, on="PLACEMENT#")
 
                 display_io = standard_sales_third_table[["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE",
                                                          "NET_UNIT_COST","GROSS_UNIT_COST",
@@ -246,12 +189,11 @@ To create display placements
     def KM_Sales_daily(self):
         """
 
-        :return: Joining Creative with placement Number
+       Joining Creative with placement Number
         """
         try:
-            self.logger.info(
-                'Putting creative and placement together for placement information of IO {}'.format(self.config.ioid))
-            if self.read_sql_sales_mv.empty:
+
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
 
@@ -298,9 +240,7 @@ To create display placements
                 self.display_sales_first_table["ECPA"] = pd.to_numeric(self.display_sales_first_table.ECPA,
                                                                         errors='coerce')
 
-            self.logger.info(
-                'Putting creative and placement together for adsize information of IO {}'.format(self.config.ioid))
-            if self.read_sql_adsize_mv.empty:
+            if self.sqlscript.read_sql_adsize_mv.empty:
                 pass
             else:
 
@@ -346,8 +286,7 @@ To create display placements
                 self.adsize_sales_second_table["ECPA"] = pd.to_numeric(self.adsize_sales_second_table.ECPA,
                                                                         errors='coerce')
 
-            self.logger.info('Putting creative and placement for by day information of IO {}'.format(self.config.ioid))
-            if self.read_sql_daily_mv.empty:
+            if self.sqlscript.read_sql_daily_mv.empty:
                 pass
             else:
                 mask3 = self.daily_sales_third_table["COST_TYPE"].isin(["CPM"])
@@ -392,7 +331,7 @@ To create display placements
     def rename_KM_Sales_daily(self):
         """Renaming The columns of Previous Functions"""
         try:
-            if self.read_sql_sales_mv.empty:
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
                 rename_display_sales_first_table = self.display_sales_first_table.rename(
@@ -411,7 +350,7 @@ To create display placements
             pass
 
         try:
-            if self.read_sql_adsize_mv.empty:
+            if self.sqlscript.read_sql_adsize_mv.empty:
                 pass
             else:
                 rename_adsize_sales_second_table = self.adsize_sales_second_table.rename(
@@ -428,7 +367,7 @@ To create display placements
             pass
 
         try:
-            if self.read_sql_daily_mv.empty:
+            if self.sqlscript.read_sql_daily_mv.empty:
                 pass
             else:
                 rename_daily_sales_third_table = self.daily_sales_third_table.rename(
@@ -446,11 +385,9 @@ To create display placements
 
 
     def accessing_nan_values(self):
-        """
-        :return: Nan values handling
-        """
+        """Nan values handling"""
         try:
-            if self.read_sql_sales_mv.empty:
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
                 self.display_sales_first_table["CTR"] = self.display_sales_first_table["CTR"].replace([np.nan,np.inf], 0.00)
@@ -463,7 +400,7 @@ To create display placements
             pass
 
         try:
-            if self.read_sql_adsize_mv.empty:
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
                 self.adsize_sales_second_table["CTR"] = self.adsize_sales_second_table["CTR"].replace([np.nan,np.inf], 0.00)
@@ -476,7 +413,7 @@ To create display placements
             pass
 
         try:
-            if self.read_sql_daily_mv.empty:
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
                 self.daily_sales_third_table["CTR"] = self.daily_sales_third_table["CTR"].replace([np.nan,np.inf], 0.00)
@@ -489,9 +426,7 @@ To create display placements
 
 
     def accessing_main_column(self):
-        """
-        :return: Accessing columns
-        """
+        """Accessing columns"""
         # debug = detailed info
         # info =confirmation that things accroding to the plan
         # warning = something unexpected
@@ -548,17 +483,14 @@ To create display placements
 
 
     def write_KM_Sales_summary(self):
-        """
-        :return: writing Data
-        """
+        """writing Data"""
+
         unqiue_final_day_wise = 0
         try:
             unqiue_final_day_wise = self.final_day_wise['Placement# Name'].nunique()
         except KeyError as e:
             self.logger.error(str(e))
             pass
-
-        self.logger.info("Writing Summary on Display Sheet for IO - {}".format(self.config.ioid))
 
         try:
             info_client = self.config.client_info.to_excel(self.config.writer, sheet_name="Performance Details",
@@ -583,8 +515,6 @@ To create display placements
             self.logger.error(str(e))
             pass
 
-        self.logger.info("Writing Placement level information on Display Sheet for IO - {}".format(self.config.ioid))
-
         try:
             if self.placement_sales_data.empty:
                 pass
@@ -598,8 +528,6 @@ To create display placements
             pass
 
         try:
-            self.logger.info(
-                "Writing ad size level information on Display Sheet for IO - {}".format(self.config.ioid))
 
             start_row_adsize = len(self.placement_sales_data) + 14
 
@@ -696,8 +624,6 @@ To create display placements
             self.logger.error(str(e))
             pass
 
-            self.logger.info(
-                "Writing Placement by day level information on Display Sheet for IO - {}".format(self.config.ioid))
         try:
             start_row_plc_day = len(self.placement_sales_data) + 13 + unqiue_final_day_wise * 2 + len(self.final_adsize) + 5
 
@@ -802,7 +728,6 @@ To create display placements
         Applying formatting on Display Sheet
         """
 
-        self.logger.info('Applying Formatting on each label of Display sheet - {}'.format(self.config.ioid))
         try:
 
             workbook = self.config.writer.book
@@ -1347,18 +1272,14 @@ To create display placements
 
 
     def main(self):
-        """
-    Adding Main Function
-        """
+        """Adding Main Function"""
         self.config.common_columns_summary()
-        self.connect_TFR_daily()
-        self.read_Query_daily()
-        if self.read_sql_sales_mv.empty or self.read_sql_sales.empty or self.read_sql_adsize_mv.empty \
-                or self.read_sql_daily_mv.empty:
-            self.logger.info("No Display placements for IO - {}".format(self.config.ioid))
+        self.config.logger.info("Start Creating Performance Details Sheet for IO - {} ".format(self.config.ioid) + " at "+ str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+        if self.sqlscript.read_sql__display.empty:
+            self.logger.info("No live display placements for IO - {}".format(self.config.ioid) + " at "+ str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
             pass
         else:
-            self.logger.info("Display placements found for IO - {}".format(self.config.ioid))
+            self.logger.info("Live display placements found for IO - {}".format(self.config.ioid)+ " at "+ str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
             self.access_Data_KM_Sales_daily()
             self.KM_Sales_daily()
             self.rename_KM_Sales_daily()
@@ -1366,7 +1287,7 @@ To create display placements
             self.accessing_main_column()
             self.write_KM_Sales_summary()
             self.formatting_daily()
-            self.logger.info("Display Sheet Created for IO {}".format(self.config.ioid))
+            self.logger.info("Performance Details Sheet Created for IO {}".format(self.config.ioid) + " at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 if __name__ == "__main__":

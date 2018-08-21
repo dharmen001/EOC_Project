@@ -9,6 +9,7 @@ import Eoc_Daily
 import Eoc_Video
 import Eoc_Intraction
 import EOC_definition
+import SQLScript
 from config import Config
 
 
@@ -17,20 +18,16 @@ if __name__ == '__main__':
 	START_DATE = sys.argv[1]
 	IO_ID = int (sys.argv[2])
 	END_DATE = sys.argv[3]
-	#FILE_PATH = sys.argv[4]
-	#IO_Name = input("Enter IO Name:")
-	#START_DATE = input("Enter the Start Date:")
-	#IO_Name = input ("Enter IO Name:")
-	#IO_ID = int (input ("Enter the IO:"))
-	#END_DATE = input("Enter the End Date:")
 	c = Config(START_DATE,IO_ID,END_DATE)
-	obj_summary = Eoc_Summary.Summary(c)
+	obj_sql = SQLScript.SqlScript(c)
+	obj_sql.main()
+	obj_summary = Eoc_Summary.Summary(c,obj_sql)
 	obj_summary.main()
-	obj_daily = Eoc_Daily.Daily(c)
+	obj_daily = Eoc_Daily.Daily(c, obj_sql)
 	obj_daily.main()
-	obj_Video = Eoc_Video.Video(c)
+	obj_Video = Eoc_Video.Video(c,obj_sql)
 	obj_Video.main()
-	obj_Intraction = Eoc_Intraction.Intraction(c)
+	obj_Intraction = Eoc_Intraction.Intraction(c,obj_sql)
 	obj_Intraction.main()
 	obj_definition = EOC_definition.definition(c)
 	obj_definition.main()

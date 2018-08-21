@@ -9,506 +9,367 @@ from __future__ import print_function
 import datetime
 import pandas as pd
 import numpy as np
-from xlsxwriter.utility import xl_range, xl_rowcol_to_cell
+from xlsxwriter.utility import xl_rowcol_to_cell
 import pandas.io.formats.excel
 
 pandas.io.formats.excel.header_style = None
 from functools import reduce
+from SQLScript import SqlScript
 
 
-class Summary(object):
+class Summary(SqlScript):
     """This class in for creating summary sheet"""
 
-    def __init__(self, config):
-        """
-        :type config: Config
-        """
+    def __init__(self, config, sqlscript):
+        """Config"""
+
+        super(Summary,self).__init__(self)
         self.config = config
+        self.sqlscript = sqlscript
         self.logger = self.config.logger
+        self.displayfirsttable = None
+        self.vdx_access_table = None
+        self.preroll_access_table = None
 
-    def connect_TFR_summary(self):
+    def access_display_summary(self):
         """
-
-        :param self:Query Reading
-        :return:Query
+        Display Placement Summary
         """
-        self.logger.info('Starting to create Summary Sheet for IO - {}'.format(self.config.ioid))
+        if self.sqlscript.read_sql__display.empty:
+            pass
+        else:
+            display_first_exchange = [self.sqlscript.read_sql__display, self.sqlscript.read_sql__display_placement]
+            display_table_info = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),
+                                        display_first_exchange)
 
-        self.logger.info(
-            "Start executing: " + 'VDX_Summary.sql' + " at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_vdx_summary = open("VDX_Summary.sql")
-        sqlvdxsummary = read_vdx_summary.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
+            display_table = display_table_info[["IO_ID", "PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+                                                "COST_TYPE", "NET_UNIT_COST", "NET_PLANNED_COST", "GROSS_UNIT_COST",
+                                                "GROSS_PLANNED_COST",
+                                                "BOOKED_IMP#BOOKED_ENG",
+                                                "DELIVERED_IMPRESSION", "CLICKS"]]
 
-        self.logger.info(
-            "Start executing: " + 'VDX_MV.sql' + " at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_vdx_mv = open("VDX_MV.sql")
-        sqlvdxmv = read_vdx_mv.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-        # sqlvdxmv  = "select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#,sum(IMPRESSIONS) as Impression, sum(ENGAGEMENTS) as Eng, sum(DPE_ENGAGEMENTS) as Deep,sum(CPCV_COUNT) as Completions from TFR_REP.KEY_METRIC_MV WHERE IO_ID = {0} AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '{1}' AND '{2}' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID".format(self.config.ioid,self.config.start_date,self.config.end_date)
+            mask_display_imp = display_table["COST_TYPE"].isin(['CPM'])
+            mask_display_click = display_table["COST_TYPE"].isin(['CPC'])
 
-        self.logger.info("Start executing: " + 'Display_Summary.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_display_summary = open("Display_Summary.sql")
-        sqldisplaysummary = read_display_summary.read().format(self.config.ioid, self.config.start_date,
-                                                               self.config.end_date)
+            choice_display_imp = display_table["DELIVERED_IMPRESSION"]
+            choice_display_click = display_table["CLICKS"]
 
-        self.logger.info(
-            "Start executing: " + 'Display_MV.sql' + " at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_display_mv = open("Display_MV.sql")
-        sqldisplaymv = read_display_mv.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
+            display_table["Delivered_Impressions"] = np.select([mask_display_imp, mask_display_click],
+                                                               [choice_display_imp, choice_display_click])
 
-        self.logger.info("Start executing: " + 'Preroll_Summary.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_summary = open("Preroll_Summary.sql")
-        sqlprerollsummary = read_preroll_summary.read().format(self.config.ioid, self.config.start_date,
-                                                               self.config.end_date)
+            display_merge = [display_table, self.config.cdb_io_exchange]
 
-        self.logger.info(
-            "Start executing: " + 'Preroll_MV.sql' + " at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_mv = open("Preroll_MV.sql")
-        sqlprerollmv = read_preroll_mv.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
+            display_table_info = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), display_merge)
 
-        self.sqlvdxsummary = sqlvdxsummary
-        self.sqldisplaysummary = sqldisplaysummary
-        self.sqlprerollsummary = sqlprerollsummary
-        self.sqldisplaymv = sqldisplaymv
-        self.sqlvdxmv = sqlvdxmv
-        self.sqlprerollmv = sqlprerollmv
+            mask_display_unit_au_nz_gb_gross = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"]!=0)#.notnull())
+            choices_display_unit_au_nz_gb_gross = display_table_info["GROSS_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-    def read_query_summary(self):
-        """
-    Connecting with TFR and query
-        :param self:
-        :return:
-        """
+            mask_display_unit_au_nz_gb_net = (display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"]==0)#.isnull())
+            choices_display_unit_au_nz_gb_net = display_table_info["NET_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-        self.logger.info(
-            'Running Query on 10.29.20.76 in Summary MV for VDX placements for IO - {}'.format(self.config.ioid))
-        read_sql__v_d_x = pd.read_sql(self.sqlvdxsummary, self.config.conn)
+            mask_display_unit_net = (~display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"]!=0)#.notnull())
+            choices_display_unit_net = display_table_info["NET_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-        self.logger.info(
-            'Running Query on 10.29.20.76 in Summary MV for Display placements for IO - {}'.format(self.config.ioid))
-        read_sql__display = pd.read_sql(self.sqldisplaysummary, self.config.conn)
+            mask_display_unit_gross = (~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"]==0)#.isnull())
+            choices_display_unit_gross = display_table_info["GROSS_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
 
-        self.logger.info(
-            'Running Query on 10.29.20.76 in Summary MV for Preroll placements for IO - {}'.format(self.config.ioid))
-        read_sql_preroll = pd.read_sql(self.sqlprerollsummary, self.config.conn)
+            display_table_info["UNIT_COST"] = np.select([mask_display_unit_au_nz_gb_gross,
+                                                         mask_display_unit_au_nz_gb_net,
+                                                         mask_display_unit_net,
+                                                         mask_display_unit_gross],
+                                                        [choices_display_unit_au_nz_gb_gross,
+                                                         choices_display_unit_au_nz_gb_net,
+                                                         choices_display_unit_net,
+                                                         choices_display_unit_gross],
+                                                        default=0.00)
 
-        self.logger.info(
-            'Running Query on 10.29.20.76 in DailySales MV for Display placements for IO - {}'.format(self.config.ioid))
-        read_sql__display_mv = pd.read_sql(self.sqldisplaymv, self.config.conn)
+            mask_gross_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"]!=0)#.notnull())
+            choice_gross_cost_au_nz_gb = display_table_info["GROSS_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-        self.logger.info(
-            'Running Query on 10.29.20.76 in KeyMetric MV for VDX placements for IO - {}'.format(self.config.ioid))
-        read_sql__v_d_x_mv = pd.read_sql(self.sqlvdxmv, self.config.conn)
+            mask_net_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"]==0)#.isnull())
+            choice_net_cost_au_nz_gb = display_table_info["NET_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-        self.logger.info(
-            'Running Query on 10.29.20.76 in KeyMetric MV for Preroll placements for IO - {}'.format(self.config.ioid))
-        read_sql_preroll_mv = pd.read_sql(self.sqlprerollmv, self.config.conn)
+            mask_display_budget_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"]!=0)#.notnull())
+            choice_net_budget = display_table_info["NET_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-        self.read_sql__v_d_x = read_sql__v_d_x
-        self.read_sql__display = read_sql__display
-        self.read_sql_preroll = read_sql_preroll
-        self.read_sql__display_mv = read_sql__display_mv
-        self.read_sql__v_d_x_mv = read_sql__v_d_x_mv
-        self.read_sql_preroll_mv = read_sql_preroll_mv
+            mask_display_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"]==0)#.isnull())
+            choice_display_net = display_table_info["GROSS_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
 
-    def access_data_summary(self):
-        """
-    merging columns
-        :param self:
-        :return:
-        """
-
-        self.logger.info('Query Stored for further processing for IO - {}'.format(self.config.ioid))
-
-        self.logger.info('Building Display placements for IO - {}'.format(self.config.ioid))
-        displayfirsttable = None
-
-        try:
-            if self.read_sql__display.empty:
-                self.logger.info("No Display placements for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("Display placements found for IO - {}".format(self.config.ioid))
-                display_first_exchange = [self.read_sql__display, self.read_sql__display_mv]
-                # display_first__summary = self.read_sql__display.merge (self.read_sql__display_mv, on="PLACEMENT#")
-                display_table_info = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),
-                                            display_first_exchange)
-
-                display_table = display_table_info[["IO_ID", "PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
-                                                    "COST_TYPE", "NET_UNIT_COST", "NET_PLANNED_COST", "GROSS_UNIT_COST",
-                                                    "GROSS_PLANNED_COST",
-                                                    "BOOKED_IMP#BOOKED_ENG",
-                                                    "DELIVERED_IMPRESION", "CLICKS"]]
-
-                mask_display_imp = display_table["COST_TYPE"].isin(['CPM'])
-                mask_display_click = display_table["COST_TYPE"].isin(['CPC'])
-
-                choice_display_imp = display_table["DELIVERED_IMPRESION"]
-                choice_display_click = display_table["CLICKS"]
-
-                display_table["Delivered_Impressions"] = np.select([mask_display_imp, mask_display_click],
-                                                                   [choice_display_imp, choice_display_click])
-
-                display_merge = [display_table, self.config.cdb_io_exchange]
-
-                display_table_info = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), display_merge)
-
-                mask_display_unit_au_nz_gb_gross = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"]!=0)#.notnull())
-                choices_display_unit_au_nz_gb_gross = display_table_info["GROSS_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
-
-                mask_display_unit_au_nz_gb_net = (display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["GROSS_UNIT_COST"]==0)#.isnull())
-                choices_display_unit_au_nz_gb_net = display_table_info["NET_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
-
-                mask_display_unit_net = (~display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"]!=0)#.notnull())
-                choices_display_unit_net = display_table_info["NET_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
-
-                mask_display_unit_gross = (~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (display_table_info["NET_UNIT_COST"]==0)#.isnull())
-                choices_display_unit_gross = display_table_info["GROSS_UNIT_COST"] * display_table_info["Currency Exchange Rate"]
-
-                display_table_info["UNIT_COST"] = np.select([mask_display_unit_au_nz_gb_gross,
-                                                             mask_display_unit_au_nz_gb_net,
-                                                             mask_display_unit_net,
-                                                             mask_display_unit_gross],
-                                                            [choices_display_unit_au_nz_gb_gross,
-                                                             choices_display_unit_au_nz_gb_net,
-                                                             choices_display_unit_net,
-                                                             choices_display_unit_gross],
-                                                            default=0.00)
-
-                mask_gross_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"]!=0)#.notnull())
-                choice_gross_cost_au_nz_gb = display_table_info["GROSS_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
-
-                mask_net_budget_au_nz_gb = (display_table_info["Currency Type"].isin(['AUD','NZD', 'GBP'])) & (display_table_info["GROSS_PLANNED_COST"]==0)#.isnull())
-                choice_net_cost_au_nz_gb = display_table_info["NET_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
-
-                mask_display_budget_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"]!=0)#.notnull())
-                choice_net_budget = display_table_info["NET_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
-
-                mask_display_net = ~display_table_info["Currency Type"].isin(['AUD', 'NZD', 'GBP']) & (display_table_info["NET_PLANNED_COST"]==0)#.isnull())
-                choice_display_net = display_table_info["GROSS_PLANNED_COST"] * display_table_info["Currency Exchange Rate"]
-
-                display_table_info["PLANNED_COST"] = np.select([mask_gross_budget_au_nz_gb,
-                                                                mask_net_budget_au_nz_gb,
-                                                                mask_display_budget_net,
-                                                                mask_display_net],
-                                                               [choice_gross_cost_au_nz_gb,
-                                                                choice_net_cost_au_nz_gb,
-                                                                choice_net_budget,
-                                                                choice_display_net],default=0.00)
+            display_table_info["PLANNED_COST"] = np.select([mask_gross_budget_au_nz_gb,
+                                                            mask_net_budget_au_nz_gb,
+                                                            mask_display_budget_net,
+                                                            mask_display_net],
+                                                           [choice_gross_cost_au_nz_gb,
+                                                            choice_net_cost_au_nz_gb,
+                                                            choice_net_budget,
+                                                            choice_display_net],default=0.00)
 
 
-                displayfirsttable = display_table_info[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+            displayfirsttable = display_table_info[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+                                                    "COST_TYPE", "UNIT_COST", "PLANNED_COST",
+                                                    "BOOKED_IMP#BOOKED_ENG", "Delivered_Impressions"]]
+
+
+            self.displayfirsttable = displayfirsttable
+
+
+    def access_vdx_summary(self):
+        """VDX Placements Summary"""
+
+        if self.sqlscript.read_sql__v_d_x.empty:
+            pass
+        else:
+            vdx_merge_data = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql__v_d_x_placement]
+
+            vdx_second_summary = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),vdx_merge_data)
+
+            conditionseng = [(vdx_second_summary.loc[:, ['COST_TYPE']] == 'CPE'),
+                             (vdx_second_summary.loc[:, ['COST_TYPE']] == 'CPE+')]
+
+            choiceseng = [vdx_second_summary.loc[:, ["ENGAGEMENTS"]],vdx_second_summary.loc[:, ["DPEENGAGEMENTS"]]]
+
+            vdx_second_summary["Delivered_Engagements"] = np.select(conditionseng, choiceseng)
+
+            conditionsimp = [(vdx_second_summary.loc[:, ['COST_TYPE']] == 'CPCV'),
+                             (vdx_second_summary.loc[:, ['COST_TYPE']] == 'CPM')]
+
+
+            choiceimp = [vdx_second_summary.loc[:, ["COMPLETIONS"]],
+                         vdx_second_summary.loc[:, ["IMPRESSIONS"]]]
+
+            vdx_second_summary["Delivered_Impressions"] = np.select(conditionsimp, choiceimp)
+
+            vdx_exchange_table = [vdx_second_summary, self.config.cdb_io_exchange]
+            vdx_table = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), vdx_exchange_table)
+
+
+            mask_vdx_unit_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"]!=0) #.notnull())
+            choices_vdx_unit_au_nz_gb_not_null = vdx_table["GROSS_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
+
+            mask_vdx_unit_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"]==0)#.isnull())
+            choices_vdx_unit_au_is_null = vdx_table["NET_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
+
+            mask_vdx_unit_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"]!=0) #.notnull())
+            choices_vdx_unit_net_not_null = vdx_table["NET_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
+
+            mask_vdx_unit_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"]==0) #.isnull())
+            choices_vdx_unit_is_null = vdx_table["GROSS_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
+
+            vdx_table['UNIT_COST'] = np.select([mask_vdx_unit_au_nz_gb_not_null,
+                                                mask_vdx_unit_au_nz_gb_is_null,
+                                                mask_vdx_unit_net_not_null,
+                                                mask_vdx_unit_is_null],
+                                               [choices_vdx_unit_au_nz_gb_not_null,
+                                                choices_vdx_unit_au_is_null,
+                                                choices_vdx_unit_net_not_null,
+                                                choices_vdx_unit_is_null],default=0.00)
+
+            mask_vdx_cost_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"]!=0) #.notnull())
+            choice_vdx_cost_au_nz_gb_not_null = vdx_table["GROSS_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
+
+            mask_vdx_cost_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"]==0) #.isnull())
+            choice_vdx_cost_au_is_null = vdx_table["NET_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
+
+            mask_vdx_cost_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"]!=0) #.notnull())
+            choices_vdx_cost_net_not_null = vdx_table["NET_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
+
+            mask_vdx_cost_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"]==0)  #.isnull())
+            choices_vdx_cost_net_is_null = vdx_table["GROSS_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
+
+            vdx_table['PLANNED_COST'] = np.select([mask_vdx_cost_au_nz_gb_not_null,
+                                                    mask_vdx_cost_au_nz_gb_is_null ,
+                                                   mask_vdx_cost_net_not_null ,
+                                                   mask_vdx_cost_is_null],
+                                                  [choice_vdx_cost_au_nz_gb_not_null,
+                                                   choice_vdx_cost_au_is_null,
+                                                   choices_vdx_cost_net_not_null,choices_vdx_cost_net_is_null],default=0.00)
+
+            vdx_access_table = vdx_table[
+                ["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
+                 "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
+                 "Delivered_Engagements", "Delivered_Impressions"]]
+
+            self.vdx_access_table = vdx_access_table
+
+    def access_preroll_summary(self):
+        """Preroll Placements Summary"""
+
+        if self.sqlscript.read_sql_preroll.empty:
+            pass
+        else:
+            preroll_third_summary = self.sqlscript.read_sql_preroll.merge(self.sqlscript.read_sql_preroll_placement, on="PLACEMENT#")
+
+            preroll_table = preroll_third_summary[
+                ["IO_ID", "PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
+                 "COST_TYPE", "NET_UNIT_COST", "NET_PLANNED_COST", "GROSS_UNIT_COST", "GROSS_PLANNED_COST",
+                 "BOOKED_IMP#BOOKED_ENG",
+                 "IMPRESSION", "COMPLETIONS"]]
+
+            preroll_exchange_table = [preroll_table, self.config.cdb_io_exchange]
+
+            preroll_final_table = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'),
+                                         preroll_exchange_table)
+
+            mask_preroll_unit_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"]!=0)#.notnull())
+            choices_preroll_unit_au_nz_gb_not_null = preroll_final_table["GROSS_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            mask_preroll_unit_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"]==0)#.isnull())
+            choices_preroll_unit_au_nz_gb_is_null = preroll_final_table["NET_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            mask_preroll_unit_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"]!=0)#.notnull())
+            choices_preroll_unit_net_not_null = preroll_final_table["NET_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            mask_preroll_unit_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"]==0)#.isnull())
+            choices_preroll_unit_net_is_null = preroll_final_table["GROSS_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            preroll_final_table["UNIT_COST"] = np.select([mask_preroll_unit_au_nz_gb_not_null,
+                                                          mask_preroll_unit_au_nz_gb_is_null,
+                                                          mask_preroll_unit_net_not_null,
+                                                          mask_preroll_unit_net_is_null],
+                                                         [choices_preroll_unit_au_nz_gb_not_null,
+                                                          choices_preroll_unit_au_nz_gb_is_null,
+                                                          choices_preroll_unit_net_not_null,
+                                                          choices_preroll_unit_net_is_null],
+                                                         default=0.00)
+
+            mask_preroll_cost_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"]!=0)#.notnull())
+            choice_preroll_cost_au_nz_gb_not_null = preroll_final_table["GROSS_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            mask_preroll_cost_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"]==0)#.isnull())
+            choice_preroll_cost_au_nz_gb_is_null =  preroll_final_table["NET_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            mask_preroll_cost_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"]!=0)#.notnull())
+            choices_preroll_unit_net_not_null = preroll_final_table["NET_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            mask_preroll_cost_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"]==0)#.isnull())
+            choices_preroll_cost_net_is_null = preroll_final_table["GROSS_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
+
+            preroll_final_table["PLANNED_COST"] = np.select([mask_preroll_cost_au_nz_gb_not_null,
+                                                             mask_preroll_cost_au_nz_gb_is_null,
+                                                             mask_preroll_cost_net_not_null,
+                                                             mask_preroll_cost_net_is_null],
+                                                            [choice_preroll_cost_au_nz_gb_not_null,
+                                                             choice_preroll_cost_au_nz_gb_is_null,
+                                                             choices_preroll_unit_net_not_null,
+                                                             choices_preroll_cost_net_is_null],default=0.00)
+
+
+            conditionscpcv = preroll_final_table["COST_TYPE"].isin(["CPCV"])
+            conditionscpm = preroll_final_table["COST_TYPE"].isin(["CPM"])
+
+            choicescpcv = preroll_final_table["COMPLETIONS"]
+            choicescpm = preroll_final_table["IMPRESSION"]
+
+            preroll_final_table['Delivered_Impressions'] = np.select([conditionscpcv, conditionscpm],
+                                                                     [choicescpcv, choicescpm])
+
+            preroll_access_table = preroll_final_table[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
                                                         "COST_TYPE", "UNIT_COST", "PLANNED_COST",
                                                         "BOOKED_IMP#BOOKED_ENG", "Delivered_Impressions"]]
 
 
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
-            pass
+            self.preroll_access_table = preroll_access_table
 
-        self.logger.info('Building VDX placements for IO - {}'.format(self.config.ioid))
-        vdx_access_table = None
-        try:
-            if self.read_sql__v_d_x.empty:
-                self.logger.info("No VDX placements for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("VDX placements found for IO - {}".format(self.config.ioid))
-
-                vdx_second_summary = self.read_sql__v_d_x.merge(self.read_sql__v_d_x_mv, on="PLACEMENT#")
-
-                vdx_second__table = vdx_second_summary[["IO_ID", "PLACEMENT#", "START_DATE",
-                                                        "END_DATE", "PLACEMENT_NAME","COST_TYPE","NET_UNIT_COST",
-                                                        "GROSS_UNIT_COST","NET_PLANNED_COST",
-                                                        "GROSS_PLANNED_COST","BOOKED_IMP#BOOKED_ENG",
-                                                        "IMPRESSION", "ENG", "DEEP", "COMPLETIONS"]]
-
-                #print(vdx_second__table[["GROSS_PLANNED_COST","NET_PLANNED_COST","NET_UNIT_COST","GROSS_UNIT_COST"]])
-                #exit()
-
-                conditionseng = [(vdx_second__table.loc[:, ['COST_TYPE']] == 'CPE'),
-                                 (vdx_second__table.loc[:, ['COST_TYPE']] == 'CPE+')]
-
-                choiceseng = [vdx_second__table.loc[:, ["ENG"]],vdx_second__table.loc[:, ["DEEP"]]]
-
-                vdx_second__table["Delivered_Engagements"] = np.select(conditionseng, choiceseng)
-
-
-                conditionsimp = [(vdx_second__table.loc[:, ['COST_TYPE']] == 'CPCV'),
-                                 (vdx_second__table.loc[:, ['COST_TYPE']] == 'CPM')]
-
-
-                choiceimp = [vdx_second__table.loc[:, ["COMPLETIONS"]],
-                             vdx_second__table.loc[:, ["IMPRESSION"]]]
-
-                vdx_second__table["Delivered_Impressions"] = np.select(conditionsimp, choiceimp)
-
-                vdx_exchange_table = [vdx_second__table, self.config.cdb_io_exchange]
-                vdx_table = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'), vdx_exchange_table)
-
-
-                #print(vdx_table[["GROSS_PLANNED_COST","NET_PLANNED_COST"]])
-                #exit()
-
-                mask_vdx_unit_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"]!=0) #.notnull())
-                choices_vdx_unit_au_nz_gb_not_null = vdx_table["GROSS_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
-
-                mask_vdx_unit_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_UNIT_COST"]==0)#.isnull())
-                choices_vdx_unit_au_is_null = vdx_table["NET_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
-
-                mask_vdx_unit_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"]!=0) #.notnull())
-                choices_vdx_unit_net_not_null = vdx_table["NET_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
-
-                mask_vdx_unit_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_UNIT_COST"]==0) #.isnull())
-                choices_vdx_unit_is_null = vdx_table["GROSS_UNIT_COST"] * vdx_table["Currency Exchange Rate"]
-
-                vdx_table['UNIT_COST'] = np.select([mask_vdx_unit_au_nz_gb_not_null,
-                                                    mask_vdx_unit_au_nz_gb_is_null,
-                                                    mask_vdx_unit_net_not_null,
-                                                    mask_vdx_unit_is_null],
-                                                   [choices_vdx_unit_au_nz_gb_not_null,
-                                                    choices_vdx_unit_au_is_null,
-                                                    choices_vdx_unit_net_not_null,
-                                                    choices_vdx_unit_is_null],default=0.00)
-
-                #vdx_table["GROSS_PLANNED_COST"] = pd.to_numeric(vdx_table.GROSS_PLANNED_COST,errors='coerce')
-
-                mask_vdx_cost_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"]!=0) #.notnull())
-                #mask_vdx_cost_au_nz_gb_not_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"] == 0)
-                choice_vdx_cost_au_nz_gb_not_null = vdx_table["GROSS_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
-
-                mask_vdx_cost_au_nz_gb_is_null = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"]==0) #.isnull())
-                #mask_vdx_cost_au_nz_gb_is_null_new = (vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["GROSS_PLANNED_COST"] == 0)
-                choice_vdx_cost_au_is_null = vdx_table["NET_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
-
-                mask_vdx_cost_net_not_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"]!=0) #.notnull())
-                #mask_vdx_cost_net_not_null_new =(~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"] != 0)
-                choices_vdx_cost_net_not_null = vdx_table["NET_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
-
-                mask_vdx_cost_is_null = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"]==0)  #.isnull())
-                #mask_vdx_cost_is_null_new = (~vdx_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (vdx_table["NET_PLANNED_COST"] == 0)
-                choices_vdx_cost_net_is_null = vdx_table["GROSS_PLANNED_COST"] * vdx_table["Currency Exchange Rate"]
-
-                vdx_table['PLANNED_COST'] = np.select([mask_vdx_cost_au_nz_gb_not_null,
-                                                        mask_vdx_cost_au_nz_gb_is_null ,
-                                                       mask_vdx_cost_net_not_null ,
-                                                       mask_vdx_cost_is_null],
-                                                      [choice_vdx_cost_au_nz_gb_not_null,
-                                                       choice_vdx_cost_au_is_null,
-                                                       choices_vdx_cost_net_not_null,choices_vdx_cost_net_is_null],default=0.00)
-
-                vdx_access_table = vdx_table[
-                    ["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME", "COST_TYPE",
-                     "UNIT_COST", "PLANNED_COST", "BOOKED_IMP#BOOKED_ENG",
-                     "Delivered_Engagements", "Delivered_Impressions"]]
-
-                print(vdx_table["PLANNED_COST"])
-                exit()
-
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
-            pass
-
-        self.logger.info('Buliding Preroll Placements for IO - {}'.format(self.config.ioid))
-        preroll_access_table = None
-        try:
-            if self.read_sql_preroll.empty:
-                self.logger.info("No Preroll placements for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("Preroll placements found for IO - {}".format(self.config.ioid))
-                preroll_third_summary = self.read_sql_preroll.merge(self.read_sql_preroll_mv, on="PLACEMENT#")
-
-                preroll_table = preroll_third_summary[
-                    ["IO_ID", "PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
-                     "COST_TYPE", "NET_UNIT_COST", "NET_PLANNED_COST", "GROSS_UNIT_COST", "GROSS_PLANNED_COST",
-                     "BOOKED_IMP#BOOKED_ENG",
-                     "IMPRESSION", "COMPLETIONS"]]
-
-                preroll_exchange_table = [preroll_table, self.config.cdb_io_exchange]
-
-                preroll_final_table = reduce(lambda left, right: pd.merge(left, right, on='IO_ID'),
-                                             preroll_exchange_table)
-
-                mask_preroll_unit_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"]!=0)#.notnull())
-                choices_preroll_unit_au_nz_gb_not_null = preroll_final_table["GROSS_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                mask_preroll_unit_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_UNIT_COST"]==0)#.isnull())
-                choices_preroll_unit_au_nz_gb_is_null = preroll_final_table["NET_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                mask_preroll_unit_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"]!=0)#.notnull())
-                choices_preroll_unit_net_not_null = preroll_final_table["NET_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                mask_preroll_unit_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_UNIT_COST"]==0)#.isnull())
-                choices_preroll_unit_net_is_null = preroll_final_table["GROSS_UNIT_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                preroll_final_table["UNIT_COST"] = np.select([mask_preroll_unit_au_nz_gb_not_null,
-                                                              mask_preroll_unit_au_nz_gb_is_null,
-                                                              mask_preroll_unit_net_not_null,
-                                                              mask_preroll_unit_net_is_null],
-                                                             [choices_preroll_unit_au_nz_gb_not_null,
-                                                              choices_preroll_unit_au_nz_gb_is_null,
-                                                              choices_preroll_unit_net_not_null,
-                                                              choices_preroll_unit_net_is_null],
-                                                             default=0.00)
-
-                mask_preroll_cost_au_nz_gb_not_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"]!=0)#.notnull())
-                choice_preroll_cost_au_nz_gb_not_null = preroll_final_table["GROSS_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                mask_preroll_cost_au_nz_gb_is_null = (preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["GROSS_PLANNED_COST"]==0)#.isnull())
-                choice_preroll_cost_au_nz_gb_is_null =  preroll_final_table["NET_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                mask_preroll_cost_net_not_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"]!=0)#.notnull())
-                choices_preroll_unit_net_not_null = preroll_final_table["NET_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                mask_preroll_cost_net_is_null = (~preroll_final_table["Currency Type"].isin(['AUD', 'NZD', 'GBP'])) & (preroll_final_table["NET_PLANNED_COST"]==0)#.isnull())
-                choices_preroll_cost_net_is_null = preroll_final_table["GROSS_PLANNED_COST"] * preroll_final_table["Currency Exchange Rate"]
-
-                preroll_final_table["PLANNED_COST"] = np.select([mask_preroll_cost_au_nz_gb_not_null,
-                                                                 mask_preroll_cost_au_nz_gb_is_null,
-                                                                 mask_preroll_cost_net_not_null,
-                                                                 mask_preroll_cost_net_is_null],
-                                                                [choice_preroll_cost_au_nz_gb_not_null,
-                                                                 choice_preroll_cost_au_nz_gb_is_null,
-                                                                 choices_preroll_unit_net_not_null,
-                                                                 choices_preroll_cost_net_is_null],default=0.00)
-
-
-                conditionscpcv = preroll_final_table["COST_TYPE"].isin(["CPCV"])
-                conditionscpm = preroll_final_table["COST_TYPE"].isin(["CPM"])
-
-                choicescpcv = preroll_final_table["COMPLETIONS"]
-                choicescpm = preroll_final_table["IMPRESSION"]
-
-                preroll_final_table['Delivered_Impressions'] = np.select([conditionscpcv, conditionscpm],
-                                                                         [choicescpcv, choicescpm])
-
-                preroll_access_table = preroll_final_table[["PLACEMENT#", "START_DATE", "END_DATE", "PLACEMENT_NAME",
-                                                            "COST_TYPE", "UNIT_COST", "PLANNED_COST",
-                                                            "BOOKED_IMP#BOOKED_ENG", "Delivered_Impressions"]]
-
-        except (KeyError, AttributeError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
-            pass
-
-        self.displayfirsttable = displayfirsttable
-        self.vdx_access_table = vdx_access_table
-        self.preroll_access_table = preroll_access_table
-
-    def summary_creation(self):
+    def display_summary_creation(self):
         """
-    Creating Summary Sheet
-        :param self:
-        :return:
+        Creating Summary Sheet
         """
-        self.logger.info('Adding Delivery Metrices on Display Placements for IO - {}'.format(self.config.ioid))
-        try:
-            if self.read_sql__display.empty:
-                self.logger.info('No Display Placement for IO {}'.format(self.config.ioid))
-                pass
-            else:
-                self.logger.info('Display Placement found for IO {}'.format(self.config.ioid))
 
-                mask_display_spend_cpm = self.displayfirsttable["COST_TYPE"].isin(['CPM'])
-                mask_display_spend_cpc = self.displayfirsttable["COST_TYPE"].isin(['CPC'])
-
-                choice_display_spend_cpm = self.displayfirsttable['Delivered_Impressions'] / 1000 * \
-                                           self.displayfirsttable['UNIT_COST']
-                choice_display_spend_cpc = self.displayfirsttable['Delivered_Impressions'] * self.displayfirsttable[
-                    'UNIT_COST']
-
-                self.displayfirsttable['Delivery%'] = self.displayfirsttable['Delivered_Impressions'] / \
-                                                      self.displayfirsttable[
-                                                          'BOOKED_IMP#BOOKED_ENG']
-
-                self.displayfirsttable['Spend'] = np.select([mask_display_spend_cpm, mask_display_spend_cpc],
-                                                            [choice_display_spend_cpm, choice_display_spend_cpc])
-
-                self.displayfirsttable["PLACEMENT#"] = self.displayfirsttable["PLACEMENT#"].astype(int)
-
-        except (KeyError, AttributeError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+        if self.sqlscript.read_sql__display.empty:
             pass
+        else:
+            mask_display_spend_cpm = self.displayfirsttable["COST_TYPE"].isin(['CPM'])
+            mask_display_spend_cpc = self.displayfirsttable["COST_TYPE"].isin(['CPC'])
 
-        self.logger.info('Adding Delivery Metrices on VDX Placements for IO - {}'.format(self.config.ioid))
-        try:
-            if self.read_sql__v_d_x.empty:
-                self.logger.info('No VDX Placement for IO {}'.format(self.config.ioid))
-                pass
-            else:
-                self.logger.info('VDX Placement found for IO {}'.format(self.config.ioid))
-                self.vdx_access_table["Delivered_Engagements"] = self.vdx_access_table["Delivered_Engagements"].astype(
-                    int)
-                self.vdx_access_table["Delivered_Impressions"] = self.vdx_access_table["Delivered_Impressions"].astype(
-                    int)
-                self.vdx_access_table["PLACEMENT#"] = self.vdx_access_table["PLACEMENT#"].astype(int)
+            choice_display_spend_cpm = self.displayfirsttable['Delivered_Impressions'] / 1000 * \
+                                       self.displayfirsttable['UNIT_COST']
+            choice_display_spend_cpc = self.displayfirsttable['Delivered_Impressions'] * self.displayfirsttable[
+                'UNIT_COST']
 
-                choices_vdx_eng = self.vdx_access_table["Delivered_Engagements"] / self.vdx_access_table[
-                    "BOOKED_IMP#BOOKED_ENG"]
-                choices_vdx_cpcv = self.vdx_access_table["Delivered_Impressions"] / self.vdx_access_table[
-                    "BOOKED_IMP#BOOKED_ENG"]
+            self.displayfirsttable['Delivery%'] = self.displayfirsttable['Delivered_Impressions'] / \
+                                                  self.displayfirsttable[
+                                                      'BOOKED_IMP#BOOKED_ENG']
 
-                choices_vdx_eng_spend = self.vdx_access_table["Delivered_Engagements"] * self.vdx_access_table[
-                    "UNIT_COST"]
-                choices_vdx_cpcv_spend = self.vdx_access_table["Delivered_Impressions"] * self.vdx_access_table[
-                    "UNIT_COST"]
-                choices_vdx_cpm_spend = self.vdx_access_table["Delivered_Impressions"] / 1000 * self.vdx_access_table[
-                    "UNIT_COST"]
+            self.displayfirsttable['Spend'] = np.select([mask_display_spend_cpm, mask_display_spend_cpc],
+                                                        [choice_display_spend_cpm, choice_display_spend_cpc])
 
-                mask1 = self.vdx_access_table["COST_TYPE"].isin(['CPE', 'CPE+'])
-                mask2 = self.vdx_access_table["COST_TYPE"].isin(['CPM', 'CPCV'])
-                mask3 = self.vdx_access_table["COST_TYPE"].isin(['CPCV'])
-                mask4 = self.vdx_access_table["COST_TYPE"].isin(['CPM'])
+            self.displayfirsttable["PLACEMENT#"] = self.displayfirsttable["PLACEMENT#"].astype(int)
 
-                self.vdx_access_table['Delivery%'] = np.select([mask1, mask2], [choices_vdx_eng, choices_vdx_cpcv],
-                                                               default=0.00)
 
-                self.vdx_access_table['Spend'] = np.select([mask1, mask3, mask4], [choices_vdx_eng_spend,
-                                                                                   choices_vdx_cpcv_spend,
-                                                                                   choices_vdx_cpm_spend],
+
+    def vdx_summary_creation(self):
+        """VDX Summary Creation"""
+
+        if self.sqlscript.read_sql__v_d_x.empty:
+            pass
+        else:
+            self.vdx_access_table["Delivered_Engagements"] = self.vdx_access_table["Delivered_Engagements"].astype(
+                int)
+            self.vdx_access_table["Delivered_Impressions"] = self.vdx_access_table["Delivered_Impressions"].astype(
+                int)
+            self.vdx_access_table["PLACEMENT#"] = self.vdx_access_table["PLACEMENT#"].astype(int)
+
+            choices_vdx_eng = self.vdx_access_table["Delivered_Engagements"] / self.vdx_access_table[
+                "BOOKED_IMP#BOOKED_ENG"]
+            choices_vdx_cpcv = self.vdx_access_table["Delivered_Impressions"] / self.vdx_access_table[
+                "BOOKED_IMP#BOOKED_ENG"]
+
+            choices_vdx_eng_spend = self.vdx_access_table["Delivered_Engagements"] * self.vdx_access_table[
+                "UNIT_COST"]
+            choices_vdx_cpcv_spend = self.vdx_access_table["Delivered_Impressions"] * self.vdx_access_table[
+                "UNIT_COST"]
+            choices_vdx_cpm_spend = self.vdx_access_table["Delivered_Impressions"] / 1000 * self.vdx_access_table[
+                "UNIT_COST"]
+
+            mask1 = self.vdx_access_table["COST_TYPE"].isin(['CPE', 'CPE+'])
+            mask2 = self.vdx_access_table["COST_TYPE"].isin(['CPM', 'CPCV'])
+            mask3 = self.vdx_access_table["COST_TYPE"].isin(['CPCV'])
+            mask4 = self.vdx_access_table["COST_TYPE"].isin(['CPM'])
+
+            self.vdx_access_table['Delivery%'] = np.select([mask1, mask2], [choices_vdx_eng, choices_vdx_cpcv],
                                                            default=0.00)
-                self.vdx_access_table['Delivery%'] = self.vdx_access_table['Delivery%'].replace(np.inf, 0.00)
-                self.vdx_access_table['Spend'] = self.vdx_access_table['Spend'].replace(np.inf, 0.00)
-        except (KeyError, AttributeError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+
+            self.vdx_access_table['Spend'] = np.select([mask1, mask3, mask4], [choices_vdx_eng_spend,
+                                                                               choices_vdx_cpcv_spend,
+                                                                               choices_vdx_cpm_spend],
+                                                       default=0.00)
+            self.vdx_access_table['Delivery%'] = self.vdx_access_table['Delivery%'].replace(np.inf, 0.00)
+            self.vdx_access_table['Spend'] = self.vdx_access_table['Spend'].replace(np.inf, 0.00)
+
+
+    def preroll_summary_creation(self):
+
+        """Preroll summary creation"""
+
+        if self.sqlscript.read_sql_preroll.empty:
             pass
+        else:
+            mask5 = self.preroll_access_table["COST_TYPE"].isin(['CPCV'])
+            mask6 = self.preroll_access_table["COST_TYPE"].isin(['CPM'])
 
-        self.logger.info('Adding Delivery Metrices on Preroll Placements for IO - {}'.format(self.config.ioid))
-        try:
-            if self.read_sql_preroll.empty:
-                self.logger.info('No Preroll Placement for IO {}'.format(self.config.ioid))
-                pass
-            else:
-                self.logger.info('Preroll Placement found for IO {}'.format(self.config.ioid))
-                mask5 = self.preroll_access_table["COST_TYPE"].isin(['CPCV'])
-                mask6 = self.preroll_access_table["COST_TYPE"].isin(['CPM'])
+            choice_preroll_cpcv = self.preroll_access_table["Delivered_Impressions"] * self.preroll_access_table[
+                "UNIT_COST"]
+            choice_preroll_cpm = self.preroll_access_table["Delivered_Impressions"] / 1000 * \
+                                 self.preroll_access_table["UNIT_COST"]
 
-                choice_preroll_cpcv = self.preroll_access_table["Delivered_Impressions"] * self.preroll_access_table[
-                    "UNIT_COST"]
-                choice_preroll_cpm = self.preroll_access_table["Delivered_Impressions"] / 1000 * \
-                                     self.preroll_access_table["UNIT_COST"]
+            self.preroll_access_table["PLACEMENT#"] = self.preroll_access_table["PLACEMENT#"].astype(int)
 
-                self.preroll_access_table["PLACEMENT#"] = self.preroll_access_table["PLACEMENT#"].astype(int)
+            self.preroll_access_table['Delivery%'] = self.preroll_access_table["Delivered_Impressions"] / \
+                                                     self.preroll_access_table[
+                                                         "BOOKED_IMP#BOOKED_ENG"]
 
-                self.preroll_access_table['Delivery%'] = self.preroll_access_table["Delivered_Impressions"] / \
-                                                         self.preroll_access_table[
-                                                             "BOOKED_IMP#BOOKED_ENG"]
+            self.preroll_access_table['Spend'] = np.select([mask5, mask6],
+                                                           [choice_preroll_cpcv, choice_preroll_cpm])
+            self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace(np.inf, 0.00)
+            self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace(np.inf, 0.00)
 
-                self.preroll_access_table['Spend'] = np.select([mask5, mask6],
-                                                               [choice_preroll_cpcv, choice_preroll_cpm])
-                self.preroll_access_table['Delivery%'] = self.preroll_access_table['Delivery%'].replace(np.inf, 0.00)
-                self.preroll_access_table['Spend'] = self.preroll_access_table['Spend'].replace(np.inf, 0.00)
 
-        except (KeyError, AttributeError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
-            pass
+
 
     def rename_display(self):
         """
-        Display Placements Rename Column
-        :return:
-        """
+        Display Placements Rename Column """
+
         rename_display = self.displayfirsttable.rename(columns={"PLACEMENT#": "Placement#", "START_DATE": "Start Date",
                                                                 "END_DATE": "End Date",
                                                                 "PLACEMENT_NAME": "Placement Name",
@@ -520,8 +381,7 @@ class Summary(object):
 
     def rename_vdx(self):
         """
-        VDX Placements Rename Columsn
-        :return:
+        VDX Placements Rename Column
         """
         rename_vdx = self.vdx_access_table.rename(columns={"PLACEMENT#": "Placement#", "START_DATE": "Start Date",
                                                            "END_DATE": "End Date", "PLACEMENT_NAME": "Placement Name",
@@ -532,7 +392,7 @@ class Summary(object):
 
     def rename_preroll(self):
         """
-        :return:
+        Preroll Placements Rename Column
         """
         rename_preroll = self.preroll_access_table.rename(
             columns={"PLACEMENT#": "Placement#", "START_DATE": "Start Date", "END_DATE": "End Date",
@@ -544,7 +404,7 @@ class Summary(object):
     def write_campaign_info(self):
         """
         Writing Campaign_information to File
-        :return:
+
         """
         try:
             info_client = self.config.client_info.to_excel(self.config.writer, sheet_name="Delivery Summary",
@@ -569,7 +429,7 @@ class Summary(object):
     def write_summary_display(self):
         """
         Writing Display_Data to File
-        :return:
+
         """
 
         display_info = self.displayfirsttable.to_excel(self.config.writer, sheet_name="Delivery Summary",
@@ -579,7 +439,6 @@ class Summary(object):
         """
         Writing VDX_Data to File
 
-        :return:
         """
         display_length = 0
         if self.displayfirsttable is not None:
@@ -592,7 +451,7 @@ class Summary(object):
         """
 
         Writing Preroll_Data to File
-        :return:
+
         """
         display_length = 0
         if self.displayfirsttable is not None:
@@ -608,7 +467,7 @@ class Summary(object):
     def format_campaign_info(self):
         """
         formatting campaign info
-        :return:
+
         """
         workbook = self.config.writer.book
         worksheet = self.config.writer.sheets["Delivery Summary"]
@@ -635,16 +494,16 @@ class Summary(object):
             {"num_format": '"MXN" #,###0.00', "bg_color": "#A5A5A5", "bold": True})
         money_fmt_mxn = workbook.add_format({"num_format": '"MXN" #,###0.00'})
 
-        money_fmt_total_ZAR = workbook.add_format(
+        money_fmt_total_zar = workbook.add_format(
             {"num_format": '"ZAR" #,###0.00', "bg_color": "#A5A5A5", "bold": True})
-        money_fmt_ZAR = workbook.add_format({"num_format": '"ZAR" #,###0.00'})
+        money_fmt_zar = workbook.add_format({"num_format": '"ZAR" #,###0.00'})
 
-        money_fmt_total_CHF = workbook.add_format(
+        money_fmt_total_chf = workbook.add_format(
             {"num_format": '"CHF" #,###0.00', "bg_color": "#A5A5A5", "bold": True})
-        money_fmt_CHF = workbook.add_format({"num_format": '"CHF" #,###0.00'})
+        money_fmt_chf = workbook.add_format({"num_format": '"CHF" #,###0.00'})
 
-        money_fmt_total_INR = workbook.add_format({"num_format": u"₹#,###0.00", "bg_color": "#A5A5A5", "bold": True})
-        money_fmt_INR = workbook.add_format({"num_format": u'₹#,###0.00'})
+        money_fmt_total_inr = workbook.add_format({"num_format": u"₹#,###0.00", "bg_color": "#A5A5A5", "bold": True})
+        money_fmt_inr = workbook.add_format({"num_format": u'₹#,###0.00'})
 
         money_fmt_total_myr = workbook.add_format(
             {"num_format": '"MYR" #,###0.00', "bg_color": "#A5A5A5", "bold": True})
@@ -669,7 +528,7 @@ class Summary(object):
         end_row = 2
 
         try:
-            if self.read_sql__display.empty:
+            if self.sqlscript.read_sql__display.empty:
                 pass
             else:
                 worksheet.write_string(start_row, start_col, "Standard Banners (Performance/Brand)", format_write)
@@ -705,7 +564,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -725,7 +584,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -733,7 +592,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -751,7 +610,7 @@ class Summary(object):
                     formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_ZAR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_zar)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_mxn)
@@ -766,13 +625,13 @@ class Summary(object):
                         worksheet.write_formula(cell_location, formula, money_fmt_total_gbp)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_INR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_inr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_myr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_CHF)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_chf)
                     else:
                         worksheet.write_formula(cell_location, formula, money_fmt_total)
 
@@ -781,7 +640,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -801,7 +660,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -809,7 +668,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -843,7 +702,7 @@ class Summary(object):
                     formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_ZAR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_zar)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_mxn)
@@ -858,13 +717,13 @@ class Summary(object):
                         worksheet.write_formula(cell_location, formula, money_fmt_total_gbp)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_INR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_inr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_myr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_CHF)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_chf)
                     else:
                         worksheet.write_formula(cell_location, formula, money_fmt_total)
 
@@ -873,7 +732,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -893,7 +752,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -901,7 +760,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -911,7 +770,7 @@ class Summary(object):
             pass
 
         try:
-            if self.read_sql__v_d_x.empty:
+            if self.sqlscript.read_sql__v_d_x.empty:
                 pass
             else:
                 display_row = 0
@@ -956,7 +815,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -976,7 +835,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -984,7 +843,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -1003,7 +862,7 @@ class Summary(object):
                     formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_ZAR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_zar)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_mxn)
@@ -1018,13 +877,13 @@ class Summary(object):
                         worksheet.write_formula(cell_location, formula, money_fmt_total_gbp)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_INR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_inr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_myr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_CHF)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_chf)
                     else:
                         worksheet.write_formula(cell_location, formula, money_fmt_total)
 
@@ -1033,7 +892,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1053,7 +912,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1061,7 +920,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -1097,7 +956,7 @@ class Summary(object):
                     formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_ZAR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_zar)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_mxn)
@@ -1112,13 +971,13 @@ class Summary(object):
                         worksheet.write_formula(cell_location, formula, money_fmt_total_gbp)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_INR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_inr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_myr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_CHF)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_chf)
                     else:
                         worksheet.write_formula(cell_location, formula, money_fmt_total)
 
@@ -1127,7 +986,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1147,7 +1006,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1155,7 +1014,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -1165,7 +1024,7 @@ class Summary(object):
             pass
 
         try:
-            if self.read_sql_preroll.empty:
+            if self.sqlscript.read_sql_preroll.empty:
                 pass
             else:
                 display_row = 0
@@ -1215,7 +1074,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1235,7 +1094,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1243,7 +1102,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
 
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1264,7 +1123,7 @@ class Summary(object):
                     formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_ZAR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_zar)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_mxn)
@@ -1279,13 +1138,13 @@ class Summary(object):
                         worksheet.write_formula(cell_location, formula, money_fmt_total_gbp)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_INR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_inr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_myr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_CHF)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_chf)
                     else:
                         worksheet.write_formula(cell_location, formula, money_fmt_total)
 
@@ -1294,7 +1153,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1314,7 +1173,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1322,7 +1181,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
@@ -1363,7 +1222,7 @@ class Summary(object):
                     formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_ZAR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_zar)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_mxn)
@@ -1378,13 +1237,13 @@ class Summary(object):
                         worksheet.write_formula(cell_location, formula, money_fmt_total_gbp)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_INR)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_inr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.write_formula(cell_location, formula, money_fmt_total_myr)
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
-                        worksheet.write_formula(cell_location, formula, money_fmt_total_CHF)
+                        worksheet.write_formula(cell_location, formula, money_fmt_total_chf)
                     else:
                         worksheet.write_formula(cell_location, formula, money_fmt_total)
 
@@ -1393,7 +1252,7 @@ class Summary(object):
 
                     if self.config.cdb_value_currency.iloc[0, 0] == 'ZAR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_ZAR})
+                                                     {"type": "no_blanks", "format": money_fmt_zar})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MXN':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1413,7 +1272,7 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'INR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_INR})
+                                                     {"type": "no_blanks", "format": money_fmt_inr})
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'MYR':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
@@ -1421,16 +1280,10 @@ class Summary(object):
 
                     elif self.config.cdb_value_currency.iloc[0, 0] == 'CHF':
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
-                                                     {"type": "no_blanks", "format": money_fmt_CHF})
+                                                     {"type": "no_blanks", "format": money_fmt_chf})
                     else:
                         worksheet.conditional_format(startrowmoney, col, endrowmoney, col,
                                                      {"type": "no_blanks", "format": money_fmt})
-
-            """worksheet_new = self.config.writernew.get_sheet_names("Delivery Summary")
-            for col in range (0, 13):
-                #worksheet_new = self.config.writernew.sheets["Delivery Summary"]
-                cell = worksheet_new.cell(row=1, column=col)
-                cell.style.alignment.horizontal = cell.style.alignment.HORIZONTAL_left"""
 
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
@@ -1454,71 +1307,58 @@ class Summary(object):
         worksheet.conditional_format("A1:R5", {"type": "blanks", "format": format_campaign_info})
         worksheet.conditional_format("A1:R5", {"type": "no_blanks", "format": format_campaign_info})
 
-        # worksheet.conditional_format("B1:C3",{"type":"no_errors","format":aligment_left})
-
     def main(self):
         """
-    This is main function.
-        :param self:
+        This is main function.
         """
         self.config.common_columns_summary()
-        self.connect_TFR_summary()
-        self.read_query_summary()
-        self.access_data_summary()
-        self.summary_creation()
-        try:
-            if self.read_sql__display.empty:
-                self.logger.info("No Display Placement found to rename columns for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info(
-                    "Display Placements found found to rename columns for IO - {}".format(self.config.ioid))
-                self.rename_display()
 
-            if self.read_sql__v_d_x.empty:
-                self.logger.info("No VDX Placement found to rename columns for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("VDX Placements found to rename columns for IO - {}".format(self.config.ioid))
-                self.rename_vdx()
-
-            if self.read_sql_preroll.empty:
-                self.logger.info("No Preroll Placement found to rename columns for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("Preroll Placements found to rename columns for IO - {}".format(self.config.ioid))
-                self.rename_preroll()
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+        self.logger.info("Start Creating Summary Sheet for IO - {} ".format(self.config.ioid) + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+        if self.sqlscript.read_sql__display.empty:
+            self.logger.info("No Display Placements live for IO - {} ".format(self.config.ioid))
             pass
+        else:
+            self.logger.info("Display Placements found for IO - {} ".format(self.config.ioid))
+            self.logger.info("Start Creating Summary for Display Placements at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+            self.access_display_summary()
+            self.display_summary_creation()
+            self.rename_display()
+            self.write_summary_display()
+            self.write_campaign_info()
+            self.format_campaign_info()
+            self.logger.info("Summary for Display Placements Created at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
-        self.write_campaign_info()
-        try:
-            if self.read_sql__display.empty:
-                self.logger.info("No Display Placement for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("Display Placements found for IO - {}".format(self.config.ioid))
-                self.write_summary_display()
-
-            if self.read_sql__v_d_x.empty:
-                self.logger.info("No VDX Placement for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("VDX Placements found for IO - {}".format(self.config.ioid))
-                self.write_summary_vdx()
-
-            if self.read_sql_preroll.empty:
-                self.logger.info("No Preroll Placement for IO - {}".format(self.config.ioid))
-                pass
-            else:
-                self.logger.info("Preroll Placements found for IO - {}".format(self.config.ioid))
-                self.write_summary_preroll()
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+        if self.sqlscript.read_sql__v_d_x.empty:
+            self.logger.info("No VDX Placements live for IO - {}".format(self.config.ioid))
             pass
-        self.format_campaign_info()
-        self.logger.info("Summary Sheet Created for IO - {}".format(self.config.ioid))
+        else:
+            self.logger.info("VDX Placements found for IO - {} ".format(self.config.ioid))
+            self.logger.info("Start Creating Summary for VDX Placements at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+            self.access_vdx_summary()
+            self.vdx_summary_creation()
+            self.rename_vdx()
+            self.write_summary_vdx()
+            self.write_campaign_info()
+            self.format_campaign_info()
+            self.logger.info(
+                "Summary for VDX Placements Created at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+
+        if self.sqlscript.read_sql_preroll.empty:
+            self.logger.info("No Pre-Roll Placements live for IO - {} ".format(self.config.ioid))
+            pass
+        else:
+            self.logger.info("Pre-Roll Placements found for IO - {} ".format(self.config.ioid))
+            self.logger.info("Start Creating Summary for Pre-Roll Placements at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+            self.access_preroll_summary()
+            self.preroll_summary_creation()
+            self.rename_preroll()
+            self.write_summary_preroll()
+            self.write_campaign_info()
+            self.format_campaign_info()
+            self.logger.info(
+                "Summary for Preroll Placements Created at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+
+        self.logger.info("Summary Sheet Created for IO - {}".format(self.config.ioid) + " at " +str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 if __name__ == "__main__":

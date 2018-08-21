@@ -10,659 +10,600 @@ import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_range
 from functools import reduce
 import pandas.io.formats.excel
+from SQLScript import SqlScript
+#desired_width = 320
+pd.set_option("display.max_columns", 10)
 
 pandas.io.formats.excel.header_style = None
 
 
-class Video(object):
+class Video(SqlScript):
     """
 Class for VDX Placements
     """
 
-    def __init__(self, config):
+    def __init__(self, config, sqlscript):
+        super(Video, self).__init__(self)
+        self.sqlscript = sqlscript
         self.config = config
         self.logger = self.config.logger
+        self.placement_summary_final = None
+        self.placement_adsize_final = None
+        self.placement_by_video_final = None
+        self.video_player_final = None
+        self.intractions_clicks_new = None
+        self.intractions_intrac_new = None
+        self.unique_plc_summary = None
 
-    def connect_tfr_video(self):
+    def access_vdx_placement_columns(self):
         """
-        TFR Queries for vdx placements
-        :return:
+        Accessing VDX Placements First Table Columns
+
         """
-        self.logger.info('Starting to cretae vdx placements for IO - {}'.format(self.config.ioid))
+        placement_summary_final = None
 
-        self.logger.info(
-            "Start executing: " + 'VDX_Summary.sql' + " at " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_vdx_summary = open('VDX_Summary.sql')
-        sql_vdx_summary = read_vdx_summary.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_plc_info_vdx = open('Placement_info_vdx.sql')
-        sql_vdx_km = read_plc_info_vdx.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_adsize.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_adsize_vdx = open('Placement_info_vdx_adsize.sql')
-        sql_adsize_km = read_adsize_vdx.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_video.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_video_vdx = open('Placement_info_vdx_video.sql')
-        sql_video_km = read_video_vdx.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_intraction.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_video_intraction = open('Placement_info_vdx_intraction.sql')
-        sql_video_player_intraction = read_video_intraction.read().format(self.config.ioid, self.config.start_date,
-                                                                          self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_ad_intraction.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_video_ad_intrac = open("Placement_info_vdx_ad_intraction.sql")
-        sql_ad_intraction = read_video_ad_intrac.read().format(self.config.ioid, self.config.start_date,
-                                                               self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_clickthroughs.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_video_clickthrough = open("Placement_info_vdx_clickthroughs.sql")
-        sql_click_throughs = read_video_clickthrough.read().format(self.config.ioid, self.config.start_date,
-                                                                   self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_day.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_vdx_day = open("Placement_info_vdx_day.sql")
-        sql_vdx_day_km = read_vdx_day.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_adsize_intraction_rate.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_adsize_km_rate = open("Placement_info_vdx_adsize_intraction_rate.sql")
-        sql_adsize_km_rate = read_adsize_km_rate.read().format(self.config.ioid, self.config.start_date,
-                                                               self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_vdx_km.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_vdx_km_video = open("Placement_info_vdx_km.sql")
-        sql_km_for_video = read_vdx_km_video.read().format(self.config.ioid, self.config.start_date,
-                                                           self.config.end_date)
-
-        self.sql_vdx_summary = sql_vdx_summary
-        self.sql_vdx_km = sql_vdx_km
-        self.sql_adsize_km = sql_adsize_km
-        self.sql_video_km = sql_video_km
-        self.sql_video_player_intraction = sql_video_player_intraction
-        self.sql_ad_intraction = sql_ad_intraction
-        self.sql_click_throughs = sql_click_throughs
-        self.sql_vdx_day_km = sql_vdx_day_km
-        self.sql_adsize_km_rate = sql_adsize_km_rate
-        self.sql_km_for_video = sql_km_for_video
-
-    def read_query_video(self):
-        """
-        Reading Query from TFR
-        :return:
-        """
-        self.logger.info('Running Query for VDX placements for IO {}'.format(self.config.ioid))
-
-        read_sql_vdx_summary = pd.read_sql(self.sql_vdx_summary, self.config.conn)
-
-        read_sql_vdx_km = pd.read_sql(self.sql_vdx_km, self.config.conn)
-
-        read_sql_adsize_km = pd.read_sql(self.sql_adsize_km, self.config.conn)
-
-        read_sql_video_km = pd.read_sql(self.sql_video_km, self.config.conn)
-
-        read_sql_video_player_interaction = pd.read_sql(self.sql_video_player_intraction, self.config.conn)
-
-        read_sql_ad_intraction = pd.read_sql(self.sql_ad_intraction, self.config.conn)
-
-        read_sql_km_for_video = pd.read_sql(self.sql_km_for_video, self.config.conn)
-
-        self.read_sql_vdx_summary = read_sql_vdx_summary
-        self.read_sql_vdx_km = read_sql_vdx_km
-        self.read_sql_adsize_km = read_sql_adsize_km
-        self.read_sql_video_km = read_sql_video_km
-        self.read_sql_video_player_interaction = read_sql_video_player_interaction
-        self.read_sql_ad_intraction = read_sql_ad_intraction
-        self.read_sql_km_for_video = read_sql_km_for_video
-
-    def access_vdx_columns(self):
-        """
-        Accessing VDX Columns
-        :return:
-        """
-        self.logger.info('Query Stored for further processing of IO - {}'.format(self.config.ioid))
-        self.logger.info('Creating placement wise table of IO - {}'.format(self.config.ioid))
-
-        placementsummaryfinal = None
-        placementadsizefinal = None
-        placement_by_video_final = None
-        video_player_final = None
-        intractions_clicks_new = None
-        intractions_intrac_new = None
-
-        try:
-            if self.read_sql_video_km.empty:
-                pass
-            else:
-                placementvdxs = [self.read_sql_vdx_summary, self.read_sql_vdx_km]
-
-                placementvdxsummary = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'), placementvdxs)
-                placementvdxsummarynew = placementvdxsummary.loc[:,
-                                         ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "PRODUCT",
-                                          "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAMENTS",
-                                          "ENGCLICKTHROUGH", "DPECLICKTHROUGH", "VWRCLICKTHROUGH",
-                                          "ENGTOTALTIMESPENT", "DPETOTALTIMESPENT", "COMPLETIONS",
-                                          "ENGINTRACTIVEENGAGEMENTS", "DPEINTRACTIVEENGAGEMENTS",
-                                          "VIEW100", "ENG100", "DPE100"]]
-
-                placementvdxsummarynew["Placement# Name"] = placementvdxsummarynew[["PLACEMENT#",
-                                                                                    "PLACEMENT_NAME"]].apply(
-                    lambda x: ".".join(x),
-                    axis=1)
-
-                placementvdxsummary = placementvdxsummarynew.loc[:, ["Placement# Name", "COST_TYPE", "PRODUCT",
-                                                                     "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAMENTS",
-                                                                     "ENGCLICKTHROUGH", "DPECLICKTHROUGH",
-                                                                     "VWRCLICKTHROUGH",
-                                                                     "ENGTOTALTIMESPENT", "DPETOTALTIMESPENT",
-                                                                     "COMPLETIONS",
-                                                                     "ENGINTRACTIVEENGAGEMENTS",
-                                                                     "DPEINTRACTIVEENGAGEMENTS",
-                                                                     "VIEW100", "ENG100", "DPE100"]]
-
-                placementvdxsummaryfirst = placementvdxsummary.append(placementvdxsummary.sum(numeric_only=True),
-                                                                      ignore_index=True)
-
-                placementvdxsummaryfirst["COST_TYPE"] = placementvdxsummaryfirst["COST_TYPE"].fillna('CPE')
-
-                placementvdxsummaryfirst["PRODUCT"] = placementvdxsummaryfirst["PRODUCT"].fillna('Grand Total')
-
-                placementvdxsummaryfirst["Placement# Name"] = placementvdxsummaryfirst["Placement# Name"].fillna(
-                    'Grand '
-                    'Total')
-
-                mask1 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE+'])
-                choicedeepengagement = placementvdxsummaryfirst['DPEENGAMENTS'] / placementvdxsummaryfirst[
-                    'IMPRESSIONS']
-                mask2 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE', 'CPM', 'CPCV'])
-                choiceengagements = placementvdxsummaryfirst["ENGAGEMENTS"] / placementvdxsummaryfirst['IMPRESSIONS']
-
-                placementvdxsummaryfirst["Engagements Rate"] = np.select([mask1, mask2],
-                                                                         [choicedeepengagement, choiceengagements],
-                                                                         default=0.00)
-
-                placementvdxsummaryfirst["Engagements Rate"] = placementvdxsummaryfirst["Engagements Rate"].replace(
-                    [np.inf,np.nan], 0.00)
-
-                mask3 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE+', 'CPE', 'CPM', 'CPCV'])
-                mask_vdx_first = placementvdxsummaryfirst["COST_TYPE"].isin(['CPCV'])
-                choicevwrctr = placementvdxsummaryfirst['VWRCLICKTHROUGH'] / placementvdxsummaryfirst['IMPRESSIONS']
-
-                placementvdxsummaryfirst["Viewer CTR"] = np.select([mask3], [choicevwrctr], default=0.00)
-
-                placementvdxsummaryfirst["Viewer CTR"] = placementvdxsummaryfirst["Viewer CTR"].replace([np.inf,np.nan], 0.00)
-
-                choiceengctr = placementvdxsummaryfirst["ENGCLICKTHROUGH"] / placementvdxsummaryfirst["ENGAGEMENTS"]
-                choicedeepctr = placementvdxsummaryfirst["DPECLICKTHROUGH"] / placementvdxsummaryfirst["DPEENGAMENTS"]
-
-                placementvdxsummaryfirst["Engager CTR"] = np.select([mask1, mask2], [choicedeepctr, choiceengctr],
-                                                                    default=0.00)
-
-                placementvdxsummaryfirst["Engager CTR"] = placementvdxsummaryfirst["Engager CTR"].replace([np.nan,np.inf], 0.00)
-
-
-                mask4 = placementvdxsummaryfirst["PRODUCT"].isin(['InStream'])
-                mask_vdx_first_vwr_vcr = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE+', 'CPE', 'CPM'])
-                choicevwrvcr = placementvdxsummaryfirst['VIEW100'] / placementvdxsummaryfirst['IMPRESSIONS']
-                choicevwrvcr_vdx_first = placementvdxsummaryfirst['COMPLETIONS'] / placementvdxsummaryfirst[
-                    'IMPRESSIONS']
-
-                placementvdxsummaryfirst['Viewer VCR'] = np.select(
-                    [mask4 & mask_vdx_first_vwr_vcr, mask4 & mask_vdx_first],
-                    [choicevwrvcr, choicevwrvcr_vdx_first], default='N/A')
-
-                placementvdxsummaryfirst['Viewer VCR'] = pd.to_numeric(placementvdxsummaryfirst['Viewer VCR'],
-                                                                       errors='coerce')
-
-                mask5 = placementvdxsummaryfirst["PRODUCT"].isin(['Display', 'Mobile'])
-                mask6 = placementvdxsummaryfirst['COST_TYPE'].isin(['CPM', 'CPE'])
-                choiceengvcrcpecpm = placementvdxsummaryfirst['ENG100'] / placementvdxsummaryfirst['ENGAGEMENTS']
-                mask7 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPE+'])
-                mask8 = placementvdxsummaryfirst["COST_TYPE"].isin(['CPCV'])
-                choiceengvcrcpe_plus = placementvdxsummaryfirst['DPE100'] / placementvdxsummaryfirst['DPEENGAMENTS']
-                choiceengvcrcpcv = placementvdxsummaryfirst['COMPLETIONS'] / placementvdxsummaryfirst['ENGAGEMENTS']
-
-                placementvdxsummaryfirst['Engager VCR'] = np.select([mask5 & mask6, mask5 & mask7, mask5 & mask8],
-                                                                    [choiceengvcrcpecpm,
-                                                                     choiceengvcrcpe_plus,
-                                                                     choiceengvcrcpcv],
-                                                                    default='N/A')
-
-                placementvdxsummaryfirst['Engager VCR'] = pd.to_numeric(placementvdxsummaryfirst['Engager VCR'],
-                                                                        errors='coerce')
-
-                choiceintratecpe_plus = placementvdxsummaryfirst['DPEINTRACTIVEENGAGEMENTS'] / placementvdxsummaryfirst[
-                    'DPEENGAMENTS']
-
-                choiceintrateotherthancpe_plus = placementvdxsummaryfirst['ENGINTRACTIVEENGAGEMENTS'] / \
-                                                 placementvdxsummaryfirst['ENGAGEMENTS']
-
-                placementvdxsummaryfirst['Interaction Rate'] = np.select([mask2, mask1],
-                                                                         [choiceintrateotherthancpe_plus,
-                                                                          choiceintratecpe_plus],
-                                                                         default=0.00)
-
-                placementvdxsummaryfirst["Interaction Rate"] = placementvdxsummaryfirst["Interaction Rate"].replace(
-                    [np.inf, np.nan], 0.00)
-
-                choiceatscpe_plus = (
-                    (placementvdxsummaryfirst['DPETOTALTIMESPENT'] / placementvdxsummaryfirst[
-                        'DPEENGAMENTS']) / 1000).apply(
-                    '{0:.2f}'.format)
-                choiceatsotherthancpe_plus = ((placementvdxsummaryfirst['ENGTOTALTIMESPENT'] / placementvdxsummaryfirst['ENGAGEMENTS'])/1000).apply('{0:.2f}'.format)
-
-                placementvdxsummaryfirst['Active Time Spent'] = np.select([mask2, mask1], [choiceatsotherthancpe_plus,
-                                                                                           choiceatscpe_plus],
-                                                                          default=0.00)
-
-                placementvdxsummaryfirst['Active Time Spent'] = placementvdxsummaryfirst['Active Time Spent'].astype(float)
-
-                placementvdxsummaryfirst["Active Time Spent"] = placementvdxsummaryfirst["Active Time Spent"].replace([np.inf, np.nan], 0.00)
-
-                placementvdxsummaryfirstnew = placementvdxsummaryfirst.replace(np.nan, 'N/A', regex=True)
-
-                placementvdxsummaryfirstnew.loc[
-                    placementvdxsummaryfirstnew.index[-1], ["Viewer VCR", "Engager VCR"]] = np.nan
-
-                placementsummaryfinalnew = placementvdxsummaryfirstnew.loc[:,
-                                           ["Placement# Name", "PRODUCT", "Engagements Rate", "Viewer CTR",
-                                            "Engager CTR", "Viewer VCR", "Engager VCR",
-                                            "Interaction Rate", "Active Time Spent"]]
-
-                placementsummaryfinal = placementsummaryfinalnew.loc[:,
-                                        ["Placement# Name", "PRODUCT", "Engagements Rate",
-                                         "Viewer CTR", "Engager CTR", "Viewer VCR",
-                                         "Engager VCR", "Interaction Rate",
-                                         "Active Time Spent"]]
-
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+        if self.sqlscript.read_sql_video_km.empty:
             pass
+        else:
+            placement_vdx = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql__v_d_x_mv]
 
-        self.logger.info('Creating adsize wise table of IO - {}'.format(self.config.ioid))
+            summary_placement_vdx = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'), placement_vdx)
+            placement_vdx_summary_new = summary_placement_vdx.loc[:,
+                                     ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "PRODUCT",
+                                      "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
+                                      "ENGCLICKTHROUGH", "DPECLICKTHROUGH", "VWRCLICKTHROUGH",
+                                      "ENGTOTALTIMESPENT", "DPETOTALTIMESPENT", "COMPLETIONS",
+                                      "ENGINTRACTIVEENGAGEMENTS", "DPEINTRACTIVEENGAGEMENTS",
+                                      "VIEW100", "ENG100", "DPE100"]]
 
-        try:
-            if self.read_sql_adsize_km.empty:
-                pass
-            else:
-                placementadsize = [self.read_sql_vdx_summary, self.read_sql_adsize_km]
-                placementadziesummary = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),
-                                               placementadsize)
-                placementadsizefirst = placementadziesummary.loc[:,
-                                       ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "PRODUCT", "ADSIZE",
-                                        "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
-                                        "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS", "VWRCLICKTHROUGHS",
-                                        "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
-                                        "DPETOTALTIMESPENT", "ENGINTRACTIVEENGAGEMENTS",
-                                        "COMPLETIONS", "DPEINTRACTIVEENGAGEMENTS"]]
 
-                placementadsizefirst["Placement# Name"] = placementadsizefirst[["PLACEMENT#",
+            placement_vdx_summary_new["Placement# Name"] = placement_vdx_summary_new[["PLACEMENT#",
                                                                                 "PLACEMENT_NAME"]].apply(
-                    lambda x: ".".join
-                    (x),
-                    axis=1)
+                lambda x: ".".join(x),
+                axis=1)
 
-                placementadsizetable = placementadsizefirst.loc[:, ["Placement# Name", "COST_TYPE", "PRODUCT", "ADSIZE",
-                                                                    "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
-                                                                    "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS",
-                                                                    "VWRCLICKTHROUGHS",
-                                                                    "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
-                                                                    "DPETOTALTIMESPENT", "ENGINTRACTIVEENGAGEMENTS",
-                                                                    "COMPLETIONS", "DPEINTRACTIVEENGAGEMENTS"]]
-
-                placementadsizegrouping = pd.pivot_table(placementadsizetable,
-                                                         index=['Placement# Name', 'ADSIZE', 'COST_TYPE'],
-                                                         values=["IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
-                                                                 "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS",
-                                                                 "VWRCLICKTHROUGHS",
-                                                                 "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
-                                                                 "DPETOTALTIMESPENT",
-                                                                 "ENGINTRACTIVEENGAGEMENTS",
+            summary_placement = placement_vdx_summary_new.loc[:,["Placement# Name", "COST_TYPE", "PRODUCT",
+                                                                 "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
+                                                                 "ENGCLICKTHROUGH", "DPECLICKTHROUGH",
+                                                                 "VWRCLICKTHROUGH",
+                                                                 "ENGTOTALTIMESPENT", "DPETOTALTIMESPENT",
                                                                  "COMPLETIONS",
-                                                                 "DPEINTRACTIVEENGAGEMENTS"], aggfunc=np.sum)
+                                                                 "ENGINTRACTIVEENGAGEMENTS",
+                                                                 "DPEINTRACTIVEENGAGEMENTS",
+                                                                 "VIEW100", "ENG100", "DPE100"]]
 
-                placementadsizegroupingnew = placementadsizegrouping.reset_index()
+            placement_vdx_summary_first = summary_placement.append(summary_placement.sum(numeric_only=True),
+                                                                  ignore_index=True)
 
-                placementadsizegroup = placementadsizegroupingnew.loc[:, :]
+            placement_vdx_summary_first["COST_TYPE"] = placement_vdx_summary_first["COST_TYPE"].fillna('CPE')
 
-                placementadsizegroup = placementadsizegroup.append(placementadsizegroup.sum(numeric_only=True),
-                                                                   ignore_index=True)
+            placement_vdx_summary_first["PRODUCT"] = placement_vdx_summary_first["PRODUCT"].fillna('Grand Total')
 
-                placementadsizegroup["COST_TYPE"] = placementadsizegroup["COST_TYPE"].fillna('CPE')
-                placementadsizegroup["ADSIZE"] = placementadsizegroup["ADSIZE"].fillna('Grand Total')
-                placementadsizegroup["Placement# Name"] = placementadsizegroup["Placement# Name"].fillna('Grand Total')
+            placement_vdx_summary_first["Placement# Name"] = placement_vdx_summary_first["Placement# Name"].fillna(
+                'Grand '
+                'Total')
 
-                mask9 = placementadsizegroup["COST_TYPE"].isin(["CPE+"])
-                choiceadsizeengagementcpe_plus = placementadsizegroup["DPEENGAGEMENTS"] / placementadsizegroup[
-                    "IMPRESSIONS"]
-                mask10 = placementadsizegroup["COST_TYPE"].isin(["CPE", "CPM", "CPCV"])
-                choiceplacementadsizegroupcpe = placementadsizegroup["ENGAGEMENTS"] / placementadsizegroup[
-                    "IMPRESSIONS"]
-                placementadsizegroup["Engagements Rate"] = np.select([mask9, mask10], [choiceadsizeengagementcpe_plus,
-                                                                                       choiceplacementadsizegroupcpe],
+            mask1 = placement_vdx_summary_first["COST_TYPE"].isin(['CPE+'])
+            choice_deep_engagement = placement_vdx_summary_first['DPEENGAGEMENTS'] / placement_vdx_summary_first[
+                'IMPRESSIONS']
+            mask2 = placement_vdx_summary_first["COST_TYPE"].isin(['CPE', 'CPM', 'CPCV'])
+            choice_engagements = placement_vdx_summary_first["ENGAGEMENTS"] / placement_vdx_summary_first['IMPRESSIONS']
+
+            placement_vdx_summary_first["Engagements Rate"] = np.select([mask1, mask2],
+                                                                     [choice_deep_engagement, choice_engagements],
                                                                      default=0.00)
+            placement_vdx_summary_first["Engagements Rate"] = placement_vdx_summary_first["Engagements Rate"].replace(
+                [np.inf, np.nan], 0.00)
 
-                placementadsizegroup["Engagements Rate"] = placementadsizegroup["Engagements Rate"].replace([np.inf,np.nan],
-                                                                                                            0.00)
+            mask3 = placement_vdx_summary_first["COST_TYPE"].isin(['CPE+', 'CPE', 'CPM', 'CPCV'])
+            mask_vdx_first = placement_vdx_summary_first["COST_TYPE"].isin(['CPCV'])
+            choice_vwr_ctr = placement_vdx_summary_first['VWRCLICKTHROUGH'] / placement_vdx_summary_first['IMPRESSIONS']
 
-                mask11 = placementadsizegroup["COST_TYPE"].isin(["CPE", "CPM", "CPCV", "CPE+"])
-                choiceadsizeengagementvwrctr = placementadsizegroup["VWRCLICKTHROUGHS"] / placementadsizegroup[
-                    "IMPRESSIONS"]
+            placement_vdx_summary_first["Viewer CTR"] = np.select([mask3], [choice_vwr_ctr], default=0.00)
+            placement_vdx_summary_first["Viewer CTR"] = placement_vdx_summary_first["Viewer CTR"].replace(
+                [np.inf, np.nan], 0.00)
 
-                placementadsizegroup["Viewer CTR"] = np.select([mask11], [choiceadsizeengagementvwrctr], default=0.00)
-
-                placementadsizegroup["Viewer CTR"] = placementadsizegroup["Viewer CTR"].replace([np.inf, np.nan], 0.00)
-
-                choiceadsizeengagementengctr = placementadsizegroup["ENGCLICKTHROUGHS"] / placementadsizegroup[
-                    "ENGAGEMENTS"]
-                choiceadsizeengagementdpegctr = placementadsizegroup["DPECLICKTHROUGHS"] / placementadsizegroup[
-                    "DPEENGAGEMENTS"]
-
-                placementadsizegroup["Engager CTR"] = np.select([mask10, mask9], [choiceadsizeengagementengctr,
-                                                                                  choiceadsizeengagementdpegctr],
+            choice_eng_ctr = placement_vdx_summary_first["ENGCLICKTHROUGH"] / placement_vdx_summary_first["ENGAGEMENTS"]
+            choice_deep_ctr = placement_vdx_summary_first["DPECLICKTHROUGH"] / placement_vdx_summary_first["DPEENGAGEMENTS"]
+            placement_vdx_summary_first["Engager CTR"] = np.select([mask1, mask2], [choice_deep_ctr, choice_eng_ctr],
                                                                 default=0.00)
 
-                placementadsizegroup["Engager CTR"] = placementadsizegroup["Engager CTR"].replace([np.inf, np.nan], 0.00)
+            placement_vdx_summary_first["Engager CTR"] = placement_vdx_summary_first["Engager CTR"].replace(
+                [np.nan, np.inf], 0.00)
 
-                mask12 = placementadsizegroup["ADSIZE"].isin(["1x10"])
-                mask13 = placementadsizegroup["COST_TYPE"].isin(["CPE", "CPE+", "CPM"])
-                mask14 = placementadsizegroup["COST_TYPE"].isin(["CPCV"])
+            mask4 = placement_vdx_summary_first["PRODUCT"].isin(['InStream'])
+            mask_vdx_first_vwr_vcr = placement_vdx_summary_first["COST_TYPE"].isin(['CPE+', 'CPE', 'CPM'])
+            choice_vwr_vcr = placement_vdx_summary_first['VIEW100'] / placement_vdx_summary_first['IMPRESSIONS']
+            choice_vwr_vcr_vdx_first = placement_vdx_summary_first['COMPLETIONS'] / placement_vdx_summary_first[
+                'IMPRESSIONS']
 
-                choiceadsizevwrvcrcpe = (placementadsizegroup["VIEW100"] / placementadsizegroup["IMPRESSIONS"]).replace([np.inf,np.nan],0.00)
-                choiceadsizevwrvcrcpcv = (placementadsizegroup["COMPLETIONS"] / placementadsizegroup["IMPRESSIONS"]).replace([np.inf,np.nan],0.00)
+            placement_vdx_summary_first['Viewer VCR'] = np.select(
+                [mask4 & mask_vdx_first_vwr_vcr, mask4 & mask_vdx_first],
+                [choice_vwr_vcr, choice_vwr_vcr_vdx_first], default='N/A')
+            placement_vdx_summary_first['Viewer VCR'] = pd.to_numeric(placement_vdx_summary_first['Viewer VCR'],
+                                                                   errors='coerce')
 
-                placementadsizegroup["Viewer VCR"] = np.select([mask12 & mask13, mask12 & mask14],
-                                                               [choiceadsizevwrvcrcpe,
-                                                                choiceadsizevwrvcrcpcv],default='N/A')
+            mask5 = placement_vdx_summary_first["PRODUCT"].isin(['Display', 'Mobile'])
+            mask6 = placement_vdx_summary_first['COST_TYPE'].isin(['CPM', 'CPE'])
+            choice_eng_vcr_cpe_cpm = placement_vdx_summary_first['ENG100'] / placement_vdx_summary_first['ENGAGEMENTS']
+            mask7 = placement_vdx_summary_first["COST_TYPE"].isin(['CPE+'])
+            mask8 = placement_vdx_summary_first["COST_TYPE"].isin(['CPCV'])
+            choice_eng_vcr_cpe_plus = placement_vdx_summary_first['DPE100'] / placement_vdx_summary_first['DPEENGAGEMENTS']
+            choice_eng_vcr_cpcv = placement_vdx_summary_first['COMPLETIONS'] / placement_vdx_summary_first['ENGAGEMENTS']
 
-                placementadsizegroup['Viewer VCR'] = pd.to_numeric(placementadsizegroup['Viewer VCR'], errors='coerce')
+            placement_vdx_summary_first['Engager VCR'] = np.select([mask5 & mask6, mask5 & mask7, mask5 & mask8],
+                                                                [choice_eng_vcr_cpe_cpm,
+                                                                 choice_eng_vcr_cpe_plus,
+                                                                 choice_eng_vcr_cpcv],
+                                                                default='N/A')
 
-                #placementadsizegroup["Viewer VCR"] = placementadsizegroup["Viewer VCR"].replace([np.inf, np.nan],'N/A')
-
-                mask15 = ~placementadsizegroup["ADSIZE"].isin(["1x10"])
-                mask16 = placementadsizegroup["COST_TYPE"].isin(["CPE", "CPM"])
-                choiceadsizeengvcrcpe = (placementadsizegroup["ENG100"] / placementadsizegroup["ENGAGEMENTS"]).replace([np.inf,np.nan],0.00)
-
-                choiceadsizeengvcrcpe_plus = (placementadsizegroup["DPE100"] / placementadsizegroup["DPEENGAGEMENTS"]).replace([np.inf,np.nan],0.00)
-                choiceadsizeengvcrcpcv = (placementadsizegroup["COMPLETIONS"] / placementadsizegroup["ENGAGEMENTS"]).replace([np.inf,np.nan],0.00)
-
-                placementadsizegroup["Engager VCR"] = np.select([mask15 & mask16, mask15 & mask9, mask15 & mask14],
-                                                                [choiceadsizeengvcrcpe, choiceadsizeengvcrcpe_plus,
-                                                                 choiceadsizeengvcrcpcv],default='N/A')
-
-
-                placementadsizegroup['Engager VCR'] = pd.to_numeric(placementadsizegroup['Engager VCR'],
+            placement_vdx_summary_first['Engager VCR'] = pd.to_numeric(placement_vdx_summary_first['Engager VCR'],
                                                                     errors='coerce')
 
+            choice_int_rate_cpe_plus = placement_vdx_summary_first['DPEINTRACTIVEENGAGEMENTS'] / placement_vdx_summary_first[
+                'DPEENGAGEMENTS']
+            choice_int_rate_other_than_cpe_plus = placement_vdx_summary_first['ENGINTRACTIVEENGAGEMENTS'] / \
+                                             placement_vdx_summary_first['ENGAGEMENTS']
 
-                #placementadsizegroup["Engager VCR"] = placementadsizegroup["Engager VCR"].replace('N/A',0.00)
-
-                choiceadsizeinteracratecpe = placementadsizegroup["ENGINTRACTIVEENGAGEMENTS"] / placementadsizegroup[
-                    "ENGAGEMENTS"]
-                choiceadsizeinteracratecpe_plus = placementadsizegroup["DPEINTRACTIVEENGAGEMENTS"] / \
-                                                  placementadsizegroup[
-                                                      "DPEENGAGEMENTS"]
-
-                placementadsizegroup["Interaction Rate"] = np.select([mask10, mask9], [choiceadsizeinteracratecpe,
-                                                                                       choiceadsizeinteracratecpe_plus],
+            placement_vdx_summary_first['Interaction Rate'] = np.select([mask2, mask1],
+                                                                     [choice_int_rate_other_than_cpe_plus,
+                                                                      choice_int_rate_cpe_plus],
                                                                      default=0.00)
 
-                placementadsizegroup["Interaction Rate"] = placementadsizegroup["Interaction Rate"].replace([np.inf, np.nan],
-                                                                                                  0.00)
+            placement_vdx_summary_first["Interaction Rate"] = placement_vdx_summary_first["Interaction Rate"].replace(
+                [np.inf, np.nan], 0.00)
 
-                choiceadsizeatscpe = (
-                    (placementadsizegroup["ENGTOTALTIMESPENT"] / placementadsizegroup["ENGAGEMENTS"]) / 1000).apply(
-                    '{0:.2f}'.format)
-                choiceadsizeatscpe_plus = (
-                    (placementadsizegroup["DPETOTALTIMESPENT"] / placementadsizegroup["DPEENGAGEMENTS"]) / 1000).apply(
-                    '{0:.2f}'.format)
+            choiceatscpe_plus = (
+                (placement_vdx_summary_first['DPETOTALTIMESPENT'] / placement_vdx_summary_first[
+                    'DPEENGAGEMENTS']) / 1000).apply(
+                '{0:.2f}'.format)
+            choiceatsotherthancpe_plus = (
+                (placement_vdx_summary_first['ENGTOTALTIMESPENT'] / placement_vdx_summary_first[
+                    'ENGAGEMENTS']) / 1000).apply(
+                '{0:.2f}'.format)
 
-                placementadsizegroup["Active Time Spent"] = np.select([mask10, mask14],
-                                                                      [choiceadsizeatscpe, choiceadsizeatscpe_plus],
+            placement_vdx_summary_first['Active Time Spent'] = np.select([mask2, mask1], [choiceatsotherthancpe_plus,
+                                                                                       choiceatscpe_plus],
                                                                       default=0.00)
 
-                placementadsizegroup['Active Time Spent'] = placementadsizegroup['Active Time Spent'].astype(float)
+            placement_vdx_summary_first['Active Time Spent'] = placement_vdx_summary_first['Active Time Spent'].astype(
+                float)
 
-                placementadsizegroup["Active Time Spent"] = placementadsizegroup["Active Time Spent"].replace(
-                    [np.inf, np.nan],0.00)
+            placement_vdx_summary_first["Active Time Spent"] = placement_vdx_summary_first["Active Time Spent"].replace(
+                [np.inf, np.nan], 0.00)
 
-                placementadsizegroupfirstnew = placementadsizegroup.replace(np.nan, 'N/A', regex=True)
+            placement_vdx_summary_first_new = placement_vdx_summary_first.replace(np.nan, 'N/A', regex=True)
 
-                placementadsizegroupfirstnew.loc[
-                    placementadsizegroupfirstnew.index[-1], ["Viewer VCR", "Engager VCR"]] = \
-                    np.nan
+            placement_vdx_summary_first_new.loc[
+                placement_vdx_summary_first_new.index[-1], ["Viewer VCR", "Engager VCR"]] = np.nan
 
-                placementadsizefinal = placementadsizegroupfirstnew.loc[:,
-                                       ["Placement# Name", "ADSIZE", "Engagements Rate",
-                                        "Viewer CTR", "Engager CTR", "Viewer VCR",
-                                        "Engager VCR",
+            placement_summary_final_new = placement_vdx_summary_first_new.loc[:,
+                                       ["Placement# Name", "PRODUCT", "Engagements Rate", "Viewer CTR",
+                                        "Engager CTR", "Viewer VCR", "Engager VCR",
                                         "Interaction Rate", "Active Time Spent"]]
 
+            placement_summary_final = placement_summary_final_new.loc[:,
+                                    ["Placement# Name", "PRODUCT", "Engagements Rate",
+                                     "Viewer CTR", "Engager CTR", "Viewer VCR",
+                                     "Engager VCR", "Interaction Rate",
+                                     "Active Time Spent"]]
 
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+
+
+            self.placement_summary_final = placement_summary_final
+
+
+    def access_vdx_adsize_columns(self):
+
+        """Access VDX Adsize Columns"""
+
+        placement_adsize_final = None
+
+        if self.sqlscript.read_sql_adsize_km.empty:
             pass
+        else:
+            placement_adsize = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql_adsize_km]
+            placement_adsize_summary = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),
+                                           placement_adsize)
+            placement_adsize_first = placement_adsize_summary.loc[:,
+                                   ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "PRODUCT", "ADSIZE",
+                                    "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
+                                    "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS", "VWRCLICKTHROUGHS",
+                                    "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
+                                    "DPETOTALTIMESPENT", "ENGINTRACTIVEENGAGEMENTS",
+                                    "COMPLETIONS", "DPEINTRACTIVEENGAGEMENTS"]]
 
-        self.logger.info('Creating Video wise table of IO - {}'.format(self.config.ioid))
+            placement_adsize_first["Placement# Name"] = placement_adsize_first[["PLACEMENT#",
+                                                                            "PLACEMENT_NAME"]].apply(
+                lambda x: ".".join
+                (x),
+                axis=1)
 
-        try:
-            if self.read_sql_video_km.empty:
-                pass
-            else:
-                placement_video = [self.read_sql_vdx_summary, self.read_sql_video_km]
-                placement_video_summary = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),
-                                                 placement_video)
+            placement_adsize_table = placement_adsize_first.loc[:,["Placement# Name", "COST_TYPE", "PRODUCT", "ADSIZE",
+                                                                "IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
+                                                                "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS",
+                                                                "VWRCLICKTHROUGHS",
+                                                                "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
+                                                                "DPETOTALTIMESPENT", "ENGINTRACTIVEENGAGEMENTS",
+                                                                "COMPLETIONS", "DPEINTRACTIVEENGAGEMENTS"]]
 
-                placement_by_video = placement_video_summary.loc[:,
-                                     ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "PRODUCT",
-                                      "VIDEONAME", "VIEW0", "VIEW25", "VIEW50", "VIEW75",
-                                      "VIEW100",
-                                      "ENG0", "ENG25", "ENG50", "ENG75", "ENG100", "DPE0",
-                                      "DPE25",
+
+
+            placement_adsize_grouping = pd.pivot_table(placement_adsize_table,
+                                                     index=['Placement# Name', 'ADSIZE', 'COST_TYPE'],
+                                                     values=["IMPRESSIONS", "ENGAGEMENTS", "DPEENGAGEMENTS",
+                                                             "ENGCLICKTHROUGHS", "DPECLICKTHROUGHS",
+                                                             "VWRCLICKTHROUGHS",
+                                                             "VIEW100", "ENG100", "DPE100", "ENGTOTALTIMESPENT",
+                                                             "DPETOTALTIMESPENT",
+                                                             "ENGINTRACTIVEENGAGEMENTS",
+                                                             "COMPLETIONS",
+                                                             "DPEINTRACTIVEENGAGEMENTS"], aggfunc=np.sum)
+
+            placement_adsize_grouping_new = placement_adsize_grouping.reset_index()
+
+            placement_adsize_group = placement_adsize_grouping_new.loc[:, :]
+
+            placement_adsize_group = placement_adsize_group.append(placement_adsize_group.sum(numeric_only=True),
+                                                               ignore_index=True)
+
+            placement_adsize_group["COST_TYPE"] = placement_adsize_group["COST_TYPE"].fillna('CPE')
+            placement_adsize_group["ADSIZE"] = placement_adsize_group["ADSIZE"].fillna('Grand Total')
+            placement_adsize_group["Placement# Name"] = placement_adsize_group["Placement# Name"].fillna('Grand Total')
+
+            mask9 = placement_adsize_group["COST_TYPE"].isin(["CPE+"])
+            choice_adsize_engagement_cpe_plus = placement_adsize_group["DPEENGAGEMENTS"] / placement_adsize_group[
+                "IMPRESSIONS"]
+            mask10 = placement_adsize_group["COST_TYPE"].isin(["CPE", "CPM", "CPCV"])
+            choice_placement_adsize_group_cpe = placement_adsize_group["ENGAGEMENTS"] / placement_adsize_group[
+                "IMPRESSIONS"]
+            placement_adsize_group["Engagements Rate"] = np.select([mask9, mask10], [choice_adsize_engagement_cpe_plus,
+                                                                                   choice_placement_adsize_group_cpe],
+                                                                 default=0.00)
+
+            placement_adsize_group["Engagements Rate"] = placement_adsize_group["Engagements Rate"].replace(
+                [np.inf, np.nan], 0.00)
+
+            mask11 = placement_adsize_group["COST_TYPE"].isin(["CPE", "CPM", "CPCV", "CPE+"])
+
+            choice_adsize_engagement_vwr_ctr = placement_adsize_group["VWRCLICKTHROUGHS"] / placement_adsize_group[
+                "IMPRESSIONS"]
+
+            placement_adsize_group["Viewer CTR"] = np.select([mask11], [choice_adsize_engagement_vwr_ctr], default=0.00)
+
+            placement_adsize_group["Viewer CTR"] = placement_adsize_group["Viewer CTR"].replace([np.inf, np.nan], 0.00)
+
+            choice_adsize_engagement_eng_ctr = placement_adsize_group["ENGCLICKTHROUGHS"] / placement_adsize_group[
+                "ENGAGEMENTS"]
+            choice_adsize_engagement_dpe_eng_ctr = placement_adsize_group["DPECLICKTHROUGHS"] / placement_adsize_group[
+                "DPEENGAGEMENTS"]
+
+            placement_adsize_group["Engager CTR"] = np.select([mask10, mask9], [choice_adsize_engagement_eng_ctr,
+                                                                              choice_adsize_engagement_dpe_eng_ctr],
+                                                            default=0.00)
+
+            placement_adsize_group["Engager CTR"] = placement_adsize_group["Engager CTR"].replace([np.inf, np.nan],
+                                                                                              0.00)
+
+            mask12 = placement_adsize_group["ADSIZE"].isin(["1x10"])
+            mask13 = placement_adsize_group["COST_TYPE"].isin(["CPE", "CPE+", "CPM"])
+            mask14 = placement_adsize_group["COST_TYPE"].isin(["CPCV"])
+            choice_adsize_vwr_vcr_cpe = (placement_adsize_group["VIEW100"] / placement_adsize_group["IMPRESSIONS"]).replace(
+                [np.inf, np.nan], 0.00)
+            choice_adsize_vwr_vcr_cpcv = (
+                placement_adsize_group["COMPLETIONS"] / placement_adsize_group["IMPRESSIONS"]).replace([np.inf, np.nan],
+                                                                                                   0.00)
+            placement_adsize_group["Viewer VCR"] = np.select([mask12 & mask13, mask12 & mask14],
+                                                           [choice_adsize_vwr_vcr_cpe,
+                                                            choice_adsize_vwr_vcr_cpcv],
+                                                           default='N/A')
+
+            placement_adsize_group['Viewer VCR'] = pd.to_numeric(placement_adsize_group['Viewer VCR'], errors='coerce')
+
+            mask15 = ~placement_adsize_group["ADSIZE"].isin(["1x10"])
+            mask16 = placement_adsize_group["COST_TYPE"].isin(["CPE", "CPM"])
+            choice_adsize_eng_vcr_cpe = (placement_adsize_group["ENG100"] / placement_adsize_group["ENGAGEMENTS"]).replace(
+                [np.inf, np.nan], 0.00)
+            choiceadsizeengvcrcpe_plus = (
+                placement_adsize_group["DPE100"] / placement_adsize_group["DPEENGAGEMENTS"]).replace([np.inf, np.nan],
+                                                                                                 0.00)
+            choiceadsizeengvcrcpcv = (
+                placement_adsize_group["COMPLETIONS"] / placement_adsize_group["ENGAGEMENTS"]).replace([np.inf, np.nan],
+                                                                                                   0.00)
+
+            placement_adsize_group["Engager VCR"] = np.select([mask15 & mask16, mask15 & mask9, mask15 & mask14],
+                                                            [choice_adsize_eng_vcr_cpe, choiceadsizeengvcrcpe_plus,
+                                                             choiceadsizeengvcrcpcv], default='N/A')
+
+            placement_adsize_group['Engager VCR'] = pd.to_numeric(placement_adsize_group['Engager VCR'],
+                                                                errors='coerce')
+
+            choice_adsize_interaction_rate_cpe = placement_adsize_group["ENGINTRACTIVEENGAGEMENTS"] / placement_adsize_group[
+                "ENGAGEMENTS"]
+            choice_adsize_interaction_rate_cpe_plus = placement_adsize_group["DPEINTRACTIVEENGAGEMENTS"] / \
+                                              placement_adsize_group[
+                                                  "DPEENGAGEMENTS"]
+
+            placement_adsize_group["Interaction Rate"] = np.select([mask10, mask9], [choice_adsize_interaction_rate_cpe,
+                                                                                   choice_adsize_interaction_rate_cpe_plus],
+                                                                 default=0.00)
+
+            placement_adsize_group["Interaction Rate"] = placement_adsize_group["Interaction Rate"].replace(
+                [np.inf, np.nan], 0.00)
+
+            choice_adsize_ats_cpe = (
+                (placement_adsize_group["ENGTOTALTIMESPENT"] / placement_adsize_group["ENGAGEMENTS"]) / 1000).apply(
+                '{0:.2f}'.format)
+            choice_adsize_ats_cpe_plus = (
+                (placement_adsize_group["DPETOTALTIMESPENT"] / placement_adsize_group["DPEENGAGEMENTS"]) / 1000).apply(
+                '{0:.2f}'.format)
+
+            placement_adsize_group["Active Time Spent"] = np.select([mask10, mask14],
+                                                                  [choice_adsize_ats_cpe, choice_adsize_ats_cpe_plus],
+                                                                  default=0.00)
+
+            placement_adsize_group['Active Time Spent'] = placement_adsize_group['Active Time Spent'].astype(float)
+
+            placement_adsize_group["Active Time Spent"] = placement_adsize_group["Active Time Spent"].replace(
+                [np.inf, np.nan], 0.00)
+
+            placement_adsize_group_first_new = placement_adsize_group.replace(np.nan, 'N/A', regex=True)
+
+            placement_adsize_group_first_new.loc[
+                placement_adsize_group_first_new.index[-1], ["Viewer VCR", "Engager VCR"]] = \
+                np.nan
+
+            placement_adsize_final = placement_adsize_group_first_new.loc[:,["Placement# Name", "ADSIZE",
+                                                                 "Engagements Rate","Viewer CTR",
+                                                                 "Engager CTR", "Viewer VCR",
+                                                                 "Engager VCR","Interaction Rate",
+                                                                 "Active Time Spent"]]
+
+
+
+            self.placement_adsize_final = placement_adsize_final
+
+    def vdx_video_details(self):
+
+        """Vdx Video Details"""
+
+        #placement_by_video_final = None
+
+        if self.sqlscript.read_sql_video_km.empty:
+            pass
+        else:
+            placement_video = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql_video_km]
+            placement_video_summary = reduce(lambda left, right: pd.merge(left, right, on='PLACEMENT#'),
+                                             placement_video)
+
+            placement_by_video = placement_video_summary.loc[:,
+                                 ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "PRODUCT",
+                                  "VIDEONAME", "VIEW0", "VIEW25", "VIEW50", "VIEW75",
+                                  "VIEW100",
+                                  "ENG0", "ENG25", "ENG50", "ENG75", "ENG100", "DPE0",
+                                  "DPE25",
+                                  "DPE50", "DPE75", "DPE100"]]
+
+
+            placement_by_video["Placement# Name"] = placement_by_video[["PLACEMENT#",
+                                                                        "PLACEMENT_NAME"]].apply(
+                lambda x: ".".join(x),
+                axis=1)
+
+            placement_by_video_new = placement_by_video.loc[:,
+                                     ["PLACEMENT#", "Placement# Name", "COST_TYPE", "PRODUCT", "VIDEONAME",
+                                      "VIEW0", "VIEW25", "VIEW50", "VIEW75", "VIEW100",
+                                      "ENG0", "ENG25", "ENG50", "ENG75", "ENG100", "DPE0", "DPE25",
                                       "DPE50", "DPE75", "DPE100"]]
 
-                placement_by_video["Placement# Name"] = placement_by_video[["PLACEMENT#",
-                                                                            "PLACEMENT_NAME"]].apply(
-                    lambda x: ".".join(x),
-                    axis=1)
-
-                placement_by_video_new = placement_by_video.loc[:,
-                                         ["PLACEMENT#", "Placement# Name", "COST_TYPE", "PRODUCT", "VIDEONAME",
-                                          "VIEW0", "VIEW25", "VIEW50", "VIEW75", "VIEW100",
-                                          "ENG0", "ENG25", "ENG50", "ENG75", "ENG100", "DPE0", "DPE25",
-                                          "DPE50", "DPE75", "DPE100"]]
-
-                placement_by_km_video = [placement_by_video_new, self.read_sql_km_for_video]
-                placement_by_km_video_summary = reduce(
-                    lambda left, right: pd.merge(left, right, on=['PLACEMENT#', 'PRODUCT']),
-                    placement_by_km_video)
-
-                """Conditions for 25%view"""
-                mask17 = placement_by_km_video_summary["PRODUCT"].isin(['Display', 'Mobile'])
-                mask18 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM", "CPCV"])
-                mask19 = placement_by_km_video_summary["PRODUCT"].isin(["InStream"])
-                mask20 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM", "CPE+", "CPCV"])
-                mask_video_video_completions = placement_by_km_video_summary["COST_TYPE"].isin(["CPCV"])
-                mask21 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE+"])
-                mask22 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM"])
-                mask23 = placement_by_km_video_summary["PRODUCT"].isin(['Display', 'Mobile', 'InStream'])
-                mask24 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM", "CPE+"])
-
-                choice25video_eng = placement_by_km_video_summary["ENG25"]
-                choice25video_vwr = placement_by_km_video_summary["VIEW25"]
-                choice25video_deep = placement_by_km_video_summary["DPE25"]
-
-                placement_by_km_video_summary["25_pc_video"] = np.select(
-                    [mask17 & mask18, mask19 & mask20, mask17 & mask21],
-                    [choice25video_eng, choice25video_vwr,
-                     choice25video_deep])
-
-                """Conditions for 50%view"""
-                choice50video_eng = placement_by_km_video_summary["ENG50"]
-                choice50video_vwr = placement_by_km_video_summary["VIEW50"]
-                choice50video_deep = placement_by_km_video_summary["DPE50"]
-
-                placement_by_km_video_summary["50_pc_video"] = np.select(
-                    [mask17 & mask18, mask19 & mask20, mask17 & mask21],
-                    [choice50video_eng,
-                     choice50video_vwr, choice50video_deep])
-
-                """Conditions for 75%view"""
-
-                choice75video_eng = placement_by_km_video_summary["ENG75"]
-                choice75video_vwr = placement_by_km_video_summary["VIEW75"]
-                choice75video_deep = placement_by_km_video_summary["DPE75"]
-
-                placement_by_km_video_summary["75_pc_video"] = np.select(
-                    [mask17 & mask18, mask19 & mask20, mask17 & mask21],
-                    [choice75video_eng,
-                     choice75video_vwr,
-                     choice75video_deep])
-
-                """Conditions for 100%view"""
-
-                choice100video_eng = placement_by_km_video_summary["ENG100"]
-                choice100video_vwr = placement_by_km_video_summary["VIEW100"]
-                choice100video_deep = placement_by_km_video_summary["DPE100"]
-                choicecompletions = placement_by_km_video_summary['COMPLETIONS']
-
-                placement_by_km_video_summary["100_pc_video"] = np.select(
-                    [mask17 & mask22, mask19 & mask24, mask17 & mask21, mask23 & mask_video_video_completions],
-                    [choice100video_eng, choice100video_vwr, choice100video_deep, choicecompletions])
-
-                """conditions for 0%view"""
-
-                choice0video_eng = placement_by_km_video_summary["ENG0"]
-                choice0video_vwr = placement_by_km_video_summary["VIEW0"]
-                choice0video_deep = placement_by_km_video_summary["DPE0"]
-
-                placement_by_km_video_summary["Views"] = np.select([mask17 & mask18, mask19 & mask20, mask17 & mask21],
-                                                                   [choice0video_eng,
-                                                                    choice0video_vwr,
-                                                                    choice0video_deep])
-
-                placement_by_video_summary = placement_by_km_video_summary.loc[:,
-                                             ["PLACEMENT#", "Placement# Name", "PRODUCT", "VIDEONAME", "COST_TYPE",
-                                              "Views", "25_pc_video", "50_pc_video", "75_pc_video", "100_pc_video",
-                                              "ENGAGEMENTS", "IMPRESSIONS", "DPEENGAMENTS"]]
-
-                """adding views based on conditions"""
-
-                placement_by_video_summary_new = placement_by_km_video_summary.loc[
-                    placement_by_km_video_summary.reset_index().groupby(['PLACEMENT#', 'PRODUCT'])['Views'].idxmax()]
-
-                placement_by_video_summary_new.loc[mask17 & mask18, 'Views'] = placement_by_video_summary_new[
-                    'ENGAGEMENTS']
-                placement_by_video_summary_new.loc[mask19 & mask20, 'Views'] = placement_by_video_summary_new[
-                    'IMPRESSIONS']
-                placement_by_video_summary_new.loc[mask17 & mask21, 'Views'] = placement_by_video_summary_new[
-                    'DPEENGAMENTS']
-
-                placement_by_video_summary = placement_by_video_summary.drop(placement_by_video_summary_new.index) \
-                    .append(placement_by_video_summary_new).sort_index()
-
-                placement_by_video_summary["Video Completion Rate"] = placement_by_video_summary["100_pc_video"] / \
-                                                                      placement_by_video_summary["Views"]
-
-                placement_by_video_summary["Video Completion Rate"] = placement_by_video_summary["Video Completion Rate"].replace([np.inf, np.nan],0.00)
 
 
-                placement_by_video_final = placement_by_video_summary.loc[:,
-                                           ["Placement# Name", "PRODUCT", "VIDEONAME", "Views",
-                                            "25_pc_video", "50_pc_video", "75_pc_video", "100_pc_video",
-                                            "Video Completion Rate"]]
+            placement_by_km_video = [placement_by_video_new, self.sqlscript.read_sql_km_for_video]
+            placement_by_km_video_summary = reduce(
+                lambda left, right: pd.merge(left, right, on=['PLACEMENT#', 'PRODUCT']),
+                placement_by_km_video)
 
-                placement_by_video_final.sort_values(['Placement# Name', 'PRODUCT','Views'], ascending=[True, True,False], inplace=True)
 
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
+            """Conditions for 25%view"""
+            mask17 = placement_by_km_video_summary["PRODUCT"].isin(['Display', 'Mobile'])
+            mask18 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM", "CPCV"])
+            mask19 = placement_by_km_video_summary["PRODUCT"].isin(["InStream"])
+            mask20 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM", "CPE+", "CPCV"])
+            mask_video_video_completions = placement_by_km_video_summary["COST_TYPE"].isin(["CPCV"])
+            mask21 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE+"])
+            mask22 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM"])
+            mask23 = placement_by_km_video_summary["PRODUCT"].isin(['Display', 'Mobile', 'InStream'])
+            mask24 = placement_by_km_video_summary["COST_TYPE"].isin(["CPE", "CPM", "CPE+"])
+
+            choice25video_eng = placement_by_km_video_summary["ENG25"]
+            choice25video_vwr = placement_by_km_video_summary["VIEW25"]
+            choice25video_deep = placement_by_km_video_summary["DPE25"]
+
+            placement_by_km_video_summary["25_pc_video"] = np.select(
+                [mask17 & mask18, mask19 & mask20, mask17 & mask21],
+                [choice25video_eng, choice25video_vwr,
+                 choice25video_deep])
+
+            """Conditions for 50%view"""
+            choice50video_eng = placement_by_km_video_summary["ENG50"]
+            choice50video_vwr = placement_by_km_video_summary["VIEW50"]
+            choice50video_deep = placement_by_km_video_summary["DPE50"]
+
+            placement_by_km_video_summary["50_pc_video"] = np.select(
+                [mask17 & mask18, mask19 & mask20, mask17 & mask21],
+                [choice50video_eng,
+                 choice50video_vwr, choice50video_deep])
+
+            """Conditions for 75%view"""
+
+            choice75video_eng = placement_by_km_video_summary["ENG75"]
+            choice75video_vwr = placement_by_km_video_summary["VIEW75"]
+            choice75video_deep = placement_by_km_video_summary["DPE75"]
+
+            placement_by_km_video_summary["75_pc_video"] = np.select(
+                [mask17 & mask18, mask19 & mask20, mask17 & mask21],
+                [choice75video_eng,
+                 choice75video_vwr,
+                 choice75video_deep])
+
+            """Conditions for 100%view"""
+
+            choice100video_eng = placement_by_km_video_summary["ENG100"]
+            choice100video_vwr = placement_by_km_video_summary["VIEW100"]
+            choice100video_deep = placement_by_km_video_summary["DPE100"]
+            choice_completions = placement_by_km_video_summary['COMPLETIONS']
+
+            placement_by_km_video_summary["100_pc_video"] = np.select(
+                [mask17 & mask22, mask19 & mask24, mask17 & mask21, mask23 & mask_video_video_completions],
+                [choice100video_eng, choice100video_vwr, choice100video_deep, choice_completions])
+
+            """conditions for 0%view"""
+
+            choice0video_eng = placement_by_km_video_summary["ENG0"]
+            choice0video_vwr = placement_by_km_video_summary["VIEW0"]
+            choice0video_deep = placement_by_km_video_summary["DPE0"]
+
+            placement_by_km_video_summary["Views"] = np.select([mask17 & mask18, mask19 & mask20, mask17 & mask21],
+                                                               [choice0video_eng,
+                                                                choice0video_vwr,
+                                                                choice0video_deep])
+
+            placement_by_video_summary = placement_by_km_video_summary.loc[:,
+                                         ["PLACEMENT#", "Placement# Name", "PRODUCT", "VIDEONAME", "COST_TYPE",
+                                          "Views", "25_pc_video", "50_pc_video", "75_pc_video", "100_pc_video",
+                                          "ENGAGEMENTS", "IMPRESSIONS", "DPEENGAGEMENTS"]]
+
+            #print(placement_by_video_summary[['PLACEMENT#','PRODUCT','Views','100_pc_video',"ENGAGEMENTS", "IMPRESSIONS", "DPEENGAGEMENTS"]])
+            #exit()
+
+
+
+            """adding views based on conditions"""
+
+            placement_by_video_summary_new = placement_by_km_video_summary.loc[
+                placement_by_km_video_summary.reset_index().groupby(['PLACEMENT#', 'PRODUCT'])['Views'].idxmax()]
+
+            #print(placement_by_video_summary_new[['PLACEMENT#','PRODUCT','Views']])
+            #exit()
+
+
+
+            placement_by_video_summary_new.loc[mask17 & mask18, 'Views'] = placement_by_video_summary_new[
+                'ENGAGEMENTS']
+            placement_by_video_summary_new.loc[mask19 & mask20, 'Views'] = placement_by_video_summary_new[
+                'IMPRESSIONS']
+            placement_by_video_summary_new.loc[mask17 & mask21, 'Views'] = placement_by_video_summary_new[
+                'DPEENGAGEMENTS']
+
+            placement_by_video_summary = placement_by_video_summary.drop(placement_by_video_summary_new.index).append(placement_by_video_summary_new, sort=True).sort_index()
+
+            #print(placement_by_video_summary[["Placement# Name", "PRODUCT", "VIDEONAME", "Views",'ENGAGEMENTS','IMPRESSIONS','DPEENGAGEMENTS']])
+            #exit()
+
+            placement_by_video_summary["Video Completion Rate"] = placement_by_video_summary["100_pc_video"] / \
+                                                                  placement_by_video_summary["Views"]
+
+            placement_by_video_summary["Video Completion Rate"] = placement_by_video_summary[
+                "Video Completion Rate"].replace([np.inf, np.nan], 0.00)
+
+            placement_by_video_final = placement_by_video_summary.loc[:,
+                                       ["Placement# Name", "PRODUCT", "VIDEONAME", "Views",
+                                        "25_pc_video", "50_pc_video", "75_pc_video", "100_pc_video",
+                                        "Video Completion Rate"]]
+
+
+            placement_by_video_final.sort_values(['Placement# Name', 'PRODUCT', 'Views'],ascending=[True, True, False], inplace=True)
+
+            #print(placement_by_video_final)
+            #exit()
+
+            self.placement_by_video_final = placement_by_video_final
+
+    def vdx_player_interaction(self):
+        """Vdx Player Interaction"""
+
+        video_player_final = None
+
+        if self.sqlscript.read_sql_video_player_interaction.empty:
             pass
+        else:
 
-        self.logger.info('Creating Intraction wise table of IO - {}'.format(self.config.ioid))
+            video_intraction = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql_video_player_interaction]
+            video_intraction_final = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']),
+                                        video_intraction)
+
+            video_player = video_intraction_final.loc[:,
+                           ["PRODUCT", "VWRMUTE", "VWRUNMUTE", "VWRPAUSE", "VWRREWIND",
+                            "VWRRESUME", "VWRREPLAY", "VWRFULLSCREEN", "ENGMUTE",
+                            "ENGUNMUTE", "ENGPAUSE", "ENGREWIND", "ENGRESUME", "ENGREPLAY",
+                            "ENGFULLSCREEN"]]
+
+
+
+            mask22 = video_player["PRODUCT"].isin(['Display', 'Mobile'])
+            mask23 = video_player["PRODUCT"].isin(['InStream'])
+            choice_intraction_mute = video_player["ENGMUTE"]
+            choice_intraction_un_mute = video_player["ENGUNMUTE"]
+            choice_intraction_pause = video_player["ENGPAUSE"]
+            choice_intraction_rewind = video_player["ENGREWIND"]
+            choice_intraction_resume = video_player["ENGRESUME"]
+            choice_intraction_replay = video_player["ENGREPLAY"]
+            choice_intraction_full_screen = video_player["ENGFULLSCREEN"]
+            choice_interaction_ins_mute = video_player["VWRMUTE"]
+            choice_interaction_ins_un_mute = video_player["VWRUNMUTE"]
+            choice_interaction_ins_pause = video_player["VWRPAUSE"]
+            choice_interaction_ins_rewind = video_player["VWRREWIND"]
+            choice_interaction_ins_resume = video_player["VWRRESUME"]
+            choice_interaction_ins_replay = video_player["VWRREPLAY"]
+            choice_interaction_ins_full_screen = video_player["VWRFULLSCREEN"]
+
+            video_player["Mute"] = np.select([mask22, mask23],
+                                             [choice_intraction_mute, choice_interaction_ins_mute])
+            video_player["Unmute"] = np.select([mask22, mask23], [choice_intraction_un_mute,
+                                                                  choice_interaction_ins_un_mute])
+            video_player["Pause"] = np.select([mask22, mask23],
+                                              [choice_intraction_pause, choice_interaction_ins_pause])
+            video_player["Rewind"] = np.select([mask22, mask23], [choice_intraction_rewind,
+                                                                  choice_interaction_ins_rewind])
+            video_player["Resume"] = np.select([mask22, mask23], [choice_intraction_resume,
+                                                                  choice_interaction_ins_resume])
+            video_player["Replay"] = np.select([mask22, mask23], [choice_intraction_replay,
+                                                                  choice_interaction_ins_replay])
+            video_player["Fullscreen"] = np.select([mask22, mask23],
+                                                   [choice_intraction_full_screen,
+                                                    choice_interaction_ins_full_screen])
+
+            video_player.rename(columns={"PRODUCT": "Product"}, inplace=True)
+
+            vdx_video_player = pd.pivot_table(video_player, index='Product', values=["Mute", "Unmute", "Pause",
+                                                                                     "Rewind", "Resume", "Replay",
+                                                                                     "Fullscreen"], aggfunc=np.sum)
+
+            vdx_video_player_new = vdx_video_player.reset_index()
+            vdx_video_player_r = vdx_video_player_new.loc[:, :]
+
+            video_player_final = vdx_video_player_r.loc[:,
+                                 ["Product", "Mute", "Unmute", "Pause", "Rewind", "Resume", "Replay", "Fullscreen"]]
+
+
+
+
+            self.video_player_final = video_player_final
+
+    def vdx_ad_interaction(self):
+        """VDX Ad Interaction"""
+
+        intractions_clicks_new = None
+        intractions_intrac_new = None
         try:
-            if self.read_sql_video_player_interaction.empty:
+            if self.sqlscript.read_sql_ad_intraction.empty:
                 pass
             else:
 
-                video_intration = [self.read_sql_vdx_summary, self.read_sql_video_player_interaction]
+                interaction_click_thru = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql_ad_intraction]
 
-                video_intrac_final = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']),
-                                            video_intration)
-
-                video_player = video_intrac_final.loc[:,
-                               ["PRODUCT", "VWRMUTE", "VWRUNMUTE", "VWRPAUSE", "VWRREWIND",
-                                "VWRRESUME", "VWRREPLAY", "VWRFULLSCREEN", "ENGMUTE",
-                                "ENGUNMUTE", "ENGPAUSE", "ENGREWIND", "ENGRESUME", "ENGREPLAY",
-                                "ENGFULLSCREEN"]]
-
-                mask22 = video_player["PRODUCT"].isin(['Display', 'Mobile'])
-                mask23 = video_player["PRODUCT"].isin(['InStream'])
-                choice_intraction_mute = video_player["ENGMUTE"]
-                choice_intraction_unmute = video_player["ENGUNMUTE"]
-                choice_intraction_pause = video_player["ENGPAUSE"]
-                choice_intraction_rewind = video_player["ENGREWIND"]
-                choice_intraction_resume = video_player["ENGRESUME"]
-                choice_intraction_replay = video_player["ENGREPLAY"]
-                choice_intraction_fullscreen = video_player["ENGFULLSCREEN"]
-                choice_interaction_ins_mute = video_player["VWRMUTE"]
-                choice_interaction_ins_unmute = video_player["VWRUNMUTE"]
-                choice_interaction_ins_pause = video_player["VWRPAUSE"]
-                choice_interaction_ins_rewind = video_player["VWRREWIND"]
-                choice_interaction_ins_resume = video_player["VWRRESUME"]
-                choice_interaction_ins_replay = video_player["VWRREPLAY"]
-                choice_interaction_ins_fullscreen = video_player["VWRFULLSCREEN"]
-
-                video_player["Mute"] = np.select([mask22, mask23],
-                                                 [choice_intraction_mute, choice_interaction_ins_mute])
-
-                video_player["Unmute"] = np.select([mask22, mask23], [choice_intraction_unmute,
-                                                                      choice_interaction_ins_unmute])
-                video_player["Pause"] = np.select([mask22, mask23],
-                                                  [choice_intraction_pause, choice_interaction_ins_pause])
-                video_player["Rewind"] = np.select([mask22, mask23], [choice_intraction_rewind,
-                                                                      choice_interaction_ins_rewind])
-                video_player["Resume"] = np.select([mask22, mask23], [choice_intraction_resume,
-                                                                      choice_interaction_ins_resume])
-                video_player["Replay"] = np.select([mask22, mask23], [choice_intraction_replay,
-                                                                      choice_interaction_ins_replay])
-                video_player["Fullscreen"] = np.select([mask22, mask23],
-                                                       [choice_intraction_fullscreen,
-                                                        choice_interaction_ins_fullscreen])
-
-                video_player.rename(columns={"PRODUCT": "Product"}, inplace=True)
-
-                vdx_video_player = pd.pivot_table(video_player,index='Product',values=["Mute", "Unmute", "Pause",
-                                                                                       "Rewind", "Resume", "Replay",
-                                                                                       "Fullscreen"], aggfunc=np.sum)
-
-                vdx_video_player_new = vdx_video_player.reset_index()
-                vdx_video_player_r = vdx_video_player_new.loc[:,:]
-
-                video_player_final = vdx_video_player_r.loc[:,
-                                     ["Product", "Mute", "Unmute", "Pause", "Rewind", "Resume", "Replay", "Fullscreen"]]
-
-
-        except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
-            self.logger.error(str(e))
-            pass
-
-        try:
-            if self.read_sql_ad_intraction.empty:
-                pass
-            else:
-                interaction_click_thru = [self.read_sql_vdx_summary, self.read_sql_ad_intraction]
-
-                click_through = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']), interaction_click_thru)
+                click_through = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']),
+                                       interaction_click_thru)
 
                 intractions_click_ad = pd.pivot_table(click_through, index="PRODUCT", values="CLICKTHRU",
                                                       columns="BLAZE_TAG_NAME_DESC",
@@ -676,7 +617,8 @@ Class for VDX Placements
 
                 intractions_clicks_new = intractions_clicks_new.loc[:, (intractions_clicks_new != 0).any(axis=0)]
 
-                intractions_intrac_ad = pd.pivot_table(click_through, index="PRODUCT", values="INTERACTION",
+                intractions_intrac_ad = pd.pivot_table(click_through, index="PRODUCT",
+                                                       values="INTERACTION",
                                                        columns="BLAZE_TAG_NAME_DESC", aggfunc=np.sum, fill_value=0)
 
                 intractions_intrac_ad_new = intractions_intrac_ad.reset_index()
@@ -689,41 +631,38 @@ Class for VDX Placements
             self.logger.error(str(e))
             pass
 
-        self.placementsummaryfinal = placementsummaryfinal
-        # self.unique_plc_summary = unique_plc_summary
-        self.placementadsizefinal = placementadsizefinal
-        self.placement_by_video_final = placement_by_video_final
-        self.video_player_final = video_player_final
         self.intractions_clicks_new = intractions_clicks_new
         self.intractions_intrac_new = intractions_intrac_new
-
 
     def write_video_data(self):
         """
 
         Writing Video Data
-        :return:
+
         """
-        unique_plc_summary = self.placementsummaryfinal['Placement# Name'].nunique()
+        unique_plc_summary = self.placement_summary_final['Placement# Name'].nunique()
         self.unique_plc_summary = unique_plc_summary
-        self.logger.info('writing data to excel of IO - {}'.format(self.config.ioid))
-        # print("Dha",self.intractions_clicks_new)
-        # print("hhh",self.intractions_intrac_new)
 
         try:
             info_client = self.config.client_info.to_excel(self.config.writer, sheet_name="VDX Details",
                                                            startcol=1, startrow=1, index=True, header=False)
+
             info_campaign = self.config.campaign_info.to_excel(self.config.writer, sheet_name="VDX Details",
                                                                startcol=1, startrow=2, index=True, header=False)
+
             info_ac_mgr = self.config.ac_mgr.to_excel(self.config.writer, sheet_name="VDX Details", startcol=4,
                                                       startrow=1, index=True, header=False)
+
             info_sales_rep = self.config.sales_rep.to_excel(self.config.writer, sheet_name="VDX Details",
                                                             startcol=4, startrow=2, index=True, header=False)
+
             info_campaign_date = self.config.sdate_edate_final.to_excel(self.config.writer,
                                                                         sheet_name="VDX Details", startcol=7,
                                                                         startrow=1, index=True, header=False)
+
             info_agency = self.config.agency_info.to_excel(self.config.writer, sheet_name="VDX Details",
                                                            startcol=1, startrow=3, index=True, header=False)
+
             info_currency = self.config.currency_info.to_excel(self.config.writer, sheet_name="VDX Details",
                                                                startcol=7, startrow=3, index=True, header=False)
 
@@ -733,19 +672,22 @@ Class for VDX Placements
 
         startline_placement = 9
         try:
-            if self.read_sql_vdx_km.empty:
+            if self.sqlscript.read_sql__v_d_x_mv.empty:
                 pass
             else:
-                for placement, placement_df in self.placementsummaryfinal.groupby('Placement# Name'):
+                for placement, placement_df in self.placement_summary_final.groupby('Placement# Name'):
 
-                    write_pl = placement_df.to_excel(self.config.writer, sheet_name="VDX Details".format(self.config.ioid),
-                                                     startcol=1, startrow=startline_placement, columns=["Placement# Name"],
+                    write_pl = placement_df.to_excel(self.config.writer,
+                                                     sheet_name="VDX Details".format(self.config.ioid),
+                                                     startcol=1, startrow=startline_placement,
+                                                     columns=["Placement# Name"],
                                                      header=False, index=False)
 
                     if placement_df.iloc[0, 0] != "Grand Total":
                         startline_placement += 1
 
-                    write_pls = placement_df.to_excel(self.config.writer, sheet_name="VDX Details".format(self.config.ioid),
+                    write_pls = placement_df.to_excel(self.config.writer,
+                                                      sheet_name="VDX Details".format(self.config.ioid),
                                                       startcol=1, startrow=startline_placement, columns=["PRODUCT",
                                                                                                          "Engagements Rate",
                                                                                                          "Viewer CTR",
@@ -762,13 +704,13 @@ Class for VDX Placements
             self.logger.error(str(e))
             pass
 
-        startline_adsize = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 3
+        startline_adsize = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3
         try:
 
-            if self.read_sql_adsize_km.empty:
+            if self.sqlscript.read_sql_adsize_km.empty:
                 pass
             else:
-                for adzise, adsize_df in self.placementadsizefinal.groupby('Placement# Name'):
+                for adzise, adsize_df in self.placement_adsize_final.groupby('Placement# Name'):
 
                     write_adsize_plc = adsize_df.to_excel(self.config.writer,
                                                           sheet_name="VDX Details".format(self.config.ioid),
@@ -779,7 +721,8 @@ Class for VDX Placements
                     if adsize_df.iloc[0, 0] != "Grand Total":
                         startline_adsize += 1
 
-                    write_adsize = adsize_df.to_excel(self.config.writer, sheet_name="VDX Details".format(self.config.ioid),
+                    write_adsize = adsize_df.to_excel(self.config.writer,
+                                                      sheet_name="VDX Details".format(self.config.ioid),
                                                       startcol=1, startrow=startline_adsize,
                                                       columns=["ADSIZE", "Engagements Rate",
                                                                "Viewer CTR", "Engager CTR",
@@ -792,20 +735,22 @@ Class for VDX Placements
             self.logger.error(str(e))
             pass
 
-        startline_video = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 3 + len(
-            self.placementadsizefinal) + self.unique_plc_summary * 2 + 3
+        startline_video = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(
+            self.placement_adsize_final) + self.unique_plc_summary * 2 + 3
         try:
 
-            if self.read_sql_video_km.empty:
+            if self.sqlscript.read_sql_video_km.empty:
                 pass
             else:
                 for video, video_df in self.placement_by_video_final.groupby('Placement# Name'):
                     write_video_plc = video_df.to_excel(self.config.writer, sheet_name="VDX Details".format(
                         self.config.ioid),
-                                                        startcol=1, startrow=startline_video, columns=["Placement# Name"],
+                                                        startcol=1, startrow=startline_video,
+                                                        columns=["Placement# Name"],
                                                         header=False, index=False)
 
-                    write_video = video_df.to_excel(self.config.writer, sheet_name="VDX Details".format(self.config.ioid),
+                    write_video = video_df.to_excel(self.config.writer,
+                                                    sheet_name="VDX Details".format(self.config.ioid),
                                                     startcol=1, startrow=startline_video + 1,
                                                     columns=["PRODUCT", "VIDEONAME",
                                                              "Views", "25_pc_video",
@@ -820,11 +765,11 @@ Class for VDX Placements
             self.logger.error(str(e))
             pass
 
-        startline_player = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 3 + len(
-            self.placementadsizefinal) + self.unique_plc_summary * 2 + 3 + len(
+        startline_player = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(
+            self.placement_adsize_final) + self.unique_plc_summary * 2 + 3 + len(
             self.placement_by_video_final) + self.unique_plc_summary * 2 + 3
         try:
-            if self.read_sql_video_player_interaction.empty:
+            if self.sqlscript.read_sql_video_player_interaction.empty:
                 pass
             else:
                 write_player_interaction = self.video_player_final.to_excel(self.config.writer,
@@ -837,17 +782,17 @@ Class for VDX Placements
             pass
 
         try:
-            if self.read_sql_ad_intraction.empty:
+            if self.sqlscript.read_sql_ad_intraction.empty:
                 pass
             else:
-
                 if self.intractions_clicks_new.empty:
                     pass
                 else:
                     write_intraction_clicks = self.intractions_clicks_new.to_excel(self.config.writer,
                                                                                    sheet_name="VDX Details".format(
                                                                                        self.config.ioid),
-                                                                                   startcol=9, startrow=startline_player,
+                                                                                   startcol=9,
+                                                                                   startrow=startline_player,
                                                                                    index=False, merge_cells=False)
 
                 if self.intractions_intrac_new.empty:
@@ -856,8 +801,9 @@ Class for VDX Placements
                     write_intraction = self.intractions_intrac_new.to_excel(self.config.writer,
                                                                             sheet_name="VDX Details".format(
                                                                                 self.config.ioid),
-                                                                            startcol=9 + self.intractions_clicks_new.shape[
-                                                                                1],
+                                                                            startcol=9 +
+                                                                                     self.intractions_clicks_new.shape[
+                                                                                         1],
                                                                             startrow=startline_player, index=False,
                                                                             merge_cells=False)
 
@@ -865,13 +811,10 @@ Class for VDX Placements
             self.logger.error(str(e))
             pass
 
-
     def formatting_Video(self):
         """
-        Formmating
-        :return:
+        Formatting
         """
-        self.logger.info('Applying formatting in VDX sheet - {}'.format(self.config.ioid))
 
         try:
             workbook = self.config.writer.book
@@ -884,10 +827,10 @@ Class for VDX Placements
             worksheet.insert_image("O2", "Client_Logo.png")
             worksheet.write_string(2, 8, self.config.status)
             worksheet.write_string(2, 7, "Campaign Status")
-            # worksheet.write_string (3, 1, "Agency Name")
-            # worksheet.write_string (3, 7, "Currency")
-            number_cols_plc_summary = self.placementsummaryfinal.shape[1]
-            number_cols_adsize = self.placementadsizefinal.shape[1]
+            # worksheet.write_string(3, 1, "Agency Name")
+            # worksheet.write_string(3, 7, "Currency")
+            number_cols_plc_summary = self.placement_summary_final.shape[1]
+            number_cols_adsize = self.placement_adsize_final.shape[1]
             number_cols_video = self.placement_by_video_final.shape[1]
 
             format_hearder_right = workbook.add_format({"bold": True, "bg_color": '#00B0F0', "align": "right"})
@@ -912,7 +855,8 @@ Class for VDX Placements
             worksheet.write_string(8, 6, "Engager VCR (Primary Video)", format_hearder_right)
             worksheet.write_string(8, 7, "Interaction Rate", format_hearder_right)
             worksheet.write_string(8, 8, "Active Time Spent", format_hearder_right)
-            worksheet.conditional_format(7, 1, 7, number_cols_plc_summary - 1, {"type": "blanks", "format": format_colour})
+            worksheet.conditional_format(7, 1, 7, number_cols_plc_summary - 1,
+                                         {"type": "blanks", "format": format_colour})
 
             percent_fmt = workbook.add_format({"num_format": "0.00%", "align": "right"})
 
@@ -922,277 +866,284 @@ Class for VDX Placements
 
             format_num = workbook.add_format({"num_format": "#,##0"})
 
-            format_new = workbook.add_format({"num_format": "0.00"})
-
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1, 1,
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1, 1,
                                    "Ad Size Breakdown",
                                    format_hearder_left)
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 1, "Ad Size",
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 1, "Ad Size",
                                    format_hearder_left)
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 2,
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 2,
                                    "Engagement Rate",
                                    format_hearder_right)
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 3, "Viewer CTR",
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 3,
+                                   "Viewer CTR",
                                    format_hearder_right)
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 4, "Engager CTR",
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 4,
+                                   "Engager CTR",
                                    format_hearder_right)
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 5,
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 5,
                                    "Viewer VCR (Primary Video)",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 6,
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 6,
                                    "Engager VCR (Primary Video)", format_hearder_right)
 
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 7,
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 7,
                                    "Interaction Rate",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 2, 8,
+            worksheet.write_string(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 2, 8,
                                    "Active Time Spent", format_hearder_right)
 
-            worksheet.conditional_format(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1, 1,
-                                         9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1,
+            worksheet.conditional_format(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1, 1,
+                                         9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1,
                                          number_cols_adsize - 1, {
                                              "type": "blanks",
                                              "format": format_colour
                                          })
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3,
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3,
                                    1, "Video Details", format_hearder_left)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 1, "Unit",
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 1, "Unit",
                                    format_hearder_left)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 2, "Video Name",
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 2,
+                                   "Video Name",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] +
-                                   self.unique_plc_summary * 2 + 1 + self.placementadsizefinal.shape[
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] +
+                                   self.unique_plc_summary * 2 + 1 + self.placement_adsize_final.shape[
                                        0] + self.unique_plc_summary * 2 + 4,
                                    3, "Views", format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 4, "25% View",
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 4, "25% View",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 5, "50% View",
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 5, "50% View",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 6, "75% View",
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 6, "75% View",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 7,
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 7,
                                    "Video Completion",
                                    format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 4, 8,
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 4, 8,
                                    "Video Completion Rate",
                                    format_hearder_right)
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3,
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3, 1,
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3,
                                          number_cols_video - 1,
                                          {"type": "blanks", "format": format_colour})
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3,
                                    1, "Interaction Details",
                                    format_hearder_left)
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3,
-                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
+                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
+                                             1],
                                          {"type": "blanks", "format": format_colour})
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 2,
                                    "Video Player Interactions",
                                    format_hearder_right)
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
-                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
+                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
+                                             1],
                                          {
                                              "type": "blanks",
                                              "format": format_colour
                                          })
-
             if self.intractions_clicks_new.empty:
                 pass
             else:
-                worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                       self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                       self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                        self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 9,
                                        "Clickthroughs", format_hearder_right)
 
             if self.intractions_intrac_new.empty:
                 pass
             else:
-                worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                       self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                       self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                        self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
-                                       9 + self.intractions_clicks_new.shape[1], "Ad Interactions", format_hearder_right)
+                                       9 + self.intractions_clicks_new.shape[1], "Ad Interactions",
+                                       format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
                                    9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
                                    "Total Interactions", format_hearder_right)
 
-            worksheet.write_string(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                   self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
                                    self.video_player_final.shape[0] + 1,
                                    1, "Grand Total", format_grand)
 
             for col in range(2, 9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1] + 1):
                 cell_location = xl_rowcol_to_cell(
-                    9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                    self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                    9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                     self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
                     self.video_player_final.shape[0] + 1
                     , col)
-                start_range = xl_rowcol_to_cell(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                                self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                                self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 6,
-                                                col)
+                start_range = xl_rowcol_to_cell(
+                    9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
+                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 6,
+                    col)
 
-                end_range = xl_rowcol_to_cell(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                              self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                              self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
-                                              self.video_player_final.shape[0], col)
+                end_range = xl_rowcol_to_cell(
+                    9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
+                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
+                    self.video_player_final.shape[0], col)
 
                 formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                 worksheet.write_formula(cell_location, formula, format_grand_total)
 
-            start_range_x = 9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 + \
-                            self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 + \
+            start_range_x = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
+                            self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 + \
                             self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 6
 
             for row in range(self.video_player_final.shape[0]):
                 cell_range = xl_range(start_range_x, 2, start_range_x,
-                                      9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1] - 1)
+                                      9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
+                                          1] - 1)
                 formula = 'sum({:s})'.format(cell_range)
                 worksheet.write_formula(start_range_x,
                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
                                         formula, format_num)
                 start_range_x += 1
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
-                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
+                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
+                                             1],
                                          {"type": "no_blanks", "format": format_hearder_left})
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 +
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
-                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
+                                         9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
+                                             1],
                                          {"type": "blanks", "format": format_hearder_left})
 
-            worksheet.conditional_format(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 4, 1,
-                                         9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 4,
+            worksheet.conditional_format(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 4, 1,
+                                         9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 4,
                                          number_cols_plc_summary - 2,
                                          {"type": "blanks", "format": grand_fmt})
 
-            worksheet.conditional_format(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 4, 1,
-                                         9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 4,
+            worksheet.conditional_format(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 4, 1,
+                                         9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 4,
                                          number_cols_plc_summary - 2, {"type": "no_blanks", "format": grand_fmt})
 
-            worksheet.conditional_format(9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 4,
+            worksheet.conditional_format(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 4,
                                          number_cols_plc_summary - 1,
-                                         9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 4,
+                                         9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 4,
                                          number_cols_plc_summary - 1,
                                          {"type": "no_blanks", "format": ats_format})
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 4, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 4, 1,
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
                                          number_cols_adsize - 2,
                                          {"type": "blanks", "format": grand_fmt})
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 4, 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 4, 1,
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
                                          number_cols_adsize - 2, {"type": "no_blanks", "format": grand_fmt})
 
-            worksheet.conditional_format(9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
+            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
                                          number_cols_adsize - 1,
-                                         9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
+                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
+                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 4,
                                          number_cols_adsize - 1, {"type": "no_blanks", "format": ats_format})
 
             for col in range(2, number_cols_plc_summary - 1):
                 start_plc_row = 10
-                end_plc_row = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 1 - 6
+                end_plc_row = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 1 - 6
                 worksheet.conditional_format(start_plc_row, col, end_plc_row, col,
                                              {"type": "no_blanks", "format": percent_fmt})
 
-
             for col in range(2, number_cols_adsize - 1):
-                start_adsize_row = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 4
-                end_adsize_row = 9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 + \
-                                 self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 - 6
+                start_adsize_row = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 4
+                end_adsize_row = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
+                                 self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 - 6
                 worksheet.conditional_format(start_adsize_row, col, end_adsize_row, col,
                                              {"type": "no_blanks", "format": percent_fmt})
 
             for col in range(3, number_cols_video - 1):
-                start_video_row = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 3 + len(
-                    self.placementadsizefinal) + self.unique_plc_summary * 2 + 4
-                end_video_row = 9 + self.placementsummaryfinal.shape[0] + \
-                                self.unique_plc_summary * 2 + 1 + self.placementadsizefinal.shape[0] + \
+                start_video_row = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(
+                    self.placement_adsize_final) + self.unique_plc_summary * 2 + 4
+                end_video_row = 9 + self.placement_summary_final.shape[0] + \
+                                self.unique_plc_summary * 2 + 1 + self.placement_adsize_final.shape[0] + \
                                 self.unique_plc_summary * 2 + 3 + self.placement_by_video_final.shape[0] + \
                                 self.unique_plc_summary * 2 + 3 - 4
                 worksheet.conditional_format(start_video_row, col, end_video_row, col,
                                              {"type": "no_blanks", "format": format_num})
 
             for col in range(number_cols_video - 1, number_cols_video):
-                start_video_row_vcr = 9 + len(self.placementsummaryfinal) + self.unique_plc_summary * 2 + 3 + len(
-                    self.placementadsizefinal) + self.unique_plc_summary * 2 + 4
-                end_video_row_vcr = 9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 + \
-                                    self.placementadsizefinal.shape[0] + \
+                start_video_row_vcr = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(
+                    self.placement_adsize_final) + self.unique_plc_summary * 2 + 4
+                end_video_row_vcr = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
+                                    self.placement_adsize_final.shape[0] + \
                                     self.unique_plc_summary * 2 + 3 + self.placement_by_video_final.shape[0] + \
                                     self.unique_plc_summary * 2 + 3 - 4
                 worksheet.conditional_format(start_video_row_vcr, col, end_video_row_vcr, col,
                                              {"type": "no_blanks", "format": percent_fmt})
 
             for col in range(2, 9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1]):
-                start_intraction_row = 9 + self.placementsummaryfinal.shape[0] + \
-                                       self.unique_plc_summary * 2 + 1 + self.placementadsizefinal.shape[0] + \
+                start_intraction_row = 9 + self.placement_summary_final.shape[0] + \
+                                       self.unique_plc_summary * 2 + 1 + self.placement_adsize_final.shape[0] + \
                                        self.unique_plc_summary * 2 + 3 + self.placement_by_video_final.shape[
                                            0] + self.unique_plc_summary * 2 + 6
 
-                end_intraction_row = 9 + self.placementsummaryfinal.shape[0] + self.unique_plc_summary * 2 + 1 + \
-                                     self.placementadsizefinal.shape[0] + self.unique_plc_summary * 2 + 3 + \
+                end_intraction_row = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
+                                     self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 + \
                                      self.placement_by_video_final.shape[0] + \
                                      self.unique_plc_summary * 2 + 5 + self.video_player_final.shape[0]
 
@@ -1200,13 +1151,13 @@ Class for VDX Placements
                                              {"type": "no_blanks", "format": format_num})
 
             alignment = workbook.add_format({"align": "right"})
-
             alignment_left = workbook.add_format({"align": "left"})
 
             if self.intractions_clicks_new.empty or self.intractions_intrac_new.empty:
                 worksheet.set_column("C:R", 25, alignment)
             else:
-                worksheet.set_column(2, 9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1], 25,
+                worksheet.set_column(2, 9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
+                                     25,
                                      alignment)
 
             worksheet.set_column("B:B", 47)
@@ -1214,35 +1165,36 @@ Class for VDX Placements
             worksheet.set_row(2, None, alignment_left)
             worksheet.set_row(3, None, alignment_left)
 
-
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
-
 
     def main(self):
         """
     Main Function
         """
         self.config.common_columns_summary()
-        self.connect_tfr_video()
-        self.read_query_video()
-        if self.read_sql_vdx_km.empty or self.read_sql_vdx_summary.empty \
-                or self.read_sql_adsize_km.empty or self.read_sql_video_km.empty \
-                or self.read_sql_video_player_interaction.empty or self.read_sql_ad_intraction.empty \
-                or self.read_sql_km_for_video.empty:
-            self.logger.info("No VDX placements for IO - {}".format(self.config.ioid))
+        self.config.logger.info("Start Creating VDX Details Sheet for IO - {} ".format(self.config.ioid) + " at " + str(
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+        if self.sqlscript.read_sql__v_d_x.empty:
+            self.logger.info("No live VDX placements for IO - {}".format(self.config.ioid))
             pass
         else:
-            self.logger.info("VDX placements found for IO - {}".format(self.config.ioid))
-            self.access_vdx_columns()
+            self.logger.info("Live VDX placements found for IO - {}".format(self.config.ioid) + " at " + str(
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+            self.access_vdx_placement_columns()
+            self.access_vdx_adsize_columns()
+            self.vdx_video_details()
+            self.vdx_player_interaction()
+            self.vdx_ad_interaction()
             self.write_video_data()
             self.formatting_Video()
-            self.logger.info('VDX Sheet Created for IO - {}'.format(self.config.ioid))
+            self.logger.info("VDX Details Sheet Created for IO - {}".format(self.config.ioid) + " at " + str(
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
-    if __name__ == "__main__":
-        pass
+if __name__ == "__main__":
+    pass
     # enable it when running for individual file
     # c = config.Config('Origin', 608607,'2018-04-16','2018-04-23')
     # o = Video (c)

@@ -5,15 +5,20 @@
       <w>choiceprerollsummarymvcpcv</w>
       <w>choiceprerollsummarymvcpm</w>
       <w>displayfirsttable</w>
+      <w>intrac</w>
       <w>intraction</w>
       <w>ioid</w>
       <w>ioname</w>
       <w>preroll</w>
       <w>sqldisplaymv</w>
+      <w>sqldisplayplacement</w>
       <w>sqldisplaysummary</w>
       <w>sqlprerollmv</w>
+      <w>sqlprerollplacement</w>
       <w>sqlprerollsummary</w>
+      <w>sqlscript</w>
       <w>sqlvdxmv</w>
+      <w>sqlvdxplacement</w>
       <w>sqlvdxsummary</w>
       <w>tfrdb</w>
       <w>xlsx</w>

@@ -10,117 +10,34 @@ import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_range
 import pandas.io.formats.excel
 from functools import reduce
+from SQLScript import SqlScript
 
 pandas.io.formats.excel.header_style = None
 
 
-class Intraction(object):
+class Intraction(SqlScript):
     """
 Preroll placements Class
     """
 
-    def __init__(self, config):
+    def __init__(self, config,sqlscript):
+
+        super(Intraction,self).__init__(self)
+
         self.config = config
+        self.sqlscript = sqlscript
         self.logger = self.config.logger
+        self.prerollsummaryfinal = None
+        self.videoprerollsummarymvfinal = None
+        self.video_player_summary_final = None
+        self.intraction_final = None
+        self.dayprerollsummaryfinal = None
 
-    def connect_TFR_Intraction(self):
-        """
-TFR Quries for Preroll Placements
-        :return:
-        """
-        self.logger.info('Starting to create Preroll Sheet for IO - {}'.format(self.config.ioid))
-
-        self.logger.info("Start executing: " + 'Preroll_Summary.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_summary = open("Preroll_Summary.sql")
-        sql_preroll_summary = read_preroll_summary.read().format(self.config.ioid, self.config.start_date,
-                                                                 self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_preroll.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_mv = open('Placement_info_preroll.sql')
-        sql_preroll_mv = read_preroll_mv.read().format(self.config.ioid, self.config.start_date, self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Video_info_preroll.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_video = open('Video_info_preroll.sql')
-        sql_preroll_video_views = read_preroll_video.read().format(self.config.ioid, self.config.start_date,
-                                                                   self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Video_details_info_preroll.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_video_details = open('Video_details_info_preroll.sql')
-        sql_video_details = read_preroll_video_details.read().format(self.config.ioid, self.config.start_date,
-                                                                     self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_info_preroll_day.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_day = open('Placement_info_preroll_day.sql')
-        sql_preroll_day_mv = read_preroll_day.read().format(self.config.ioid, self.config.start_date,
-                                                            self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_player_int_preroll.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_intraction = open('Placement_player_int_preroll.sql')
-        sql_preroll_interaction = read_preroll_intraction.read().format(self.config.ioid, self.config.start_date,
-                                                                        self.config.end_date)
-
-        self.logger.info("Start executing: " + 'Placement_player_video_preroll.sql' + " at " + str(
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
-        read_preroll_video = open('Placement_player_video_preroll.sql')
-        sql_preroll_video_player = read_preroll_video.read().format(self.config.ioid, self.config.start_date,
-                                                                    self.config.end_date)
-
-        self.sql_preroll_summary = sql_preroll_summary
-        self.sql_preroll_mv = sql_preroll_mv
-        self.sql_preroll_video_views = sql_preroll_video_views
-        self.sql_video_details = sql_video_details
-        self.sql_preroll_day_mv = sql_preroll_day_mv
-        self.sql_preroll_interaction = sql_preroll_interaction
-        self.sql_preroll_video_player = sql_preroll_video_player
-
-    def read_query_preroll(self):
-
-        """
-Reading Queries Data directly from TFR
-        :return:
-        """
-
-        self.logger.info('Running Query for Preroll placements for IO {}'.format(self.config.ioid))
-
-        read_sql_preroll_summary = pd.read_sql(self.sql_preroll_summary, self.config.conn)
-
-        read_sql_preroll_mv = pd.read_sql(self.sql_preroll_mv, self.config.conn)
-
-        read_sql_preroll_video = pd.read_sql(self.sql_preroll_video_views, self.config.conn)
-
-        read_sql_video_details = pd.read_sql(self.sql_video_details, self.config.conn)
-
-        read_sql_preroll_day = pd.read_sql(self.sql_preroll_day_mv, self.config.conn)
-
-        read_sql_preroll_interaction = pd.read_sql(self.sql_preroll_interaction, self.config.conn)
-
-        read_sql_preroll_video_player = pd.read_sql(self.sql_preroll_video_player, self.config.conn)
-
-        self.read_sql_preroll_summary = read_sql_preroll_summary
-        self.read_sql_preroll_mv = read_sql_preroll_mv
-        self.read_sql_preroll_video = read_sql_preroll_video
-        self.read_sql_video_details = read_sql_video_details
-        self.read_sql_preroll_day = read_sql_preroll_day
-        self.read_sql_preroll_interaction = read_sql_preroll_interaction
-        self.read_sql_preroll_video_player = read_sql_preroll_video_player
 
     def accessing_preroll_columns(self):
-
         """
-Accessing Columns from Query
-        :return:
+        Accessing Columns from Query
         """
-
-        self.logger.info('Query Stored for further processing of IO - {}'.format(self.config.ioid))
-
-        self.logger.info('Creating placement wise table of IO - {}'.format(self.config.ioid))
-
         prerollsummaryfinal = None
         videoprerollsummarymvfinal = None
         intraction_final = None
@@ -128,10 +45,10 @@ Accessing Columns from Query
         video_player_summary_final = None
 
         try:
-            if self.read_sql_preroll_mv.empty:
+            if self.sqlscript.read_sql_preroll_mv.empty:
                 pass
             else:
-                placementprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_mv, on="PLACEMENT#")
+                placementprerollmv = self.sqlscript.read_sql_preroll.merge(self.sqlscript.read_sql_preroll_mv, on="PLACEMENT#")
 
                 prerollsummary = placementprerollmv.loc[:,
                                  ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "NET_UNIT_COST",
@@ -195,17 +112,16 @@ Accessing Columns from Query
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Creating Video wise table of IO - {}'.format(self.config.ioid))
         try:
-            if self.read_sql_preroll_video.empty:
+            if self.sqlscript.read_sql_preroll_video.empty:
                 pass
             else:
-                videoprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_video, on="PLACEMENT#")
+                videoprerollmv = self.sqlscript.read_sql_preroll.merge(self.sqlscript.read_sql_preroll_video, on="PLACEMENT#")
 
                 videoprerollsummarymv = videoprerollmv.loc[:,
                                         ["PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "IMPRESSION", "COMPLETIONS"]]
 
-                placement_by_preroll_video = [videoprerollsummarymv, self.read_sql_video_details]
+                placement_by_preroll_video = [videoprerollsummarymv, self.sqlscript.read_sql_video_details]
                 preroll_video_summary = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']),
                                                placement_by_preroll_video)
 
@@ -247,12 +163,11 @@ Accessing Columns from Query
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Creating placement by day wise table for IO - {}'.format(self.config.ioid))
         try:
-            if self.read_sql_preroll_day.empty:
+            if self.sqlscript.read_sql_preroll_day.empty:
                 pass
             else:
-                dayprerollmv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_day, on="PLACEMENT#")
+                dayprerollmv = self.sqlscript.read_sql_preroll.merge(self.sqlscript.read_sql_preroll_day, on="PLACEMENT#")
 
                 dayprerollsummary = dayprerollmv.loc[:,
                                     ["IO_ID", "PLACEMENT#", "PLACEMENT_NAME", "COST_TYPE", "NET_UNIT_COST",
@@ -315,13 +230,12 @@ Accessing Columns from Query
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Creating Video player table for IO - {}'.format(self.config.ioid))
         try:
-            if self.read_sql_preroll_video_player.empty:
+            if self.sqlscript.read_sql_preroll_video_player.empty:
                 pass
             else:
 
-                video_player_mv = [self.read_sql_preroll_summary, self.read_sql_preroll_video_player]
+                video_player_mv = [self.sqlscript.read_sql_preroll, self.sqlscript.read_sql_preroll_video_player]
                 video_player_summary = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']),
                                               video_player_mv)
 
@@ -335,13 +249,12 @@ Accessing Columns from Query
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Creating Intraction wise table for IO - {}'.format(self.config.ioid))
         try:
-            if self.read_sql_preroll_interaction.empty:
+            if self.sqlscript.read_sql_preroll_interaction.empty:
                 pass
             else:
 
-                intractionsummarymv = self.read_sql_preroll_summary.merge(self.read_sql_preroll_interaction,
+                intractionsummarymv = self.sqlscript.read_sql_preroll.merge(self.sqlscript.read_sql_preroll_interaction,
                                                                           on="PLACEMENT#")
 
                 intractionclick = intractionsummarymv.loc[:,
@@ -377,13 +290,10 @@ Accessing Columns from Query
         self.dayprerollsummaryfinal = dayprerollsummaryfinal
 
     def renameIntraction(self):
-        """
-Renaming COlumns
-        :return:
-        """
-        self.logger.info('Renaming columns for all tables')
+        """Renaming Columns"""
+
         try:
-            if self.read_sql_preroll_mv.empty:
+            if self.sqlscript.read_sql_preroll_mv.empty:
                 pass
             else:
                 rename_preroll_summary_final = self.prerollsummaryfinal.rename(
@@ -396,7 +306,7 @@ Renaming COlumns
             pass
 
         try:
-            if self.read_sql_preroll_video.empty:
+            if self.sqlscript.read_sql_preroll_video.empty:
                 pass
             else:
                 rename_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.rename(
@@ -409,7 +319,7 @@ Renaming COlumns
             pass
 
         try:
-            if self.read_sql_preroll_day.empty:
+            if self.sqlscript.read_sql_preroll_day.empty:
                 pass
             else:
                 renameday_preroll_summary_final = self.dayprerollsummaryfinal.rename(
@@ -420,7 +330,7 @@ Renaming COlumns
             pass
 
         try:
-            if self.read_sql_preroll_interaction.empty:
+            if self.sqlscript.read_sql_preroll_interaction.empty:
                 pass
             else:
                 rename_video_player_summary_final = self.video_player_summary_final.rename(columns={"VWRMUTE": "Mute",
@@ -438,10 +348,8 @@ Renaming COlumns
     def writePreroll(self):
         """
             writing to excel all data
-        :return:
         """
 
-        self.logger.info('Writing Campaign information on preroll for IO - {}'.format(self.config.ioid))
         try:
             info_client = self.config.client_info.to_excel(self.config.writer, sheet_name="Standard Pre Roll Details",
                                                            startcol=1, startrow=1, index=True, header=False)
@@ -471,7 +379,7 @@ Renaming COlumns
         self.logger.info('Writing placement information on preroll for IO - {}'.format(self.config.ioid))
 
         try:
-            if self.read_sql_preroll_mv.empty:
+            if self.sqlscript.read_sql_preroll_mv.empty:
                 pass
             else:
                 writing_preroll_summary_final = self.prerollsummaryfinal.to_excel(self.config.writer,
@@ -483,10 +391,8 @@ Renaming COlumns
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Writing Video information on preroll for IO - {}'.format(self.config.ioid))
-
         try:
-            if self.read_sql_preroll_video.empty:
+            if self.sqlscript.read_sql_preroll_video.empty:
                 pass
             else:
                 writing_video_preroll_summary_mv_final = self.videoprerollsummarymvfinal.to_excel(self.config.writer,
@@ -500,8 +406,6 @@ Renaming COlumns
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
-
-        self.logger.info('Writing Intractions information on preroll for IO - {}'.format(self.config.ioid))
 
         try:
             if self.video_player_summary_final.empty:
@@ -517,10 +421,8 @@ Renaming COlumns
             self.logger.error(str(e))
             pass
 
-        self.logger.info('Writing Video player information on preroll for IO - {}'.format(self.config.ioid))
-
         try:
-            if self.read_sql_preroll_interaction.empty:
+            if self.sqlscript.read_sql_preroll_interaction.empty:
                 pass
             else:
                 writing_intraction_player_final = self.intraction_final.to_excel(self.config.writer,
@@ -536,7 +438,6 @@ Renaming COlumns
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
-        self.logger.info('Writing placement by day informaton on preroll for IO - {}'.format(self.config.ioid))
 
         try:
             if self.dayprerollsummaryfinal.empty:
@@ -680,7 +581,7 @@ Renaming COlumns
         """
         Applying Formatting
         """
-        self.logger.info('Applying Formatting on preroll sheet for IO - {}'.format(self.config.ioid))
+
         try:
             workbook = self.config.writer.book
             worksheet = self.config.writer.sheets["Standard Pre Roll Details".format(self.config.ioid)]
@@ -1226,21 +1127,19 @@ Renaming COlumns
         main function
         """
         self.config.common_columns_summary()
-        self.connect_TFR_Intraction()
-        self.read_query_preroll()
-        if self.read_sql_preroll_mv.empty or self.read_sql_preroll_summary.empty \
-                or self.read_sql_preroll_video.empty or self.read_sql_video_details.empty \
-                or self.read_sql_preroll_day.empty or self.read_sql_preroll_interaction.empty \
-                or self.read_sql_preroll_video_player.empty:
-            self.logger.info("No instream placements for IO - {}".format(self.config.ioid))
+        self.config.logger.info(
+            "Start Creating Standard Pre Roll Details Sheet for IO - {} ".format(self.config.ioid) + " at " + str(
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+        if self.sqlscript.read_sql_preroll.empty :
+            self.logger.info("No In-stream placements for IO - {}".format(self.config.ioid) + " at "+ str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
             pass
         else:
-            self.logger.info("Instream placements found for IO - {}".format(self.config.ioid))
+            self.logger.info("Live In-stream placements found for IO - {}".format(self.config.ioid) + " at "+ str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
             self.accessing_preroll_columns()
             self.renameIntraction()
             self.writePreroll()
             self.formatting()
-            self.logger.info('Instream Sheet created for IO {}'.format(self.config.ioid))
+            self.logger.info('Standard Pre Roll Details Sheet created for IO {}'.format(self.config.ioid) + " at "+ str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 if __name__ == "__main__":

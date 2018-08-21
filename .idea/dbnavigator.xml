@@ -25,30 +25,69 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="03eb508c-c611-41ab-ba5f-1702cbade014">
-        <schema name="PUBLIC" object-types="function, materialized view, package, sequence, synonym, table, type, view" />
-        <schema name="TFR_REP" object-types="function, materialized view, package, sequence, synonym, table, type, view" />
+        <schema name="PUBLIC" object-types="function, package, sequence, synonym, type" />
+        <schema name="TFR_REP" object-types="column, function, materialized view, package, sequence, synonym, table, type, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="03eb508c-c611-41ab-ba5f-1702cbade014">
-      <console name="Connection" type="STANDARD"><![CDATA[select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, 
-sum(VIEWS) as Delivered_Impresion, 
-sum(CLICKS) as Clicks, sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = 613697  AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-06-25' AND '2018-07-23' 
-GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID;
+      <console name="Connection" type="STANDARD"><![CDATA[SELECT * FROM (SELECT IO_ID, SUBSTR(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) AS PLACEMENT#, TO_CHAR(SDATE, 'YYYY-MM-DD') AS START_DATE, 
+TO_CHAR(EDATE, 'YYYY-MM-DD') AS END_DATE, INITCAP(CREATIVE_DESC)  AS PLACEMENT_NAME, COST_TYPE_DESC AS COST_TYPE, 
+NET_UNIT_COST as NET_UNIT_COST, GROSS_UNIT_COST as GROSS_UNIT_COST, NET_BUDGET as NET_PLANNED_COST, GROSS_BUDGET as GROSS_PLANNED_COST, BOOKED_QTY AS BOOKED_IMP#BOOKED_ENG 
+FROM TFR_REP.EOC_SUMMARY_VIEW
+WHERE (IO_ID = 616077)
+	 AND (DATA_SOURCE = 'KM')
+	 AND (TO_CHAR(SDATE, 'YYYY-MM-DD') BETWEEN
+	 (CASE WHEN '2018-08-01' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+	  ELSE (CASE WHEN '2018-08-01' < TO_CHAR(SDATE, 'YYYY-MM-DD') AND '2018-08-01' <= TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(SDATE, 'YYYY-MM-DD') END)
+	  END)
+	 AND
+	 (CASE WHEN '2018-08-15' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN '2018-08-15'
+	  ELSE (CASE WHEN '2018-08-15' > TO_CHAR(EDATE, 'YYYY-MM-DD') AND '2018-08-01' <= TO_CHAR(SDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(EDATE, 'YYYY-MM-DD') END)
+	  END))
+	 AND
+	 (TO_CHAR(EDATE, 'YYYY-MM-DD') BETWEEN
+	 (CASE WHEN '2018-08-01' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN '2018-08-01'
+	  ELSE (CASE WHEN '2018-08-01' < TO_CHAR(SDATE, 'YYYY-MM-DD') AND '2018-08-01' <= TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(SDATE, 'YYYY-MM-DD') END)
+	  END)
+	 AND
+	 (CASE WHEN '2018-08-15' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+	  ELSE (CASE WHEN '2018-08-15' > TO_CHAR(EDATE, 'YYYY-MM-DD') AND '2018-08-01' <= TO_CHAR(SDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(EDATE, 'YYYY-MM-DD') END)
+	  END))
+	 AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC
+						  FROM TFR_REP.EOC_SUMMARY_VIEW)ORDER BY PLACEMENT_ID)
+WHERE Placement_Name Not LIKE '%Pre-Roll%' and  Placement_Name Not LIKE '%Pre–Roll%';
 
 
-select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, DAY_DESC as Day, sum(VIEWS) as Delivered_Impression, sum(CLICKS) as Clicks, 
-sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = 613697 AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-06-25' AND '2018-07-23' GROUP BY PLACEMENT_ID,PLACEMENT_DESC, DAY_DESC ORDER BY PLACEMENT_ID;
+select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as PLACEMENT#,PRODUCT,
+sum(IMPRESSIONS) as Impressions, sum(ENGAGEMENTS) as Engagements, 
+sum(DPE_ENGAGEMENTS) as DpeEngagements, sum(CPCV_COUNT) as Completions,
+sum(ENG_CLICK_THROUGHS) as EngClickthrough, 
+sum(DPE_CLICK_THROUGHS) as DpeClickthrough,sum(VWR_CLICK_THROUGHS) as VwrClickthrough, 
+sum(ENG_TOTAL_TIME_SPENT) as Engtotaltimespent,sum(DPE_TOTAL_TIME_SPENT) as Dpetotaltimespent, 
+sum(VWR_VIDEO_VIEW_0_PC_COUNT) as View0,sum(VWR_VIDEO_VIEW_25_PC_COUNT) as View25,
+sum(VWR_VIDEO_VIEW_50_PC_COUNT) as View50,sum(VWR_VIDEO_VIEW_75_PC_COUNT) as View75,
+sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100,sum(ENG_VIDEO_VIEW_0_PC_COUNT) as Eng0,
+sum(ENG_VIDEO_VIEW_25_PC_COUNT) as Eng25,sum(ENG_VIDEO_VIEW_50_PC_COUNT) as Eng50,
+sum(ENG_VIDEO_VIEW_75_PC_COUNT) as Eng75,sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100,
+sum(DPE_VIDEO_VIEW_0_PC_COUNT) as Dpe0,sum(DPE_VIDEO_VIEW_25_PC_COUNT) as Dpe25,
+sum(DPE_VIDEO_VIEW_50_PC_COUNT) as Dpe50,sum(DPE_VIDEO_VIEW_75_PC_COUNT) as Dpe75,
+sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100,sum(DPE_INTERACTIVE_ENGAGEMENTS) as DpeIntractiveEngagements,
+sum(ENG_INTERACTIVE_ENGAGEMENTS) as EngIntractiveEngagements
+from TFR_REP.EOC_KEY_METRIC_VIEW 
+WHERE IO_ID = 616077 AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-08-01' AND '2018-08-15' 
+GROUP BY PLACEMENT_ID, PLACEMENT_DESC, PRODUCT ORDER BY PLACEMENT_ID;
 
-
-select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, MEDIA_SIZE_DESC as Adsize, sum(VIEWS) as Delivered_Impression, sum(CLICKS) as Clicks, 
-sum(CONVERSIONS) as Conversion 
-from TFR_REP.ADSIZE_SALES_MV WHERE IO_ID = 613697 AND TO_CHAR(DAY_DESC, 'YYYY-MM-DD') BETWEEN '2018-06-25' AND '2018-07-23' GROUP BY PLACEMENT_ID,PLACEMENT_DESC, MEDIA_SIZE_DESC ORDER BY PLACEMENT_ID;
-
-select * from SUMMARY_MV where IO_ID = 614857;
-select * from SUMMARY_MV where IO_ID = 613697;
-select * from SUMMARY_MV where IO_ID = 615547;]]></console>
+select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#,PRODUCT,sum(IMPRESSIONS) as Impressions,
+sum(ENGAGEMENTS) as Engagements,
+sum(CPCV_COUNT) as completions,sum(DPE_ENGAGEMENTS) as Dpeengaments 
+From TFR_REP.EOC_KEY_METRIC_VIEW WHERE IO_ID = 616077 AND TO_CHAR(TO_DATE(DAY_DESC, 'MM/DD/YYYY'),'YYYY-MM-DD') BETWEEN '2018-08-01' AND '2018-08-15' GROUP BY PLACEMENT_ID, 
+PLACEMENT_DESC,PRODUCT ORDER BY  PLACEMENT_ID]]></console>
     </connection>
     <connection id="f29ae707-ab87-4e40-bcfd-b017c3582f6b">
       <console name="TFR_DB" type="STANDARD"><![CDATA[select * from KEY_METRIC_VIEW;]]></console>
@@ -60,6 +99,9 @@ select * from SUMMARY_MV where IO_ID = 615547;]]></console>
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
+  </component>
+  <component name="DBNavigator.Project.FileConnectionMappingManager">
+    <mapping file-url="file://$PROJECT_DIR$/Bi_Team_Project/Scripts/Placement_info_vdx_km.sql" connection-id="f29ae707-ab87-4e40-bcfd-b017c3582f6b" session-id="MAIN" current-schema="TFR_REP" />
   </component>
   <component name="DBNavigator.Project.MethodExecutionManager">
     <method-browser />
