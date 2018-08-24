@@ -56,7 +56,7 @@ class Config(Properties):
         reading data from csv file for ioid
         :return: read_common_columns, data_common_columns
         """
-
+        #connection = self.sqlscript.connection(self.connection)
         sql_client_info = "SELECT DISTINCT CLIENT_DESC from TFR_REP.EOC_SUMMARY_VIEW WHERE IO_ID = {}".format(self.ioid)
         sql_campaign_info = "SELECT DISTINCT IO_DESC FROM TFR_REP.EOC_SUMMARY_VIEW WHERE IO_ID = {}".format(self.ioid)
         sql_acct_mgr = "SELECT DISTINCT ACCOUNT_MGR FROM TFR_REP.EOC_SUMMARY_VIEW WHERE IO_ID = {}".format(self.ioid)
@@ -92,6 +92,7 @@ class Config(Properties):
         io_discount = discount_value_rebate.loc[:,["IO_ID","Discount"]]
 
         read_sql_client_info = pd.read_sql(sql_client_info, cx_Oracle.connect(self.login))
+
         read_last_row_client_info = read_sql_client_info.iloc[-1:]
         read_last_row_client_info.rename(columns={"CLIENT_DESC": "Client Name"}, inplace=True)
         client_info = read_last_row_client_info.set_index('Client Name').reset_index().transpose()

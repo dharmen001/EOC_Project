@@ -1,8 +1,7 @@
 # coding=utf-8
 # !/usr/bin/env python
 """
-Created by:Dharmendra
-Date:2018-03-23
+VDX
 """
 import datetime
 import pandas as pd
@@ -634,6 +633,11 @@ Class for VDX Placements
         self.intractions_clicks_new = intractions_clicks_new
         self.intractions_intrac_new = intractions_intrac_new
 
+    def vdx_day_data(self):
+        """Creating VDX By day Information"""
+
+        pass
+
     def write_video_data(self):
         """
 
@@ -767,7 +771,7 @@ Class for VDX Placements
 
         startline_player = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(
             self.placement_adsize_final) + self.unique_plc_summary * 2 + 3 + len(
-            self.placement_by_video_final) + self.unique_plc_summary * 2 + 3
+            self.placement_by_video_final) + self.unique_plc_summary * 2 + 2
         try:
             if self.sqlscript.read_sql_video_player_interaction.empty:
                 pass
@@ -948,12 +952,14 @@ Class for VDX Placements
                                          number_cols_video - 1,
                                          {"type": "blanks", "format": format_colour})
 
+            #Writing Intractions table information
             worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3,
+                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 2,
                                    1, "Interaction Details",
                                    format_hearder_left)
 
+            #Interaction Mute Unmute Table blank row formatting on second header
             worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                          self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
                                          self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3, 1,
@@ -966,28 +972,34 @@ Class for VDX Placements
 
             worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 2,
+                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3, 2,
                                    "Video Player Interactions",
                                    format_hearder_right)
 
-            worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 1,
-                                         9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
-                                         self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
+            #Colour Formatting for Interaction Table
+            print(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1)
+            print(self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 3)
+            print(self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 2)
+
+            start_row_intraction = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
+                                   self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 + \
+                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 2
+
+            worksheet.conditional_format(start_row_intraction, 2,
+                                         start_row_intraction,
                                          9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
                                              1],
                                          {
                                              "type": "blanks",
                                              "format": format_colour
                                          })
+
             if self.intractions_clicks_new.empty:
                 pass
             else:
                 worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                        self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                       self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 9,
+                                       self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3, 9,
                                        "Clickthroughs", format_hearder_right)
 
             if self.intractions_intrac_new.empty:
@@ -995,48 +1007,50 @@ Class for VDX Placements
             else:
                 worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                        self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                       self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
+                                       self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 3,
                                        9 + self.intractions_clicks_new.shape[1], "Ad Interactions",
                                        format_hearder_right)
 
             worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
+                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
                                    9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1],
                                    "Total Interactions", format_hearder_right)
 
             worksheet.write_string(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
+                                   self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4 +
                                    self.video_player_final.shape[0] + 1,
                                    1, "Grand Total", format_grand)
 
+            #Sum for Mute Unmute Table
             for col in range(2, 9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[1] + 1):
                 cell_location = xl_rowcol_to_cell(
                     9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                     self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
+                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4 +
                     self.video_player_final.shape[0] + 1
                     , col)
                 start_range = xl_rowcol_to_cell(
                     9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                     self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 6,
+                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
                     col)
 
                 end_range = xl_rowcol_to_cell(
                     9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                     self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5 +
+                    self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4 +
                     self.video_player_final.shape[0], col)
 
                 formula = '=sum({:s}:{:s})'.format(start_range, end_range)
 
                 worksheet.write_formula(cell_location, formula, format_grand_total)
 
+            #Sum of total Interaction by row
             start_range_x = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
                             self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 + \
-                            self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 6
+                            self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5
 
             for row in range(self.video_player_final.shape[0]):
                 cell_range = xl_range(start_range_x, 2, start_range_x,
@@ -1048,22 +1062,23 @@ Class for VDX Placements
                                         formula, format_num)
                 start_range_x += 1
 
+            #Header Formatting for Mute Unmute Table
             worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                          self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5, 1,
+                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 1,
                                          9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                          self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
+                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
                                          9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
                                              1],
                                          {"type": "no_blanks", "format": format_hearder_left})
 
             worksheet.conditional_format(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                          self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5, 1,
+                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4, 1,
                                          9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 +
                                          self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 +
-                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 5,
+                                         self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 4,
                                          9 + self.intractions_clicks_new.shape[1] + self.intractions_intrac_new.shape[
                                              1],
                                          {"type": "blanks", "format": format_hearder_left})

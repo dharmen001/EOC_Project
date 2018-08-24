@@ -1,9 +1,6 @@
 # coding=utf-8
 # !/usr/bin/env python
-"""
-Created by:Dharmendra
-Date:2018-03-23
-"""
+
 import datetime
 import pandas as pd
 import numpy as np

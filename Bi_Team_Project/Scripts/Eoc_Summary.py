@@ -1,8 +1,7 @@
 # coding=utf-8
 # !/usr/bin/env python
 """
-Created by:Dharmendra
-Date:2018-03-23
+Summary Sheet Class
 """
 from __future__ import print_function
 
