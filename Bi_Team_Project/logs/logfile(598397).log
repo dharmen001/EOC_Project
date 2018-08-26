@@ -1,0 +1,18 @@
+2018-05-28 23:49:24,092 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 00:56:45,619 - EOCApp - ERROR - cannot do slice indexing on <class 'pandas.core.indexes.base.Index'> with these indexers [1] of <type 'int'> Not found in intraction table for IO - 598397
+2018-05-29 00:56:45,635 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'Not Found
+2018-05-29 10:43:30,148 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 14:49:35,651 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 15:52:13,023 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 17:37:59,670 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 20:08:43,877 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 20:56:48,219 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397
+2018-05-29 23:51:03,068 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 598397

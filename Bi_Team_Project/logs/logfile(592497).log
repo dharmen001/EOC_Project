@@ -1,0 +1,11 @@
+2018-06-02 15:58:21,555 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 592497
+2018-06-02 20:01:15,816 - EOCApp - ERROR - 'DPEENGAGEMENTS'
+2018-06-02 20:23:13,506 - EOCApp - ERROR - 'DPEENGAGEMENTS'
+2018-06-02 23:22:38,306 - EOCApp - ERROR - 'Placement# Name'
+2018-06-02 23:22:38,493 - EOCApp - ERROR - 'DPEENGAGEMENTS'
+2018-06-02 23:26:21,744 - EOCApp - ERROR - 'Placement# Name'
+2018-06-02 23:26:21,808 - EOCApp - ERROR - 'DPEENGAGEMENTS'
+2018-06-03 00:26:50,003 - EOCApp - ERROR - 'Placement# Name'
+2018-06-03 00:26:50,082 - EOCApp - ERROR - 'DPEENGAGEMENTS'
+2018-06-03 00:26:50,160 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'

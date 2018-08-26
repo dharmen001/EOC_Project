@@ -1,0 +1,16 @@
+2018-04-28 21:30:49,315 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-04-29 11:35:06,987 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-04-29 12:49:38,924 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-04-29 13:19:11,737 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-04-29 16:55:41,012 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-04-30 16:03:14,721 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-04-30 16:50:03,434 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857
+2018-05-05 00:50:21,033 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603857

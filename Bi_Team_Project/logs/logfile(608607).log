@@ -1,0 +1,52 @@
+2018-05-27 19:54:47,585 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 608607
+2018-05-27 21:02:17,887 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 608607
+2018-05-28 23:15:00,697 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 608607
+2018-05-28 23:27:14,924 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 608607
+2018-05-31 20:08:07,316 - EOCApp - ERROR - Execution failed on sql 'SELECT * FROM (SELECT SUBSTR(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) AS PLACEMENT#,
+                      TO_CHAR(SDATE, 'YYYY-MM-DD') AS START_DATE,
+                      TO_CHAR(EDATE, 'YYYY-MM-DD') AS END_DATE,
+                      INITCAP(CREATIVE_DESC)  AS PLACEMENT_NAME,
+                      COST_TYPE_DESC AS COST_TYPE,
+                      UNIT_COST AS UNIT_COST,
+                      BUDGET AS PLANNED_COST,
+                      BOOKED_QTY AS BOOKED_IMP#BOOKED_ENG
+               FROM TFR_REP.SUMMARY_MV
+               WHERE (IO_ID = 608607)
+                     AND (DATA_SOURCE = 'KM')
+                     AND (TO_CHAR(SDATE, 'YYYY-MM-DD') BETWEEN
+                     (CASE WHEN '2018-05-01' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+                      ELSE (CASE WHEN '2018-05-01' < TO_CHAR(SDATE, 'YYYY-MM-DD') AND '2018-05-01' <= TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+                            ELSE TO_CHAR(SDATE, 'YYYY-MM-DD') END)
+                      END)
+                     AND
+                     (CASE WHEN '2018-05-30' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN '2018-05-30'
+                      ELSE (CASE WHEN '2018-05-30' > TO_CHAR(EDATE, 'YYYY-MM-DD') AND '2018-05-01' <= TO_CHAR(SDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+                            ELSE TO_CHAR(EDATE, 'YYYY-MM-DD') END)
+                      END))
+                     AND
+                     (TO_CHAR(EDATE, 'YYYY-MM-DD') BETWEEN
+                     (CASE WHEN '2018-05-01' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN '2018-05-01'
+                      ELSE (CASE WHEN '2018-05-01' < TO_CHAR(SDATE, 'YYYY-MM-DD') AND '2018-05-01' <= TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+                            ELSE TO_CHAR(SDATE, 'YYYY-MM-DD') END)
+                      END)
+                     AND
+                     (CASE WHEN '2018-05-30' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+                      ELSE (CASE WHEN '2018-05-30' > TO_CHAR(EDATE, 'YYYY-MM-DD') AND '2018-05-01' <= TO_CHAR(SDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+                            ELSE TO_CHAR(EDATE, 'YYYY-MM-DD') END)
+                      END))
+                     AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC
+                                          FROM TFR_REP.SUMMARY_MV))
+                WHERE Placement_Name Not LIKE '%Pre-Roll%' and  Placement_Name Not LIKE '%Pre–Roll%';': ORA-00933: SQL command not properly ended
+ Table or view does not exist
+2018-05-31 20:08:07,316 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-31 20:08:07,316 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-31 20:08:07,316 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-31 20:08:07,316 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-31 20:08:07,316 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-31 20:08:07,316 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-03 01:12:22,003 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 608607

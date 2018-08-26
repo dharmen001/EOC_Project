@@ -1,0 +1,5 @@
+2018-07-18 18:56:34,665 - EOCApp - ERROR - u'the label [ENG] is not in the [index]'
+2018-07-18 18:56:34,665 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-18 18:56:34,665 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-18 18:56:34,665 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-18 18:56:34,681 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

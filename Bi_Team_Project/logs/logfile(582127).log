@@ -1,0 +1,110 @@
+2018-05-26 00:43:03,035 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582127
+2018-05-26 00:57:49,783 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582127
+2018-05-26 00:58:08,461 - EOCApp - ERROR - ORA-12570: TNS:packet reader failure
+TNS:Connect timeout occurred: Please Retry for IO: 582127
+2018-05-26 11:15:04,736 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582127
+2018-05-26 18:31:39,579 - EOCApp - ERROR - ORA-12546: TNS:permission denied
+TNS:Connect timeout occurred: Please Retry for IO: 582127
+2018-05-26 22:03:53,568 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582127
+2018-06-01 00:25:55,428 - EOCApp - ERROR - "['IMPRESSION' 'ENG'] not in index"
+2018-06-01 00:25:55,476 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-01 00:37:46,999 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-06-01 00:37:47,015 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-01 01:04:28,098 - EOCApp - ERROR - Execution failed on sql 'SELECT * FROM (SELECT SUBSTR(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) AS PLACEMENT#, TO_CHAR(SDATE, 'YYYY-MM-DD') AS START_DATE, 
+TO_CHAR(EDATE, 'YYYY-MM-DD') AS END_DATE, INITCAP(CREATIVE_DESC)  AS PLACEMENT_NAME, COST_TYPE_DESC AS COST_TYPE, 
+UNIT_COST AS UNIT_COST, BUDGET AS PLANNED_COST, BOOKED_QTY AS BOOKED_IMP#BOOKED_ENG FROM TFR_REP.SUMMARY_MV
+WHERE (IO_ID = 582127)
+	 AND (DATA_SOURCE = 'KM')
+	 AND (TO_CHAR(SDATE, 'YYYY-MM-DD') BETWEEN
+	 (CASE WHEN ''2016-03-19'' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+	  ELSE (CASE WHEN ''2016-03-19'' < TO_CHAR(SDATE, 'YYYY-MM-DD') AND ''2016-03-19'' <= TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(SDATE, 'YYYY-MM-DD') END)
+	  END)
+	 AND
+	 (CASE WHEN ''2016-05-27'' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN ''2016-05-27''
+	  ELSE (CASE WHEN ''2016-05-27'' > TO_CHAR(EDATE, 'YYYY-MM-DD') AND ''2016-03-19'' <= TO_CHAR(SDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(EDATE, 'YYYY-MM-DD') END)
+	  END))
+	 AND
+	 (TO_CHAR(EDATE, 'YYYY-MM-DD') BETWEEN
+	 (CASE WHEN ''2016-03-19'' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN ''2016-03-19''
+	  ELSE (CASE WHEN ''2016-03-19'' < TO_CHAR(SDATE, 'YYYY-MM-DD') AND ''2016-03-19'' <= TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(SDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(SDATE, 'YYYY-MM-DD') END)
+	  END)
+	 AND
+	 (CASE WHEN ''2016-05-27'' BETWEEN TO_CHAR(SDATE, 'YYYY-MM-DD') AND TO_CHAR(EDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+	  ELSE (CASE WHEN ''2016-05-27'' > TO_CHAR(EDATE, 'YYYY-MM-DD') AND ''2016-03-19'' <= TO_CHAR(SDATE, 'YYYY-MM-DD') THEN TO_CHAR(EDATE, 'YYYY-MM-DD')
+			ELSE TO_CHAR(EDATE, 'YYYY-MM-DD') END)
+	  END))
+	 AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC
+						  FROM TFR_REP.SUMMARY_MV)ORDER BY PLACEMENT_ID)
+WHERE Placement_Name Not LIKE '%Pre-Roll%' and  Placement_Name Not LIKE '%Pre–Roll%'': ORA-00920: invalid relational operator
+ Table or view does not exist
+2018-06-01 01:04:28,098 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:14:06,345 - EOCApp - ERROR - Execution failed on sql '': ORA-24373: invalid length specified for statement
+ Table or view does not exist
+2018-06-01 08:14:06,345 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:14:06,345 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:14:06,345 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:14:06,345 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:14:06,345 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:14:06,345 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:16:42,404 - EOCApp - ERROR - Execution failed on sql '': ORA-24373: invalid length specified for statement
+ Table or view does not exist
+2018-06-01 08:16:42,404 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:16:42,404 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:16:42,404 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:16:42,404 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:16:42,404 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 08:16:42,404 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 09:40:44,658 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 09:43:00,635 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 09:45:29,167 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 09:48:33,694 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 09:54:34,596 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 09:54:34,596 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:00:31,555 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 10:00:31,555 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:00:31,555 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:00:31,555 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:00:31,555 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:03:20,892 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 10:03:20,892 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:03:20,892 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:03:20,892 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:03:20,892 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:03:20,892 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-01 10:09:31,730 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 10:09:31,730 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:09:31,730 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:09:31,730 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:09:31,730 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:09:31,730 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-01 10:10:55,023 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 10:10:55,023 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:10:55,023 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:10:55,023 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:10:55,023 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:10:55,023 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-01 10:14:37,220 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 10:14:37,220 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:14:37,220 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:14:37,220 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:14:37,220 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:14:37,220 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-01 10:21:33,615 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 10:21:33,615 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 10:21:33,615 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:21:33,615 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:21:33,615 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 10:21:33,615 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-01 11:16:51,223 - EOCApp - ERROR - 'PLACEMENT'
+2018-06-01 11:16:51,232 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-01 11:16:51,232 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 11:16:51,232 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 11:16:51,232 - EOCApp - ERROR - object of type 'NoneType' has no len()
+2018-06-01 11:16:51,232 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

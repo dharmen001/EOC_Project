@@ -1,0 +1,10 @@
+2018-06-29 21:50:08,210 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-06-29 23:21:22,776 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-06-29 23:22:04,990 - EOCApp - ERROR - 'CLICKTHRU'
+2018-06-29 23:22:05,020 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-29 23:22:05,020 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-29 23:27:39,819 - EOCApp - ERROR - 'DataFrame' object has no attribute 'list'
+2018-06-29 23:27:39,849 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-29 23:27:39,849 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

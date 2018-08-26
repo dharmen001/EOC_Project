@@ -1,0 +1,240 @@
+2018-05-06 22:12:39,721 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-07 10:39:04,290 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-10 21:25:14,003 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-12 19:21:30,855 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-15 10:01:12,348 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-15 18:50:14,411 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-15 21:19:05,654 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-15 23:59:22,644 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-16 01:34:52,766 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 01:34:52,812 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 01:34:52,828 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 01:34:52,844 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 01:34:52,844 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 605937
+2018-05-16 01:39:52,255 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No live Display placements for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No VDX Placements for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No preroll placements for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 605937
+2018-05-16 01:39:52,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 01:39:52,318 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 01:39:52,318 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 605937
+2018-05-16 01:39:52,318 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 01:39:52,318 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 605937
+2018-05-16 01:40:17,591 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 01:40:17,621 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 01:40:17,637 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 01:40:17,653 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 01:40:17,653 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 605937
+2018-05-16 01:57:16,838 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 01:57:16,884 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 01:57:16,901 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 01:57:16,917 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 01:57:16,917 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 605937
+2018-05-16 01:59:20,760 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 01:59:20,776 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 01:59:20,792 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 01:59:20,808 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:04:29,049 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:04:29,096 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:04:29,096 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:04:29,128 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:04:29,128 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:06:57,750 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:06:57,782 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:06:57,798 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:06:57,828 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:06:57,828 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:06:57,828 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement so count row and column
+2018-05-16 02:13:22,740 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:13:22,773 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:13:22,788 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:13:22,803 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:13:22,803 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:13:22,803 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 02:15:48,588 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:15:48,618 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:15:48,634 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:15:48,650 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:15:48,650 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:15:48,650 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 02:17:20,338 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:17:20,369 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:17:20,401 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:17:20,417 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:17:20,417 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:17:20,417 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 02:21:18,111 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:21:18,173 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:21:18,188 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:21:18,220 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:21:18,220 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:21:18,220 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 02:41:22,020 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:41:22,068 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:41:22,082 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:41:22,098 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:41:22,098 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid placement for IO 605937
+2018-05-16 02:41:22,098 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 02:55:51,344 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:55:51,391 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:55:51,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:55:51,421 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:55:51,421 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 02:55:51,421 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 02:56:06,640 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 02:56:06,687 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 02:56:06,701 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 02:56:06,717 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 02:56:06,717 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 02:56:06,717 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 11:52:35,362 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No live Display placements for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No VDX Placements for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No preroll placements for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 605937
+2018-05-16 11:52:35,424 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid VDX placement for IO 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 11:52:35,440 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 11:54:12,986 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 11:54:13,032 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 11:54:13,049 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 11:54:13,079 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 11:54:13,079 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 11:54:13,079 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 14:56:09,953 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 14:56:09,996 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 14:56:09,996 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 14:56:10,108 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 14:56:10,108 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 14:56:10,114 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 14:56:10,144 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 15:02:56,492 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 15:02:56,507 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 15:02:56,507 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 15:02:56,553 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 15:02:56,553 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 15:02:56,553 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 15:02:56,569 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 15:05:35,806 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 15:05:35,838 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 15:05:35,838 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 15:05:35,884 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 15:05:35,884 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 15:05:35,884 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 15:05:35,901 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 15:05:35,901 - EOCApp - ERROR - object of type 'NoneType' has no len() No vdx placements to write for IO - 605937
+2018-05-16 15:05:35,901 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 15:05:35,901 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 15:05:35,917 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 15:05:35,917 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 15:07:26,183 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 15:07:26,198 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 15:07:26,198 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 15:07:26,246 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 15:07:26,246 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 15:07:26,246 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 15:07:26,259 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 15:07:26,259 - EOCApp - ERROR - object of type 'NoneType' has no len() No vdx placements to write for IO - 605937
+2018-05-16 15:07:26,259 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 15:07:26,259 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 15:07:26,276 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 15:07:26,276 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 15:07:44,584 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 15:07:44,615 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 15:07:44,615 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 15:07:44,631 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 15:07:44,631 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 15:07:44,631 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 15:07:44,661 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 15:07:44,661 - EOCApp - ERROR - object of type 'NoneType' has no len() No vdx placements to write for IO - 605937
+2018-05-16 15:07:44,661 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 15:07:44,677 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 15:07:44,677 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 15:07:44,677 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 15:19:55,526 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 15:19:55,542 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 15:19:55,542 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 15:19:55,588 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 15:19:55,588 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 15:19:55,588 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 15:19:55,605 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 15:19:55,605 - EOCApp - ERROR - object of type 'NoneType' has no len() No vdx placements to write for IO - 605937
+2018-05-16 15:19:55,605 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 15:19:55,621 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 15:19:55,621 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 15:19:55,621 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 16:05:03,036 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No live Display placements for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No VDX Placements for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No preroll placements for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 605937
+2018-05-16 16:05:03,352 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 16:05:03,384 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 16:05:03,384 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 605937
+2018-05-16 16:05:03,384 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 16:05:03,398 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 16:05:03,398 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid VDX placement for IO 605937
+2018-05-16 16:05:03,398 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 16:05:03,398 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column
+2018-05-16 16:06:08,760 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:06:08,808 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:06:36,280 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:06:36,344 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:15:12,052 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:15:12,108 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:18:32,539 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:18:32,792 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:25:14,690 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:25:14,753 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:30:19,486 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:30:19,549 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:33:52,888 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:33:52,934 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:37:21,960 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:37:21,990 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 16:43:19,846 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 16:43:19,908 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 22:05:02,423 - EOCApp - ERROR - 'Summary' object has no attribute 'read_sql__display__m_v' No live Display placements for IO - 605937
+2018-05-16 22:05:02,454 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 605937
+2018-05-16 22:05:02,454 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 605937
+2018-05-16 22:05:02,502 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 605937
+2018-05-16 22:05:02,502 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 605937
+2018-05-16 22:05:02,502 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 605937
+2018-05-16 22:05:02,516 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No display placements to write for IO - 605937
+2018-05-16 22:05:02,516 - EOCApp - ERROR - object of type 'NoneType' has no len() No vdx placements to write for IO - 605937
+2018-05-16 22:05:02,516 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 605937
+2018-05-16 22:05:02,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Display placement for IO 605937
+2018-05-16 22:05:02,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'No Valid Preroll placement for IO 605937
+2018-05-16 22:05:02,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'No valid placement count row and column

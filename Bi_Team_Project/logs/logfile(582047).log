@@ -1,0 +1,63 @@
+2018-04-25 22:34:01,858 - EOCApp - ERROR - Applying Formatting on preroll sheet for IO - 582047
+2018-04-26 00:22:40,601 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-04-26 00:23:28,707 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-04-26 10:47:57,628 - EOCApp - ERROR - Execution failed on sql 'SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, sum(VWR_INTERACTION) as Vwradintraction,sum(ENG_INTERACTION) as Engadintraction, sum(DPE_INTERACTION) as DpeadintractionFROM TFR_REP.INTERACTION_DETAIL_MV WHERE IO_ID = 582047 and BLAZE_ACTION_TYPE_DESC = 'Interaction' GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID': ORA-00923: FROM keyword not found where expected
+ No Quries have Data for IO - 582047
+2018-04-26 22:05:27,299 - EOCApp - ERROR - Execution failed on sql 'select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, sum(IMPRESSIONS) as Impressions,sum(ENGAGEMENTS) as Engagements, PRODUCT sum(DPE_ENGAGEMENTS) as DpeEngaments,sum(ENG_CLICK_THROUGHS) as EngClickthrough,sum(DPE_CLICK_THROUGHS) as DpeClickthrough,sum(VWR_CLICK_THROUGHS) as VwrClickthrough, sum(ENG_TOTAL_TIME_SPENT) as Engtotaltimespent,sum(DPE_TOTAL_TIME_SPENT) as Dpetotaltimespent, sum(VWR_VIDEO_VIEW_0_PC_COUNT) as View0,sum(VWR_VIDEO_VIEW_25_PC_COUNT) as View25, sum(VWR_VIDEO_VIEW_50_PC_COUNT) as View50,sum(VWR_VIDEO_VIEW_75_PC_COUNT) as View75, sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100,sum(ENG_VIDEO_VIEW_0_PC_COUNT) as Eng0,sum(ENG_VIDEO_VIEW_25_PC_COUNT) as Eng25,sum(ENG_VIDEO_VIEW_50_PC_COUNT) as Eng50,sum(ENG_VIDEO_VIEW_75_PC_COUNT) as Eng75,sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100,sum(DPE_VIDEO_VIEW_0_PC_COUNT) as Dpe0,sum(DPE_VIDEO_VIEW_25_PC_COUNT) as Dpe25, sum(DPE_VIDEO_VIEW_50_PC_COUNT) as Dpe50,sum(DPE_VIDEO_VIEW_75_PC_COUNT) as Dpe75, sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100,sum(ENG_INTERACTIVE_ENGAGEMENTS) as EngIntractiveEngagements from TFR_REP.KEY_METRIC_MV WHERE IO_ID = 582047 GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID': ORA-00923: FROM keyword not found where expected
+ No Quries have Data for IO - 582047
+2018-04-26 22:08:04,918 - EOCApp - ERROR - Execution failed on sql 'select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement, sum(IMPRESSIONS) as Impressions,sum(ENGAGEMENTS) as Engagements, PRODUCT sum(DPE_ENGAGEMENTS) as DpeEngaments,sum(ENG_CLICK_THROUGHS) as EngClickthrough,sum(DPE_CLICK_THROUGHS) as DpeClickthrough,sum(VWR_CLICK_THROUGHS) as VwrClickthrough, sum(ENG_TOTAL_TIME_SPENT) as Engtotaltimespent,sum(DPE_TOTAL_TIME_SPENT) as Dpetotaltimespent, sum(VWR_VIDEO_VIEW_0_PC_COUNT) as View0,sum(VWR_VIDEO_VIEW_25_PC_COUNT) as View25, sum(VWR_VIDEO_VIEW_50_PC_COUNT) as View50,sum(VWR_VIDEO_VIEW_75_PC_COUNT) as View75, sum(VWR_VIDEO_VIEW_100_PC_COUNT) as View100,sum(ENG_VIDEO_VIEW_0_PC_COUNT) as Eng0,sum(ENG_VIDEO_VIEW_25_PC_COUNT) as Eng25,sum(ENG_VIDEO_VIEW_50_PC_COUNT) as Eng50,sum(ENG_VIDEO_VIEW_75_PC_COUNT) as Eng75,sum(ENG_VIDEO_VIEW_100_PC_COUNT) as Eng100,sum(DPE_VIDEO_VIEW_0_PC_COUNT) as Dpe0,sum(DPE_VIDEO_VIEW_25_PC_COUNT) as Dpe25, sum(DPE_VIDEO_VIEW_50_PC_COUNT) as Dpe50,sum(DPE_VIDEO_VIEW_75_PC_COUNT) as Dpe75, sum(DPE_VIDEO_VIEW_100_PC_COUNT) as Dpe100,sum(ENG_INTERACTIVE_ENGAGEMENTS) as EngIntractiveEngagements from TFR_REP.KEY_METRIC_MV WHERE IO_ID = 582047 GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID': ORA-00923: FROM keyword not found where expected
+ No Quries have Data for IO - 582047
+2018-04-27 08:26:54,476 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-05-04 14:51:12,232 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No live Display placements for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No VDX Placements for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute 'merge' No preroll placements for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 582047
+2018-05-04 14:51:12,309 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 582047
+2018-05-04 14:56:05,206 - EOCApp - ERROR - Applying Formatting on preroll sheet for IO - 582047
+2018-05-04 15:00:07,351 - EOCApp - ERROR - Applying Formatting on preroll sheet for IO - 582047
+2018-05-21 17:27:41,430 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 582047
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-21 17:27:41,477 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-06-01 17:38:32,513 - EOCApp - ERROR - 'Worksheet' object has no attribute 'write_string'
+2018-06-01 21:57:51,239 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-06-02 00:37:22,802 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-06-02 08:50:15,977 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-06-03 06:46:25,591 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-06-03 07:24:33,630 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-06-03 07:24:33,645 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-06-03 07:24:33,691 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-03 07:24:33,691 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-03 07:24:33,707 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-06-03 07:24:33,723 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-03 07:24:33,723 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-03 07:24:33,723 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-03 23:18:44,882 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 582047
+2018-06-04 18:32:44,384 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-06-04 18:32:44,401 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-06-04 18:32:44,415 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-04 18:32:44,415 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-04 18:32:44,456 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-06-04 18:32:44,461 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-04 18:32:44,463 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-04 18:32:44,463 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

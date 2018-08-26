@@ -11,7 +11,7 @@ from functools import reduce
 import pandas.io.formats.excel
 from SQLScript import SqlScript
 #desired_width = 320
-pd.set_option("display.max_columns", 10)
+pd.set_option("display.max_columns", 20)
 
 pandas.io.formats.excel.header_style = None
 
@@ -32,6 +32,7 @@ Class for VDX Placements
         self.video_player_final = None
         self.intractions_clicks_new = None
         self.intractions_intrac_new = None
+        self.vdx_by_day_final = None
         self.unique_plc_summary = None
 
     def access_vdx_placement_columns(self):
@@ -636,7 +637,96 @@ Class for VDX Placements
     def vdx_day_data(self):
         """Creating VDX By day Information"""
 
-        pass
+        vdx_tables_by_day = [self.sqlscript.read_sql__v_d_x, self.sqlscript.read_sql_video_day]
+        summary_data = reduce(lambda left, right: pd.merge(left, right, on=['PLACEMENT#']),vdx_tables_by_day)
+        vdx_columns = summary_data.loc[:,["PLACEMENT#","PLACEMENT_NAME","COST_TYPE","PRODUCT","DAY","IMPRESSIONS",
+                                          "ENGAGEMENTS","DPEENGAGEMENTS","COMPLETIONS","VIEW100","ENG100","DPE100",
+                                          "ENGGERCLICKTHROUGH","VWRCLICKTHROUGH","DPECLICKTHROUGH"]]
+
+        #start adding columns in data frame
+        vdx_columns["Placement# Name"] = vdx_columns[["PLACEMENT#","PLACEMENT_NAME"]].apply(lambda x: ".".join(x),axis=1)
+
+        #value selection Impressions
+        vdx_value_first_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile','InStream']) & vdx_columns["COST_TYPE"].isin(['CPE', 'CPM','CPE+','CPCV'])
+        choice_vdx_value_first_case = vdx_columns["IMPRESSIONS"]
+
+        vdx_columns["Impressions"] = np.select([vdx_value_first_case],[choice_vdx_value_first_case])
+
+        # value selection Engagements
+        vdx_value_second_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile','InStream']) & vdx_columns["COST_TYPE"].isin(['CPE', 'CPM','CPCV'])
+        vdx_value_third_case = vdx_columns["PRODUCT"].isin(['InStream']) & vdx_columns["COST_TYPE"].isin(['CPE+'])
+
+        choice_vdx_value_second_case = vdx_columns["ENGAGEMENTS"]
+        choice_vdx_value_third_case = vdx_columns["DPEENGAGEMENTS"]
+
+        vdx_columns['Engagements'] = np.select([vdx_value_second_case,vdx_value_third_case],[choice_vdx_value_second_case,choice_vdx_value_third_case])
+
+
+        # values selection Enagagements Rate
+        vdx_columns['Engagement Rate'] = vdx_columns['Engagements']/vdx_columns["Impressions"]
+
+        # values selection click Throughs
+
+        vdx_value_fourth_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile']) & vdx_columns["COST_TYPE"].isin(['CPE', 'CPM','CPCV'])
+        vdx_value_fifth_case = vdx_columns["PRODUCT"].isin(['InStream']) & vdx_columns["COST_TYPE"].isin(['CPE', 'CPM','CPE+','CPCV'])
+        vdx_value_sixth_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile']) & vdx_columns["COST_TYPE"].isin(['CPE+'])
+
+        choice_vdx_value_fourth_case = vdx_columns['ENGGERCLICKTHROUGH']
+        choice_vdx_value_fifth_case = vdx_columns['VWRCLICKTHROUGH']
+        choice_vdx_value_sixth_case = vdx_columns['DPECLICKTHROUGH']
+
+
+        vdx_columns['Clickthroughs'] = np.select([vdx_value_fourth_case,vdx_value_fifth_case,vdx_value_sixth_case],
+                                                 [choice_vdx_value_fourth_case,choice_vdx_value_fifth_case,choice_vdx_value_sixth_case])
+
+
+        # values selection for CTR
+        choice_vdx_fourth_case_ctr = vdx_columns['Clickthroughs']/vdx_columns['ENGAGEMENTS']
+        choice_vdx_fifth_case_ctr = vdx_columns['Clickthroughs']/vdx_columns['IMPRESSIONS']
+        choice_vdx_sixth_case_ctr = vdx_columns['Clickthroughs']/vdx_columns["DPEENGAGEMENTS"]
+
+
+        vdx_columns['CTR'] = np.select([vdx_value_fourth_case,vdx_value_fifth_case,vdx_value_sixth_case],
+                                       [choice_vdx_fourth_case_ctr, choice_vdx_fifth_case_ctr,choice_vdx_sixth_case_ctr])
+
+
+        # values selection for Video Completions
+        vdx_value_seventh_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile']) & vdx_columns["COST_TYPE"].isin(['CPE', 'CPM'])
+        vdx_value_eight_case = vdx_columns["PRODUCT"].isin(['InStream']) & vdx_columns["COST_TYPE"].isin(['CPE', 'CPM','CPE+'])
+        vdx_value_ninth_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile','InStream']) & vdx_columns["COST_TYPE"].isin(['CPCV'])
+        vdx_value_tenth_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile']) & vdx_columns["COST_TYPE"].isin(['CPE+'])
+
+        choice_vdx_seventh_case = vdx_columns['ENG100']
+        choice_vdx_eighth_case = vdx_columns['VIEW100']
+        choice_vdx_ninth_case = vdx_columns['COMPLETIONS']
+        choice_vdx_tenth_case = vdx_columns['DPE100']
+
+        vdx_columns['Video Completions'] = np.select([vdx_value_seventh_case,vdx_value_eight_case,vdx_value_ninth_case,vdx_value_tenth_case],
+                                                     [choice_vdx_seventh_case,choice_vdx_eighth_case,choice_vdx_ninth_case,choice_vdx_tenth_case])
+
+
+        # values selection for Video Completions Rate
+
+        vdx_value_eleventh_case = vdx_columns["PRODUCT"].isin(['Display', 'Mobile']) & vdx_columns["COST_TYPE"].isin(['CPCV'])
+        vdx_value_tweleth_case = vdx_columns["PRODUCT"].isin(['InStream']) & vdx_columns["COST_TYPE"].isin(['CPCV'])
+
+        choice_vdx_seventh_case_vcr = vdx_columns['Video Completions']/vdx_columns['ENGAGEMENTS']
+        choice_vdx_eigth_case_vcr = vdx_columns['Video Completions']/vdx_columns['IMPRESSIONS']
+        choice_vdx_tenth_case_vcr = vdx_columns['Video Completions']/vdx_columns['DPE100']
+
+
+        vdx_columns['Video Completion Rate'] = np.select([vdx_value_seventh_case,vdx_value_eight_case,vdx_value_tenth_case,vdx_value_eleventh_case,vdx_value_tweleth_case],
+                                                         [choice_vdx_seventh_case_vcr,choice_vdx_eigth_case_vcr,choice_vdx_tenth_case_vcr,
+                                                          choice_vdx_seventh_case_vcr,choice_vdx_eigth_case_vcr])
+
+
+        # final columns
+
+        vdx_by_day_final = vdx_columns.loc[:,['Placement# Name','PRODUCT','DAY','Impressions','Engagements',
+                                              'Engagement Rate','Clickthroughs','CTR','Video Completions','Video Completion Rate']]
+
+        self.vdx_by_day_final = vdx_by_day_final
+
 
     def write_video_data(self):
         """
@@ -735,6 +825,7 @@ Class for VDX Placements
                                                       header=False, index=False)
 
                     startline_adsize += len(adsize_df) + 1
+
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
@@ -814,6 +905,17 @@ Class for VDX Placements
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
             self.logger.error(str(e))
             pass
+
+    def write_by_day_data(self):
+        """writing by day data"""
+
+        startline_by_day = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + \
+                          len(self.placement_adsize_final) + self.unique_plc_summary * 2 + 3 + \
+                          len(self.placement_by_video_final) + self.unique_plc_summary * 2 + 2 + \
+                          len(self.video_player_final) + 8
+
+        print (startline_by_day)
+
 
     def formatting_Video(self):
         """
@@ -977,9 +1079,9 @@ Class for VDX Placements
                                    format_hearder_right)
 
             #Colour Formatting for Interaction Table
-            print(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1)
-            print(self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 3)
-            print(self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 2)
+            #print(9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1)
+            #print(self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 3)
+            #print(self.placement_by_video_final.shape[0] + self.unique_plc_summary * 2 + 2)
 
             start_row_intraction = 9 + self.placement_summary_final.shape[0] + self.unique_plc_summary * 2 + 1 + \
                                    self.placement_adsize_final.shape[0] + self.unique_plc_summary * 2 + 3 + \
@@ -1202,7 +1304,9 @@ Class for VDX Placements
             self.vdx_video_details()
             self.vdx_player_interaction()
             self.vdx_ad_interaction()
+            self.vdx_day_data()
             self.write_video_data()
+            self.write_by_day_data()
             self.formatting_Video()
             self.logger.info("VDX Details Sheet Created for IO - {}".format(self.config.ioid) + " at " + str(
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))

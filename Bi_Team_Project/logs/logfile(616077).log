@@ -1,0 +1,23 @@
+2018-08-17 17:10:45,013 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-17 17:10:45,013 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-08-17 17:13:10,737 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-17 17:13:10,739 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-08-17 17:16:01,194 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-17 17:16:01,198 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-08-17 17:20:52,108 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-17 17:20:52,108 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-08-20 17:13:40,193 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 17:13:40,193 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-20 17:23:48,946 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 17:23:48,946 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-20 17:28:21,062 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 17:28:21,069 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-20 18:21:13,884 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 18:21:13,884 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-20 18:33:50,446 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 18:33:50,447 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-20 18:47:18,714 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 18:52:11,313 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 18:52:11,315 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-20 18:58:08,461 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-08-20 18:58:08,463 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'

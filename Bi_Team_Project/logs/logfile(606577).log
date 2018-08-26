@@ -1,0 +1,56 @@
+2018-04-24 16:26:25,480 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:26:25,480 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:26:28,270 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:26:28,270 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:26:28,318 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:26:28,318 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:26:28,318 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:26:31,198 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:26:31,198 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:26:31,230 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:26:31,230 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:26:31,230 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:26:33,970 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:26:33,970 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:26:33,986 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:26:33,986 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:26:33,986 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:26:36,686 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:26:36,686 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:26:36,701 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:26:36,701 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:26:36,701 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:26:45,984 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 16:26:45,984 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 16:26:45,984 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 16:26:47,346 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 16:26:47,346 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 16:26:47,346 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 16:29:26,016 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:29:26,016 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:29:28,983 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:29:28,983 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:29:29,015 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:29:29,030 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:29:29,030 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:29:34,045 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:29:34,045 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:29:34,075 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:29:34,075 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:29:34,075 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:29:37,079 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:29:37,079 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:29:37,095 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:29:37,095 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:29:37,095 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:29:39,989 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 606577
+2018-04-24 16:29:39,989 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 606577
+2018-04-24 16:29:40,019 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 606577
+2018-04-24 16:29:40,019 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 606577
+2018-04-24 16:29:40,019 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 606577
+2018-04-24 16:29:52,433 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 16:29:52,433 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 16:29:52,433 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 16:29:53,890 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 16:29:53,890 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 16:29:53,890 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data

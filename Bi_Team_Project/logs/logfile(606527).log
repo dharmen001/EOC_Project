@@ -1,0 +1,133 @@
+2018-04-23 15:54:59,306 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 15:54:59,306 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 15:55:00,938 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 15:55:00,938 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 16:01:12,440 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 16:01:12,440 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 16:01:13,802 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 16:01:13,802 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 16:50:21,923 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 16:50:21,923 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 16:50:23,575 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 16:50:23,591 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 16:59:02,532 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 16:59:02,532 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 16:59:03,867 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 16:59:03,867 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 17:19:58,121 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 17:19:58,121 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 17:19:59,476 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 17:19:59,476 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 17:31:00,947 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 17:31:00,954 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 17:31:02,520 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 17:31:02,522 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 20:21:10,242 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 20:21:10,242 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-23 20:21:11,556 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-23 20:21:11,556 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 09:28:57,802 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:28:57,819 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:28:57,819 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:00,339 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:00,351 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:00,351 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:00,388 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:00,391 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:00,391 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:29:00,391 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:29:02,931 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:02,947 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:02,947 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:02,971 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:02,971 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:02,971 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:29:02,971 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:29:05,543 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:05,548 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:05,548 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:05,559 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:05,559 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:05,559 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:29:05,559 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:29:08,140 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:08,144 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:08,148 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:29:08,160 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:08,160 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:29:08,160 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:29:08,160 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:29:18,624 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 09:29:18,624 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 09:29:18,628 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 09:29:20,032 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 09:29:20,032 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 09:29:20,036 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 09:34:16,430 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:16,437 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:16,437 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:18,986 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:18,990 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:18,993 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:19,017 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:19,017 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:19,017 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:34:19,017 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:34:21,553 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:21,562 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:21,562 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:21,573 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:21,573 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:21,573 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:34:21,573 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:34:24,131 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:24,134 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:24,134 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:24,151 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:24,151 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:24,151 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:34:24,151 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:34:26,743 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:26,746 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:26,746 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 09:34:26,759 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:26,759 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 09:34:26,759 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 09:34:26,759 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:34:35,424 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 09:34:35,424 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 09:34:35,431 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 09:34:36,796 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 09:34:36,796 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 09:34:36,801 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 20:39:42,842 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:42,842 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:42,842 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:45,415 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:45,415 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:45,415 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:45,447 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:45,447 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:45,447 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 20:39:45,447 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 20:39:48,046 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:48,062 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:48,062 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:48,076 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:48,076 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:48,076 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 20:39:48,076 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 20:39:50,951 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:50,951 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:50,951 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:50,967 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:50,967 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:50,967 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 20:39:50,967 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 20:39:54,025 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:54,040 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:54,040 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 606527
+2018-04-24 20:39:54,040 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:54,040 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 606527
+2018-04-24 20:39:54,040 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 606527
+2018-04-24 20:39:54,040 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements

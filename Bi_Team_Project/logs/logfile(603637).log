@@ -1,0 +1,16 @@
+2018-05-17 06:04:30,088 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603637
+2018-05-17 06:04:30,135 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 603637
+2018-05-17 06:04:30,135 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 06:04:30,137 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 06:04:30,137 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 06:04:30,137 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 06:04:30,137 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 08:41:43,398 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 603637
+2018-05-17 08:41:43,448 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 603637
+2018-05-17 08:41:43,448 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 08:41:43,448 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 08:41:43,450 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 08:41:43,450 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 08:41:43,450 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'

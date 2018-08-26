@@ -1,0 +1,4 @@
+2018-07-05 22:08:43,552 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-06 01:12:36,407 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 612577

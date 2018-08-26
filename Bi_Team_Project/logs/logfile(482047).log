@@ -1,0 +1,8 @@
+2018-06-03 07:14:56,134 - EOCApp - ERROR - ('sequence item 0: expected string, NoneType found', u'occurred at index 0')
+2018-06-03 07:17:34,878 - EOCApp - ERROR - ('sequence item 0: expected string, NoneType found', u'occurred at index 0')
+2018-06-03 07:17:34,878 - EOCApp - ERROR - 'Campaign Report date'
+2018-06-03 07:18:04,276 - EOCApp - ERROR - ('sequence item 0: expected string, NoneType found', u'occurred at index 0')
+2018-06-03 07:18:04,276 - EOCApp - ERROR - 'Campaign Report date'
+2018-06-03 07:19:49,371 - EOCApp - ERROR - ('sequence item 0: expected string, NoneType found', u'occurred at index 0')
+2018-06-03 07:19:49,371 - EOCApp - ERROR - 'Campaign Report date'
+2018-06-03 07:20:03,065 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'

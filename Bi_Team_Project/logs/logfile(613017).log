@@ -1,0 +1,35 @@
+2018-08-01 16:53:50,821 - EOCApp - ERROR - The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2018-08-01 16:53:50,822 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-01 16:53:50,822 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-01 16:53:50,828 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-01 16:53:50,829 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-08-01 17:30:57,665 - EOCApp - ERROR - The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2018-08-01 17:30:57,665 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-01 17:30:57,667 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-01 17:30:57,670 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-01 17:30:57,671 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-08-01 20:28:33,765 - EOCApp - ERROR - ('NET_UNIT_COST', 'NET_PLANNED_COST', 'GROSS_UNIT_COST', 'GROSS_PLANNED_COST')
+2018-08-01 20:28:33,766 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-01 20:28:33,766 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-01 20:28:33,769 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-01 20:28:33,769 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-08-01 21:56:55,591 - EOCApp - ERROR - cannot index with vector containing NA / NaN values
+2018-08-01 21:56:55,592 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-01 21:56:55,592 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-01 21:56:55,596 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-01 21:56:55,598 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-08-01 22:17:38,150 - EOCApp - ERROR - unsupported operand type(s) for |: 'int' and 'instancemethod'
+2018-08-01 22:17:38,151 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-01 22:17:38,151 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-01 22:17:38,157 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-01 22:17:38,157 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-08-01 22:32:52,812 - EOCApp - ERROR - The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2018-08-01 22:32:52,813 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-01 22:32:52,813 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-01 22:32:52,818 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-01 22:32:52,819 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-08-02 16:11:32,976 - EOCApp - ERROR - The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2018-08-02 16:11:32,977 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-08-02 16:11:32,977 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-08-02 16:11:32,983 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-08-02 16:11:32,983 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

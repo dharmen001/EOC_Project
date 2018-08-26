@@ -1,0 +1,10 @@
+2018-06-12 20:59:26,582 - EOCApp - ERROR - append() got an unexpected keyword argument 'sort'
+2018-06-12 20:59:26,651 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-12 21:02:13,079 - EOCApp - ERROR - append() got an unexpected keyword argument 'sort'
+2018-06-12 21:02:13,157 - EOCApp - ERROR - 'NoneType' object has no attribute 'groupby'
+2018-06-14 10:17:18,187 - EOCApp - ERROR - The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2018-06-14 10:23:11,187 - EOCApp - ERROR - The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2018-06-14 17:19:08,502 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-06-14 18:50:49,815 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}

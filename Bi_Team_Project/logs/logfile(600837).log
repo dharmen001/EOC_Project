@@ -1,0 +1,4 @@
+2018-05-16 19:20:14,305 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 600837
+2018-05-16 19:20:14,336 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 600837
+2018-05-16 19:26:02,150 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 600837
+2018-05-16 19:26:02,211 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 600837

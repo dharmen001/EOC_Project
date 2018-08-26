@@ -1,0 +1,53 @@
+2018-04-24 09:32:44,322 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:44,325 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:44,329 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:44,334 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 605527
+2018-04-24 09:32:44,338 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 605527
+2018-04-24 09:32:47,078 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:47,082 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:47,082 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:47,089 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 605527
+2018-04-24 09:32:47,089 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 605527
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 605527
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 605527
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 605527
+2018-04-24 09:32:47,121 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 605527
+2018-04-24 09:32:49,867 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:49,871 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:49,871 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:49,880 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 605527
+2018-04-24 09:32:49,880 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 605527
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 605527
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 605527
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 605527
+2018-04-24 09:32:49,898 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 605527
+2018-04-24 09:32:52,752 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:52,759 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:52,759 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:52,767 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 605527
+2018-04-24 09:32:52,767 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 605527
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 605527
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 605527
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 605527
+2018-04-24 09:32:52,788 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 605527
+2018-04-24 09:32:55,640 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:55,644 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:55,644 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 605527
+2018-04-24 09:32:55,651 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 605527
+2018-04-24 09:32:55,651 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 605527
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 605527
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 605527
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 605527
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 605527
+2018-04-24 09:32:55,671 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 605527

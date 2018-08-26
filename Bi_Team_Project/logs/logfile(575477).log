@@ -1,0 +1,96 @@
+2018-07-17 22:21:31,230 - EOCApp - ERROR - unsupported operand type(s) for *: 'NoneType' and 'float'
+2018-07-17 22:21:31,230 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-17 22:21:31,230 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-17 22:21:31,230 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-17 22:21:31,230 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-17 22:21:37,694 - EOCApp - ERROR - "['UNIT_COST'] not in index"
+2018-07-17 22:21:37,694 - EOCApp - ERROR - "['UNIT_COST'] not in index"
+2018-07-17 22:21:37,694 - EOCApp - ERROR - "['UNIT_COST'] not in index"
+2018-07-19 19:31:15,015 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-19 20:37:10,790 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-23 17:34:22,298 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:34:22,313 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-23 17:34:22,313 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-23 17:34:22,313 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-23 17:34:22,313 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-23 17:34:41,111 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:34:41,125 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:34:41,141 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:36:21,516 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:36:21,516 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-23 17:36:21,516 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-23 17:36:21,516 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-23 17:36:21,516 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-23 17:36:29,415 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:36:29,431 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:36:29,431 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:43:57,842 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:43:57,842 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-23 17:43:57,842 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-23 17:43:57,858 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-23 17:43:57,858 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-23 17:45:57,308 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:45:57,308 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-23 17:45:57,308 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-23 17:45:57,308 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-23 17:45:57,308 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-23 17:46:04,760 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:46:04,760 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 17:46:04,776 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 18:46:50,545 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 18:46:50,545 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-23 18:46:50,559 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-23 18:46:50,559 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-23 18:46:50,559 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-23 18:46:57,625 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 18:46:57,641 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 18:46:57,641 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 18:55:06,400 - EOCApp - ERROR - 'float' object has no attribute 'rint'
+2018-07-23 18:55:06,414 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-23 18:55:06,414 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-23 18:55:06,414 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-23 18:55:06,414 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-07-24 08:33:38,061 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-24 08:34:03,289 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-24 08:34:31,125 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-24 10:36:52,813 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-24 10:57:38,756 - EOCApp - ERROR - 'ECPA'
+2018-07-24 10:57:38,792 - EOCApp - ERROR - 'CTR'
+2018-07-24 10:57:38,792 - EOCApp - ERROR - 'CTR'
+2018-07-24 11:26:14,917 - EOCApp - ERROR - 'eCPA'
+2018-07-24 11:26:14,921 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 11:31:15,507 - EOCApp - ERROR - 'eCPA'
+2018-07-24 11:31:15,513 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 11:48:37,428 - EOCApp - ERROR - 'eCPA'
+2018-07-24 11:48:37,433 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 14:29:53,207 - EOCApp - ERROR - 'eCPA'
+2018-07-24 14:29:53,220 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 15:17:35,119 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-24 15:18:32,808 - EOCApp - ERROR - 'eCPA'
+2018-07-24 15:18:32,812 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 15:30:40,148 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 16:14:49,414 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}
+2018-07-24 17:12:56,694 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 18:45:29,194 - EOCApp - ERROR - 'CTR'
+2018-07-24 18:45:29,213 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 18:49:09,066 - EOCApp - ERROR - 'CTR'
+2018-07-24 18:49:09,088 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 18:52:41,359 - EOCApp - ERROR - 'CTR'
+2018-07-24 18:52:41,378 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 19:02:55,871 - EOCApp - ERROR - 'Conversion Rate'
+2018-07-24 19:02:55,891 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 19:49:22,493 - EOCApp - ERROR - 'ConversionRate'
+2018-07-24 19:49:22,509 - EOCApp - ERROR - "['eCPA'] not in index"
+2018-07-24 19:52:23,007 - EOCApp - ERROR - 'ConversionRate'
+2018-07-24 19:54:53,562 - EOCApp - ERROR - 'ConversionRate'
+2018-07-24 19:55:41,035 - EOCApp - ERROR - 'Spend'
+2018-07-24 20:48:41,148 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+Failed to connect to 10.29.20.76: Please Retry for IO: {}

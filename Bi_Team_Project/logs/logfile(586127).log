@@ -1,0 +1,43 @@
+2018-05-03 11:58:34,684 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-08 10:57:24,256 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-08 13:30:37,381 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-09 16:20:50,404 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-09 22:46:23,101 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-09 22:46:50,924 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-09 22:47:18,961 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-09 23:32:45,032 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-10 11:37:14,786 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 14:46:17,921 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 16:55:20,565 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 17:02:53,701 - EOCApp - ERROR - ORA-12543: TNS:destination host unreachable
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 17:52:02,328 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 19:44:44,404 - EOCApp - ERROR - ORA-12541: TNS:no listener
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 19:45:22,421 - EOCApp - ERROR - ORA-12541: TNS:no listener
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 19:45:42,648 - EOCApp - ERROR - ORA-12541: TNS:no listener
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 19:46:43,006 - EOCApp - ERROR - ORA-12541: TNS:no listener
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-14 19:48:10,786 - EOCApp - ERROR - ORA-12541: TNS:no listener
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-15 14:30:55,644 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 586127
+2018-05-16 01:43:05,763 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 586127
+2018-05-16 01:43:05,796 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 586127
+2018-05-16 01:43:05,811 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 586127
+2018-05-16 01:43:05,842 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 586127
+2018-05-16 01:43:05,842 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 586127

@@ -1,0 +1,149 @@
+2018-04-23 01:01:11,750 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:01:11,750 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:01:13,911 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:01:13,911 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:07:37,265 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:07:37,265 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:07:39,569 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:07:39,569 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:12:06,411 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:12:06,411 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:12:08,671 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:12:08,671 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:12:13,778 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-23 01:12:15,405 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-23 01:12:17,398 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-23 01:18:01,194 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:18:01,194 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:18:03,351 - EOCApp - ERROR - 'Clicks'Not found in adsize Disply Placements Data
+2018-04-23 01:18:03,351 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Disply Placements Data
+2018-04-23 01:18:08,075 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-23 01:18:09,760 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-23 01:18:11,456 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-23 01:18:11,456 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'Not found in intraction
+2018-04-23 01:18:11,456 - EOCApp - ERROR - 'Standard Preroll(565337)'Not found in Intraction
+2018-04-24 11:48:42,365 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 565337
+2018-04-24 11:57:14,302 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:14,319 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:14,319 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:14,319 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 565337
+2018-04-24 11:57:14,319 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 565337
+2018-04-24 11:57:17,007 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:17,007 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:17,023 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:17,023 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 565337
+2018-04-24 11:57:17,023 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 565337
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 565337
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 565337
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 565337
+2018-04-24 11:57:17,069 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 565337
+2018-04-24 11:57:19,681 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:19,697 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:19,697 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:19,713 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 565337
+2018-04-24 11:57:19,713 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 565337
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 565337
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 565337
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 565337
+2018-04-24 11:57:19,729 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 565337
+2018-04-24 11:57:22,382 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:22,382 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:22,398 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:22,398 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 565337
+2018-04-24 11:57:22,398 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 565337
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 565337
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 565337
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 565337
+2018-04-24 11:57:22,430 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 565337
+2018-04-24 11:57:25,282 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:25,282 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:25,282 - EOCApp - ERROR - "['Delivered_Engagements' 'Delivered_Impressions'] not in index"No valid placements for VDX Creative for IO - 565337
+2018-04-24 11:57:25,282 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a SeriesNo valid preroll placements for IO - 565337
+2018-04-24 11:57:25,282 - EOCApp - ERROR - "['Delivered_Impressions'] not in index"No valid preroll placements for IO - 565337
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'Delivered_Engagements'No valid vdx placements for IO - 565337
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'COST_TYPE'No valid vdx placements for IO - 565337
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'Delivery%'No valid No valid vdx placements
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'PLACEMENT#'No valid preroll placements for IO - 565337
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'Delivered_Impressions'No valid preroll placements for IO - 565337
+2018-04-24 11:57:25,298 - EOCApp - ERROR - 'Delivery%'No valid preroll placements for IO - 565337
+2018-04-24 11:57:43,822 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 11:57:43,822 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 11:57:43,822 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 11:57:46,999 - EOCApp - ERROR - 'Clicks'Not found in adsize Display Placements Data
+2018-04-24 11:57:46,999 - EOCApp - ERROR - "['Delivered Impressions' 'Clicks' 'CTR' 'Conversion' 'Conversion Rate'\n 'Spend' 'eCPA'] not in index"Not found in adsize Display Placements Data
+2018-04-24 11:57:47,013 - EOCApp - ERROR - Can only use .dt accessor with datetimelike valuesNot found in day wise data
+2018-04-24 11:57:54,414 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-24 11:57:56,201 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-24 11:57:58,275 - EOCApp - ERROR - 'Placement# Name'Not found in intraction table
+2018-04-24 11:57:58,275 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'Not found in intraction
+2018-04-24 11:57:58,275 - EOCApp - ERROR - 'Standard Preroll(565337)'Not found in Intraction
+2018-04-25 12:15:49,033 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 565337
+2018-04-25 12:15:49,095 - EOCApp - ERROR - 'Config' object has no attribute 'conn'Connection Not established please rerun for IO - 565337
+2018-04-25 12:35:47,319 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 565337
+2018-04-25 12:35:47,319 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 565337
+2018-04-25 14:47:21,249 - EOCApp - ERROR - Execution failed on sql 'select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, sum(VIEWS) as Delivered_Impresion, sum(CLICKS) as Clicks, sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = 565337 GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID': ORA-00942: table or view does not exist
+ Table or view does not exist
+2018-04-25 14:47:21,249 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'> No live Display placements for IO - 565337
+2018-04-25 14:47:21,249 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'> No VDX Placements for IO - 565337
+2018-04-25 14:47:21,249 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'> No preroll placements for IO - 565337
+2018-04-25 14:47:21,250 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 565337
+2018-04-25 14:47:21,250 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 565337
+2018-04-25 14:47:21,250 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 565337
+2018-04-25 14:55:15,451 - EOCApp - ERROR - Execution failed on sql 'select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, sum(VIEWS) as Delivered_Impresion, sum(CLICKS) as Clicks, sum(CONVERSIONS) as Conversion from TFR_REP.DAILY_SALES_MV WHERE IO_ID = 565337 GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID': ORA-00942: table or view does not exist
+ Table or view does not exist
+2018-04-25 14:55:15,509 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'> No live Display placements for IO - 565337
+2018-04-25 14:55:15,509 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'> No VDX Placements for IO - 565337
+2018-04-25 14:55:15,509 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'> No preroll placements for IO - 565337
+2018-04-25 14:55:15,523 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 565337
+2018-04-25 14:55:15,523 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 565337
+2018-04-25 14:55:15,523 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 565337
+2018-04-25 14:55:15,525 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for display table for IO - 565337
+2018-04-25 14:55:15,525 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 565337
+2018-04-25 14:55:15,525 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 565337
+2018-04-25 15:33:38,822 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 565337
+2018-04-25 15:33:38,822 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 565337
+2018-04-25 15:33:38,852 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 565337
+2018-04-25 15:33:38,852 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 565337
+2018-04-25 15:33:38,884 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 565337
+2018-04-25 15:33:38,884 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 565337
+2018-04-25 15:33:38,900 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 565337
+2018-04-25 15:33:38,900 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 565337
+2018-04-25 15:36:55,486 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 565337
+2018-04-25 15:36:55,486 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 565337
+2018-04-25 15:36:55,532 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 565337
+2018-04-25 15:36:55,532 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 565337
+2018-04-25 15:36:55,563 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 565337
+2018-04-25 15:36:55,563 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 565337
+2018-04-25 15:36:55,595 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 565337
+2018-04-25 15:36:55,595 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 565337
+2018-04-25 15:36:55,595 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 565337
+2018-04-25 22:36:02,910 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 565337
+2018-04-25 22:36:02,926 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 565337
+2018-04-25 22:36:02,946 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 565337
+2018-04-25 22:36:02,946 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 565337
+2018-04-25 22:36:02,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 565337
+2018-04-25 22:36:02,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 565337
+2018-04-25 22:36:02,987 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 565337
+2018-04-25 22:36:02,987 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 565337
+2018-04-25 22:36:02,987 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 565337
+2018-05-04 15:12:34,440 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 565337
+2018-05-04 15:12:34,440 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No preroll placements for IO - 565337
+2018-05-04 15:12:34,470 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 565337
+2018-05-04 15:12:34,470 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No preroll placements for IO - 565337
+2018-05-04 15:12:34,502 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for vdx table for IO - 565337
+2018-05-04 15:12:34,502 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename' No columns to rename for preroll table for IO - 565337
+2018-05-04 15:12:34,517 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No vdx placements to write for IO - 565337
+2018-05-04 15:12:34,517 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No preroll placements to write for IO - 565337
+2018-05-04 15:12:34,517 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty' No information in summary sheet saved for IO - 565337

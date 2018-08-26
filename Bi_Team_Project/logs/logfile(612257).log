@@ -1,0 +1,5 @@
+2018-07-03 21:19:25,127 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-07-03 21:19:25,127 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-03 21:19:25,127 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-03 21:19:25,174 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-03 21:19:25,188 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

@@ -1,0 +1,5 @@
+2018-06-07 18:24:47,710 - EOCApp - ERROR - 'PLACEMENT#'
+2018-06-07 18:24:47,710 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-07 18:24:47,710 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-06-07 18:24:47,742 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-07 18:24:47,757 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

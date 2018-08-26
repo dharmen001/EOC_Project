@@ -1,0 +1,5 @@
+SELECT substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#,sum(VWR_MUTE) as Vwrmute,
+sum(VWR_UNMUTE) as Vwrunmute,sum(VWR_PAUSE) as Vwrpause,
+sum(VWR_REWIND) as Vwrrewind, sum(VWR_RESUME) as Vwrresume,sum(VWR_REPLAY) as Vwrreplay, 
+sum(VWR_FULL_SCREEN) as Vwrfullscreen FROM TFR_REP.VIDEO_DETAIL_MV WHERE IO_ID = {0} AND TO_CHAR(DAY_DESC, 'YYYY-MM-DD') BETWEEN '{1}' AND '{2}'
+GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID

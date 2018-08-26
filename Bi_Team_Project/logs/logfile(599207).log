@@ -1,0 +1,120 @@
+2018-05-17 09:36:27,813 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 599207
+2018-05-17 09:36:27,956 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 599207
+2018-05-17 09:36:27,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 09:36:27,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 09:36:27,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 09:36:27,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 09:36:27,956 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 15:03:03,410 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 599207
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 599207
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 15:03:03,441 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:35,253 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 599207
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 599207
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:35,301 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:58,403 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, SDATE as Start_Date, EDATE as End_Date, initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost,BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where (IO_ID = 599207) AND (DATA_SOURCE = 'KM') AND (SDATE = 2018-01-02) AND (EDATE = 2018-01-31) AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + Mobile','Pre-Roll – Desktop + Mobile','Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - Mobile','Pre-Roll -Desktop','Pre-Roll - In-Stream')': ORA-00932: inconsistent datatypes: expected DATE got NUMBER
+ Table or view does not exist
+2018-05-17 23:18:58,434 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:58,434 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:58,438 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:58,438 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:58,438 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:18:58,438 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:20:37,095 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, SDATE as Start_Date, EDATE as End_Date, initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost,BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where (IO_ID = 599207) AND (DATA_SOURCE = 'KM') AND (SDATE = 2018-01-02) AND (EDATE = 2018-01-31) AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + Mobile','Pre-Roll – Desktop + Mobile','Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - Mobile','Pre-Roll -Desktop','Pre-Roll - In-Stream')': ORA-00932: inconsistent datatypes: expected DATE got NUMBER
+ Table or view does not exist
+2018-05-17 23:20:37,095 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:20:37,095 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:20:37,095 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:20:37,095 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:20:37,095 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:20:37,095 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:22:57,607 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, SDATE as Start_Date, EDATE as End_Date, initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost,BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where (IO_ID = 599207) AND (DATA_SOURCE = 'KM') AND (SDATE = '2018-01-02') AND (EDATE = '2018-01-31') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop','Pre-Roll - Desktop + Mobile','Pre-Roll – Desktop + Mobile','Pre-Roll - In-Stream/Mobile Blend','Pre-Roll - Mobile','Pre-Roll -Desktop','Pre-Roll - In-Stream')': ORA-01861: literal does not match format string
+ Table or view does not exist
+2018-05-17 23:22:57,638 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:22:57,638 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:22:57,638 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:22:57,638 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:22:57,638 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-17 23:22:57,638 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 10:36:12,829 - EOCApp - ERROR - Execution failed on sql 'select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, sum(IMPRESSIONS) as Impression, sum(ENGAGEMENTS) as Eng, sum(DPE_ENGAGEMENTS) as Deep, sum(CPCV_COUNT) as Completions from TFR_REP.KEY_METRIC_MV WHERE (IO_ID = 599207) AND GROUP BY PLACEMENT_ID, PLACEMENT_DESC ORDER BY PLACEMENT_ID': ORA-00936: missing expression
+ Table or view does not exist
+2018-05-18 10:36:12,907 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-05-18 10:36:12,907 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-05-18 10:36:12,954 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-05-18 10:36:12,954 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-05-18 16:02:05,351 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 599207
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 599207
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:05,405 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:37,223 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, to_char(SDATE, 'YYYY-MM-DD') as Start_Date, to_char(EDATE, 'YYYY-MM-DD') as End_Date initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where IO_ID = 599207 AND DATA_SOURCE = 'KM' AND (to_char(SDATE, 'YYYY-MM-DD') >= '2018-01-02' AND to_char(EDATE, 'YYYY-MM-DD') <= '2018-01-31') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV)  ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop', 'Pre-Roll - Desktop + Mobile', 'Pre-Roll – Desktop + Mobile', 'Pre-Roll - In-Stream/Mobile Blend', 'Pre-Roll - Mobile','Pre-Roll -Desktop', 'Pre-Roll - In-Stream'); ': ORA-00923: FROM keyword not found where expected
+ Table or view does not exist
+2018-05-18 16:02:37,223 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:37,223 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:37,223 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:37,223 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:37,223 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 16:02:37,223 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:06,960 - EOCApp - ERROR - ORA-12170: TNS:Connect timeout occurred
+TNS:Connect timeout occurred: Please Retry for IO: 599207
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'Config' object has no attribute 'conn' Connection Not established please rerun for IO - 599207
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:06,990 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:39,161 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, to_char(SDATE, 'YYYY-MM-DD') as Start_Date, to_char(EDATE, 'YYYY-MM-DD') as End_Date initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost, BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where IO_ID = 599207 AND DATA_SOURCE = 'KM' AND (to_char(SDATE, 'YYYY-MM-DD') >= '2018-01-02' AND to_char(EDATE, 'YYYY-MM-DD') <= '2018-01-31') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV)  ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop', 'Pre-Roll - Desktop + Mobile', 'Pre-Roll – Desktop + Mobile', 'Pre-Roll - In-Stream/Mobile Blend', 'Pre-Roll - Mobile','Pre-Roll -Desktop', 'Pre-Roll - In-Stream'); ': ORA-00923: FROM keyword not found where expected
+ Table or view does not exist
+2018-05-18 17:02:39,161 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:39,161 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:39,161 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:39,161 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:39,161 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:02:39,161 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:13,167 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, to_char(SDATE, 'YYYY-MM-DD') as Start_Date, to_char(EDATE, 'YYYY-MM-DD') as End_Date initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost, BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where IO_ID = 599207 AND DATA_SOURCE = 'KM' AND (to_char(SDATE, 'YYYY-MM-DD') >= '2018-01-02' AND to_char(EDATE, 'YYYY-MM-DD') <= '2018-01-31') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV)  ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop', 'Pre-Roll - Desktop + Mobile', 'Pre-Roll – Desktop + Mobile', 'Pre-Roll - In-Stream/Mobile Blend', 'Pre-Roll - Mobile','Pre-Roll -Desktop', 'Pre-Roll - In-Stream'); ': ORA-00923: FROM keyword not found where expected
+ Table or view does not exist
+2018-05-18 17:12:13,167 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:13,167 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:13,167 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:13,167 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:13,167 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:13,167 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:33,614 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, to_char(SDATE, 'YYYY-MM-DD') as Start_Date, to_char(EDATE, 'YYYY-MM-DD') as End_Date initcap(CREATIVE_DESC)  as Placement_Name,COST_TYPE_DESC as Cost_type,UNIT_COST as Unit_Cost, BUDGET as Planned_Cost,BOOKED_QTY as Booked_Imp#Booked_Eng from TFR_REP.SUMMARY_MV where IO_ID = 599207 AND DATA_SOURCE = 'KM' AND (to_char(SDATE, 'YYYY-MM-DD') >= '2018-01-02' AND to_char(EDATE, 'YYYY-MM-DD') <= '2018-01-31') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV)  ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop', 'Pre-Roll - Desktop + Mobile', 'Pre-Roll – Desktop + Mobile', 'Pre-Roll - In-Stream/Mobile Blend', 'Pre-Roll - Mobile','Pre-Roll -Desktop', 'Pre-Roll - In-Stream')': ORA-00923: FROM keyword not found where expected
+ Table or view does not exist
+2018-05-18 17:12:33,614 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:33,614 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:33,614 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:33,614 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:33,614 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 17:12:33,614 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 18:06:50,516 - EOCApp - ERROR - Execution failed on sql 'select * from (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, TO_CHAR(SDATE, 'YYYY-MM-DD') as Start_Date, TO_CHAR(EDATE, 'YYYY-MM-DD') as End_Date, initcap(CREATIVE_DESC)  as Placement_Name, COST_TYPE_DESC as Cost_type, UNIT_COST as Unit_Cost, BUDGET as Planned_Cost, BOOKED_QTY as Booked_Imp#Booked_Eng FROM TFR_REP.SUMMARY_MV where IO_ID = 599207 AND DATA_SOURCE = 'KM' AND (TO_CHAR(SDATE, 'YYYY-MM-DD') >= 2013 AND TO_CHAR(EDATE, 'YYYY-MM-DD') <= 1984) AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name Not IN ('Pre-Roll - Desktop', 'Pre-Roll - Desktop + Mobile', 'Pre-Roll - In-Stream/Mobile Blend', 'Pre-Roll - Mobile', 'Pre-Roll -Desktop', 'Pre-Roll - In-Stream')': ORA-01722: invalid number
+ Table or view does not exist
+2018-05-18 18:06:50,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 18:06:50,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 18:06:50,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 18:06:50,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 18:06:50,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 18:06:50,532 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 19:32:16,141 - EOCApp - ERROR - Execution failed on sql 'SELECT * FROM (select substr(PLACEMENT_DESC,1,INSTR(PLACEMENT_DESC, '.', 1)-1) as Placement#, TO_CHAR(SDATE, 'YYYY-MM-DD') as Start_Date, TO_CHAR(EDATE, 'YYYY-MM-DD') as End_Date, initcap(CREATIVE_DESC)  as Placement_Name, COST_TYPE_DESC as Cost_type, UNIT_COST as Unit_Cost, BUDGET as Planned_Cost, BOOKED_QTY as Booked_Imp#Booked_Eng, FROM TFR_REP.SUMMARY_MV where (IO_ID = 599207) AND (DATA_SOURCE = 'KM') AND (TO_CHAR(SDATE, 'YYYY-MM-DD') >= '2018-04-01' AND TO_CHAR(EDATE, 'YYYY-MM-DD') <= '2018-04-30') AND CREATIVE_DESC IN(SELECT DISTINCT CREATIVE_DESC FROM TFR_REP.SUMMARY_MV) ORDER BY PLACEMENT_ID) WHERE Placement_Name LIKE '%Pre-Roll%' or Placement_Name LIKE '%Pre–Roll%'': ORA-00936: missing expression
+ Table or view does not exist
+2018-05-18 19:32:16,141 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-05-18 19:32:16,141 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'
+2018-05-18 19:32:16,141 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-05-18 19:32:16,141 - EOCApp - ERROR - 'NoneType' object has no attribute 'empty'

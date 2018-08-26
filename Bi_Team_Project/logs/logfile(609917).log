@@ -1,0 +1,5 @@
+2018-07-05 15:27:54,243 - EOCApp - ERROR - 'NoneType' object has no attribute 'round'
+2018-07-05 15:27:54,244 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-07-05 15:27:54,246 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-07-05 15:27:54,276 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-07-05 15:27:54,283 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'

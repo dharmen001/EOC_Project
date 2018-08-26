@@ -1,0 +1,32 @@
+2018-05-16 19:27:38,987 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 19:27:39,035 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 19:30:58,903 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 19:30:58,934 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 19:32:02,835 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 19:32:02,868 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:00:17,167 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 20:00:17,200 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:11:30,855 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 20:11:30,934 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:13:25,858 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 20:13:25,892 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:14:52,960 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 20:14:53,053 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:21:12,539 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series No VDX Placements for IO - 602387
+2018-05-16 20:21:12,571 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:33:29,026 - EOCApp - ERROR - No VDX Placements for IO - 602387
+2018-05-16 20:34:17,219 - EOCApp - ERROR - No VDX Placements for IO - 602387
+2018-05-16 20:34:17,219 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 602387
+2018-05-16 20:34:17,219 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:39:09,963 - EOCApp - ERROR - No VDX Placements for IO - 602387
+2018-05-16 20:39:09,979 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 602387
+2018-05-16 20:39:09,979 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:44:26,013 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-05-16 20:44:26,029 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No display placements for IO - 602387
+2018-05-16 20:44:26,029 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__' No vdx placements for IO - 602387
+2018-05-16 20:56:04,375 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-05-16 20:56:04,375 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-05-16 20:57:15,861 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-05-16 20:57:15,861 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-05-16 21:00:18,637 - EOCApp - ERROR - Cannot set a frame with no defined index and a value that cannot be converted to a Series
+2018-05-16 21:00:18,653 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'

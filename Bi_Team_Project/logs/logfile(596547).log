@@ -1,0 +1,16 @@
+2018-06-06 17:57:35,515 - EOCApp - ERROR - "['Currency Exchange Rate'] not in index"
+2018-06-06 17:57:35,515 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-06 17:57:35,515 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-06-06 17:57:35,546 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-06 17:57:35,546 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-06 17:59:59,286 - EOCApp - ERROR - "['Currency Exchange Rate'] not in index"
+2018-06-06 17:59:59,286 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-06 17:59:59,286 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-06-06 17:59:59,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-06 17:59:59,302 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-06 18:20:25,430 - EOCApp - ERROR - can not merge DataFrame with instance of type <type 'NoneType'>
+2018-06-06 18:20:25,430 - EOCApp - ERROR - 'NoneType' object has no attribute '__getitem__'
+2018-06-06 18:20:25,430 - EOCApp - ERROR - 'NoneType' object has no attribute 'rename'
+2018-06-06 18:20:25,430 - EOCApp - ERROR - 'NoneType' object has no attribute 'to_excel'
+2018-06-06 18:20:25,430 - EOCApp - ERROR - 'NoneType' object has no attribute 'shape'
+2018-06-06 19:25:00,549 - EOCApp - ERROR - ('UNIT_COST', 'Currency Exchange Rate ')
