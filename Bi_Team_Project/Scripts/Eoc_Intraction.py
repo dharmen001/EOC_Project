@@ -10,19 +10,19 @@ import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_range
 import pandas.io.formats.excel
 from functools import reduce
-from SQLScript import SqlScript
+
 
 pandas.io.formats.excel.header_style = None
 
 
-class Intraction(SqlScript):
+class Intraction(object):
     """
 Preroll placements Class
     """
 
     def __init__(self, config,sqlscript):
 
-        super(Intraction,self).__init__(self)
+        #super(Intraction,self).__init__(self)
 
         self.config = config
         self.sqlscript = sqlscript

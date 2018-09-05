@@ -8,12 +8,12 @@ np.seterr(divide='ignore')
 from xlsxwriter.utility import xl_rowcol_to_cell
 import pandas.io.formats.excel
 from functools import reduce
-from SQLScript import SqlScript
+
 
 pandas.io.formats.excel.header_style = None
 
 
-class Daily(SqlScript):
+class Daily(object):
     """
 To create display placements
     """
@@ -22,7 +22,7 @@ To create display placements
 
         """Accessing Files"""
 
-        super(Daily,self).__init__(self)
+        #super(Daily,self).__init__(self)
         self.config = config
         self.sqlscript = sqlscript
         self.logger = self.config.logger

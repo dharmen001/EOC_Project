@@ -9,20 +9,20 @@ import numpy as np
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_range
 from functools import reduce
 import pandas.io.formats.excel
-from SQLScript import SqlScript
+
 #desired_width = 320
 pd.set_option("display.max_columns", 20)
 
 pandas.io.formats.excel.header_style = None
 
 
-class Video(SqlScript):
+class Video(object):
     """
 Class for VDX Placements
     """
 
     def __init__(self, config, sqlscript):
-        super(Video, self).__init__(self)
+        #super(Video, self).__init__(self)
         self.sqlscript = sqlscript
         self.config = config
         self.logger = self.config.logger
@@ -34,6 +34,8 @@ Class for VDX Placements
         self.intractions_intrac_new = None
         self.vdx_by_day_final = None
         self.unique_plc_summary = None
+        self.unique_product = None
+        self.unique_plc = None
 
     def access_vdx_placement_columns(self):
         """
@@ -725,7 +727,11 @@ Class for VDX Placements
         vdx_by_day_final = vdx_columns.loc[:,['Placement# Name','PRODUCT','DAY','Impressions','Engagements',
                                               'Engagement Rate','Clickthroughs','CTR','Video Completions','Video Completion Rate']]
 
+        vdx_by_day_final.sort_values(['Placement# Name', 'PRODUCT', 'DAY'], ascending=[True, True, True],
+                                             inplace=True)
+
         self.vdx_by_day_final = vdx_by_day_final
+
 
 
     def write_video_data(self):
@@ -772,7 +778,7 @@ Class for VDX Placements
                 for placement, placement_df in self.placement_summary_final.groupby('Placement# Name'):
 
                     write_pl = placement_df.to_excel(self.config.writer,
-                                                     sheet_name="VDX Details".format(self.config.ioid),
+                                                     sheet_name="VDX Details",
                                                      startcol=1, startrow=startline_placement,
                                                      columns=["Placement# Name"],
                                                      header=False, index=False)
@@ -781,7 +787,7 @@ Class for VDX Placements
                         startline_placement += 1
 
                     write_pls = placement_df.to_excel(self.config.writer,
-                                                      sheet_name="VDX Details".format(self.config.ioid),
+                                                      sheet_name="VDX Details",
                                                       startcol=1, startrow=startline_placement, columns=["PRODUCT",
                                                                                                          "Engagements Rate",
                                                                                                          "Viewer CTR",
@@ -807,7 +813,7 @@ Class for VDX Placements
                 for adzise, adsize_df in self.placement_adsize_final.groupby('Placement# Name'):
 
                     write_adsize_plc = adsize_df.to_excel(self.config.writer,
-                                                          sheet_name="VDX Details".format(self.config.ioid),
+                                                          sheet_name="VDX Details",
                                                           startcol=1, startrow=startline_adsize,
                                                           columns=["Placement# Name"],
                                                           header=False, index=False)
@@ -816,7 +822,7 @@ Class for VDX Placements
                         startline_adsize += 1
 
                     write_adsize = adsize_df.to_excel(self.config.writer,
-                                                      sheet_name="VDX Details".format(self.config.ioid),
+                                                      sheet_name="VDX Details",
                                                       startcol=1, startrow=startline_adsize,
                                                       columns=["ADSIZE", "Engagements Rate",
                                                                "Viewer CTR", "Engager CTR",
@@ -838,14 +844,13 @@ Class for VDX Placements
                 pass
             else:
                 for video, video_df in self.placement_by_video_final.groupby('Placement# Name'):
-                    write_video_plc = video_df.to_excel(self.config.writer, sheet_name="VDX Details".format(
-                        self.config.ioid),
+                    write_video_plc = video_df.to_excel(self.config.writer, sheet_name="VDX Details",
                                                         startcol=1, startrow=startline_video,
                                                         columns=["Placement# Name"],
                                                         header=False, index=False)
 
                     write_video = video_df.to_excel(self.config.writer,
-                                                    sheet_name="VDX Details".format(self.config.ioid),
+                                                    sheet_name="VDX Details",
                                                     startcol=1, startrow=startline_video + 1,
                                                     columns=["PRODUCT", "VIDEONAME",
                                                              "Views", "25_pc_video",
@@ -868,8 +873,7 @@ Class for VDX Placements
                 pass
             else:
                 write_player_interaction = self.video_player_final.to_excel(self.config.writer,
-                                                                            sheet_name="VDX Details".format(
-                                                                                self.config.ioid),
+                                                                            sheet_name="VDX Details",
                                                                             startcol=1, startrow=startline_player,
                                                                             index=False)
         except (AttributeError, KeyError, TypeError, IOError, ValueError) as e:
@@ -884,8 +888,7 @@ Class for VDX Placements
                     pass
                 else:
                     write_intraction_clicks = self.intractions_clicks_new.to_excel(self.config.writer,
-                                                                                   sheet_name="VDX Details".format(
-                                                                                       self.config.ioid),
+                                                                                   sheet_name="VDX Details",
                                                                                    startcol=9,
                                                                                    startrow=startline_player,
                                                                                    index=False, merge_cells=False)
@@ -894,8 +897,7 @@ Class for VDX Placements
                     pass
                 else:
                     write_intraction = self.intractions_intrac_new.to_excel(self.config.writer,
-                                                                            sheet_name="VDX Details".format(
-                                                                                self.config.ioid),
+                                                                            sheet_name="VDX Details",
                                                                             startcol=9 +
                                                                                      self.intractions_clicks_new.shape[
                                                                                          1],
@@ -908,14 +910,67 @@ Class for VDX Placements
 
     def write_by_day_data(self):
         """writing by day data"""
+        workbook = self.config.writer.book
+        worksheet = self.config.writer.sheets["VDX Details"]
+        format_bold_sum = workbook.add_format({"bold": True, "num_format": "#,##0"})
+        format_num = workbook.add_format({"num_format": "#,##0"})
+        format_percent = workbook.add_format({"num_format": "0.00%"})
+        format_bold_row = workbook.add_format({"bold": True})
+        format_bold_percent = workbook.add_format({"bold": True, "num_format": "0.00%"})
+        unique_product = self.placement_by_video_final['PRODUCT'].nunique()
+
+        self.unique_product = unique_product
 
         startline_by_day = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + \
                           len(self.placement_adsize_final) + self.unique_plc_summary * 2 + 3 + \
                           len(self.placement_by_video_final) + self.unique_plc_summary * 2 + 2 + \
-                          len(self.video_player_final) + 8
+                          len(self.video_player_final) + 7
 
-        print (startline_by_day)
 
+        if self.sqlscript.read_sql_video_day.empty:
+            pass
+        else:
+            for day_vdx, day_vdx_df in self.vdx_by_day_final.groupby(['Placement# Name']):
+
+                write_vdx_day = day_vdx_df.to_excel(self.config.writer,sheet_name="VDX Details",startcol=1,startrow=startline_by_day,
+                                                    index=False,header=False,columns=['Placement# Name'])
+
+                write_vdx_day_new = day_vdx_df.to_excel(self.config.writer,sheet_name="VDX Details",startcol=1,
+                                                        startrow=startline_by_day+1,index=False,header=False,
+                                                        columns=['PRODUCT','DAY','Impressions','Engagements',
+                                                                  'Engagement Rate', 'Clickthroughs', 'CTR',
+                                                                  'Video Completions', 'Video Completion Rate'])
+
+
+
+                startline_by_day += len(day_vdx_df)+1
+                end_row = startline_by_day
+
+                worksheet.write_string(startline_by_day,1,'Subtotal',format_bold_row)
+                start_row = startline_by_day - len(day_vdx_df) + 1
+
+                #print(end_row)
+                worksheet.write_formula(startline_by_day, 3, '=sum(D{}:D{})'.format(start_row, end_row),format_bold_sum)
+                worksheet.write_formula(startline_by_day, 4, '=sum(E{}:E{})'.format(start_row, end_row),format_bold_sum)
+                worksheet.write_formula(startline_by_day, 6, '=sum(G{}:G{})'.format(start_row, end_row),format_bold_sum)
+                worksheet.write_formula(startline_by_day, 8, '=sum(I{}:I{})'.format(start_row, end_row),format_bold_sum)
+                worksheet.write_formula(startline_by_day, 9, '=sum(J{}:J{})'.format(start_row, end_row),format_bold_sum)
+                worksheet.write_formula(startline_by_day,5, '=E{}/D{}'.format(startline_by_day+1,startline_by_day+1),format_bold_percent)
+                worksheet.write_formula(startline_by_day,7, '=G{}/D{}'.format(startline_by_day+1,startline_by_day+1),format_bold_percent)
+                worksheet.write_formula(startline_by_day, 9, '=I{}/D{}'.format(startline_by_day+1, startline_by_day+1),
+                                        format_bold_percent)
+                worksheet.conditional_format(start_row-1,3,end_row,4,{"type":"no_blanks","format":format_num})
+                worksheet.conditional_format(start_row-1,5,end_row,5,{"type":"no_blanks","format":format_percent})
+                worksheet.conditional_format(start_row-1,6,end_row,6,{"type":"no_blanks","format":format_num})
+                worksheet.conditional_format(start_row-1,7,end_row,7,{"type":"no_blanks","format":format_percent})
+                worksheet.conditional_format(start_row-1,8,end_row,8,{"type":"no_blanks","format":format_num})
+                worksheet.conditional_format(start_row-1,9,end_row,9,{"type":"no_blanks","format":format_percent})
+
+                startline_by_day += 2
+
+        #worksheet.write_string()
+
+        #self.start_line_by_day = startline_by_day
 
     def formatting_Video(self):
         """
@@ -924,7 +979,7 @@ Class for VDX Placements
 
         try:
             workbook = self.config.writer.book
-            worksheet = self.config.writer.sheets["VDX Details".format(self.config.ioid)]
+            worksheet = self.config.writer.sheets["VDX Details"]
             worksheet.hide_gridlines(2)
             worksheet.set_row(0, 6)
             worksheet.set_column("A:A", 2)
@@ -1286,6 +1341,71 @@ Class for VDX Placements
             self.logger.error(str(e))
             pass
 
+    def format_by_day(self):
+        """formatting a day wise table"""
+        workbook = self.config.writer.book
+        worksheet = self.config.writer.sheets["VDX Details"]
+        row_start = 9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + \
+                          len(self.placement_adsize_final) + self.unique_plc_summary * 2 + 3 + \
+                          len(self.placement_by_video_final) + self.unique_plc_summary * 2 + 2 + \
+                          len(self.video_player_final) + 6
+
+        #print(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3)
+        #print(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(self.placement_adsize_final) + self.unique_plc_summary * 2 + 3)
+        #print(9 + len(self.placement_summary_final) + self.unique_plc_summary * 2 + 3 + len(self.placement_adsize_final) + self.unique_plc_summary * 2 + 3 + len(self.placement_by_video_final) + self.unique_plc_summary * 2 + 3)
+
+        unique_plc  = self.placement_by_video_final['Placement# Name'].nunique()
+        self.unique_plc = unique_plc
+        grand_row = row_start + 1 + len(self.vdx_by_day_final) + (self.unique_plc*2) + self.unique_plc
+
+
+        format_grand_row = workbook.add_format({"bold": True, "bg_color": "#A5A5A5"})
+        format_grand_num = workbook.add_format({"num_format": "#,##0","bold": True, "bg_color": "#A5A5A5"})
+        format_grand_percent = workbook.add_format({"num_format": "0.00%","bold": True, "bg_color": "#A5A5A5","align":"right"})
+        format_header = workbook.add_format({"bold": True, "bg_color": '#00B0F0'})
+        format_header_align = workbook.add_format({"bold": True, "bg_color": '#00B0F0',"align":"right"})
+        format_colour = workbook.add_format({"bg_color": '#00B0F0'})
+        format_grand_colour = workbook.add_format({"bg_color": "#A5A5A5"})
+
+        worksheet.write_string(row_start,1,"Unit", format_header)
+        worksheet.write_string(row_start, 2, "Date", format_header_align)
+        worksheet.write_string(row_start, 3, "Impressions", format_header_align)
+        worksheet.write_string(row_start, 4, "Engagements", format_header_align)
+        worksheet.write_string(row_start, 5, "Engagement Rate", format_header_align)
+        worksheet.write_string(row_start, 6, "Clickthroughs", format_header_align)
+        worksheet.write_string(row_start, 7, "CTR", format_header_align)
+        worksheet.write_string(row_start, 8, "Video Completions", format_header_align)
+        worksheet.write_string(row_start, 9, "Video Completion Rate", format_header_align)
+        worksheet.write_string(row_start-1, 1, "Daily Breakdown", format_header)
+        worksheet.conditional_format(row_start-1,1,row_start-1,9,{"type":"blanks","format":format_colour})
+        worksheet.conditional_format(grand_row,2,grand_row,2,{"type":"blanks","format":format_grand_colour})
+        worksheet.write_string(grand_row, 1, "Grand Total", format_grand_row)
+        worksheet.write_formula(grand_row, 3, '=SUMIFS(D{}:D{},B{}:B{},"Subtotal")'.format(row_start+3,grand_row-1,row_start+3,grand_row-1),format_grand_num)
+        worksheet.write_formula(grand_row, 4, '=SUMIFS(E{}:E{},B{}:B{},"Subtotal")'.format(row_start + 3, grand_row - 1,
+                                                                                           row_start + 3,
+                                                                                           grand_row - 1),
+                                format_grand_num)
+
+        worksheet.write_formula(grand_row, 5, '=E{}/D{}'.format(grand_row+1,grand_row+1),
+                                format_grand_percent)
+
+        worksheet.write_formula(grand_row, 6, '=SUMIFS(G{}:G{},B{}:B{},"Subtotal")'.format(row_start + 3, grand_row - 1,
+                                                                                           row_start + 3,
+                                                                                           grand_row - 1),
+                                format_grand_num)
+
+        worksheet.write_formula(grand_row, 7, '=G{}/E{}'.format(grand_row+1, grand_row+1),
+                                format_grand_percent)
+
+        worksheet.write_formula(grand_row, 8, '=SUMIFS(I{}:I{},B{}:B{},"Subtotal")'.format(row_start + 3, grand_row - 1,
+                                                                                           row_start + 3,
+                                                                                           grand_row - 1),
+                                format_grand_num)
+
+        worksheet.write_formula(grand_row, 9, '=I{}/D{}'.format(grand_row+1, grand_row+1),
+                                format_grand_percent)
+
+
     def main(self):
         """
     Main Function
@@ -1308,6 +1428,7 @@ Class for VDX Placements
             self.write_video_data()
             self.write_by_day_data()
             self.formatting_Video()
+            self.format_by_day()
             self.logger.info("VDX Details Sheet Created for IO - {}".format(self.config.ioid) + " at " + str(
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 

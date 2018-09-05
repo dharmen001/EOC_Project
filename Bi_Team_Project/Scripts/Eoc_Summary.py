@@ -16,13 +16,13 @@ from functools import reduce
 from SQLScript import SqlScript
 
 
-class Summary(SqlScript):
+class Summary(object):
     """This class in for creating summary sheet"""
 
     def __init__(self, config, sqlscript):
         """Config"""
 
-        super(Summary,self).__init__(self)
+        #super(Summary,self).__init__(self)
         self.config = config
         self.sqlscript = sqlscript
         self.logger = self.config.logger

@@ -26,42 +26,18 @@
     <loaded-nodes>
       <connection connection-id="03eb508c-c611-41ab-ba5f-1702cbade014">
         <schema name="PUBLIC" object-types="function, materialized view, package, sequence, synonym, table, type, view" />
-        <schema name="TFR_REP" object-types="column, function, materialized view, package, sequence, synonym, table, type, view" />
+        <schema name="TFR_REP" object-types="column, function, materialized view, package, package function, sequence, synonym, table, type, type function, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="03eb508c-c611-41ab-ba5f-1702cbade014">
-      <console name="Connection" type="STANDARD"><![CDATA[CREATE OR REPLACE FORCE VIEW TFR_REP.EOC_INTERACTION_DETAIL_VIEW
-(DAY_DESC, PLACEMENT_ID, PLACEMENT_DESC, IO_ID, PRODUCT, 
- METRIC_DESC, BLAZE_TAG_NAME_DESC, BLAZE_ACTION_TYPE_DESC, VWR_INTERACTION, ENG_INTERACTION, 
- DPE_INTERACTION)
-BEQUEATH DEFINER AS 
-SELECT         
-    TO_CHAR(A.DAY_DESC, 'MM/DD/YYYY') DAY_DESC
-    ,B.PLACEMENT_ID
-    ,REPLACE(B.PLACEMENT_DESC,'.N/A','') PLACEMENT_DESC
-    ,B.IO_ID
-    ,C.FEV_MEDIA_SUB_SOURCE_DESC PRODUCT
-    ,B.METRIC_DESC
-    ,D.BLAZE_TAG_NAME_DESC
-    ,E.BLAZE_ACTION_TYPE_DESC
-    ,SUM(ID.VWR_INTERACTION) VWR_INTERACTION
-    ,SUM(ID.ENG_INTERACTION) ENG_INTERACTION
-    ,SUM(ID.DPE_INTERACTION) DPE_INTERACTION 
-FROM TFR_INT_DETAIL_V2_FACT ID 
-JOIN (SELECT X.DAY_ID,X.DAY_DESC FROM TFR_DAY_DIM X) A ON ID.DAY_ID = A.DAY_ID 
-JOIN (SELECT A.BUY_ID, A.IO_ID, A.PLACEMENT_ID, C.PLACEMENT_DESC, E.METRIC_DESC   
-        FROM TFR_BUY_DIM A 
-        JOIN TFR_IO_DIM B ON A.IO_ID = B.IO_ID 
-        JOIN TFR_PLACEMENT_DIM C ON A.PLACEMENT_ID = C.PLACEMENT_ID 
-        JOIN TFR_METRIC_DIM E ON A.METRIC_ID = E.METRIC_ID       
-        LEFT JOIN TFR_DATA_SOURCE_FACT D ON C.CREATIVE_ID = D.CREATIVE_ID AND D.METRIC_ID = C.METRIC_ID AND D.COST_TYPE_ID = C.COST_TYPE_ID        
-        WHERE D.DATA_SOURCE = 'KM') B ON ID.BUY_ID = B.BUY_ID
-JOIN TFR_FEV_MEDIA_SUB_SOURCE_DIM C ON ID.FEV_MEDIA_SUB_SOURCE_ID = C.FEV_MEDIA_SUB_SOURCE_ID        
-JOIN TFR_BLAZE_TAG_NAME_DIM D ON ID.BLAZE_TAG_NAME_ID = D.BLAZE_TAG_NAME_ID   
-JOIN TFR_BLAZE_ACTION_TYPE_DIM E ON ID.BLAZE_ACTION_TYPE_ID = E.BLAZE_ACTION_TYPE_ID 
-GROUP BY A.DAY_DESC, B.METRIC_DESC, B.PLACEMENT_ID, B.PLACEMENT_DESC, B.IO_ID, FEV_MEDIA_SUB_SOURCE_DESC, D.BLAZE_TAG_NAME_DESC, E.BLAZE_ACTION_TYPE_DESC;]]></console>
+      <console name="Connection" type="STANDARD"><![CDATA[select * from TFR_REP.EOC_SUMMARY_VIEW  where IO_ID = 616057;
+select * from TFR_REP.EOC_KEY_METRIC_VIEW where IO_ID = 615267;
+
+
+
+UPDATE TFR_DATA_SOURCE_FACT SET DATA_SOURCE = 'SalesFile' WHERE CREATIVE_ID = 115 AND METRIC_ID = 1 AND COST_TYPE_ID = 5;]]></console>
     </connection>
     <connection id="f29ae707-ab87-4e40-bcfd-b017c3582f6b">
       <console name="TFR_DB" type="STANDARD"><![CDATA[select * from KEY_METRIC_VIEW;]]></console>
