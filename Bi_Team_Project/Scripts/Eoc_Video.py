@@ -954,11 +954,11 @@ Class for VDX Placements
                 worksheet.write_formula(startline_by_day, 4, '=sum(E{}:E{})'.format(start_row, end_row),format_bold_sum)
                 worksheet.write_formula(startline_by_day, 6, '=sum(G{}:G{})'.format(start_row, end_row),format_bold_sum)
                 worksheet.write_formula(startline_by_day, 8, '=sum(I{}:I{})'.format(start_row, end_row),format_bold_sum)
-                worksheet.write_formula(startline_by_day, 9, '=sum(J{}:J{})'.format(start_row, end_row),format_bold_sum)
+                #worksheet.write_formula(startline_by_day, 9, '=sum(J{}:J{})'.format(start_row, end_row),format_bold_sum)
                 worksheet.write_formula(startline_by_day,5, '=E{}/D{}'.format(startline_by_day+1,startline_by_day+1),format_bold_percent)
-                worksheet.write_formula(startline_by_day,7, '=G{}/D{}'.format(startline_by_day+1,startline_by_day+1),format_bold_percent)
-                worksheet.write_formula(startline_by_day, 9, '=I{}/D{}'.format(startline_by_day+1, startline_by_day+1),
-                                        format_bold_percent)
+                #worksheet.write_formula(startline_by_day,7, '=G{}/D{}'.format(startline_by_day+1,startline_by_day+1),format_bold_percent)
+                #worksheet.write_formula(startline_by_day, 9, '=I{}/D{}'.format(startline_by_day+1, startline_by_day+1),
+                                        #format_bold_percent)
                 worksheet.conditional_format(start_row-1,3,end_row,4,{"type":"no_blanks","format":format_num})
                 worksheet.conditional_format(start_row-1,5,end_row,5,{"type":"no_blanks","format":format_percent})
                 worksheet.conditional_format(start_row-1,6,end_row,6,{"type":"no_blanks","format":format_num})
@@ -1394,16 +1394,19 @@ Class for VDX Placements
                                                                                            grand_row - 1),
                                 format_grand_num)
 
-        worksheet.write_formula(grand_row, 7, '=G{}/E{}'.format(grand_row+1, grand_row+1),
-                                format_grand_percent)
+        #worksheet.write_formula(grand_row, 7, '=G{}/E{}'.format(grand_row+1, grand_row+1),
+                                #format_grand_percent)
 
         worksheet.write_formula(grand_row, 8, '=SUMIFS(I{}:I{},B{}:B{},"Subtotal")'.format(row_start + 3, grand_row - 1,
                                                                                            row_start + 3,
                                                                                            grand_row - 1),
                                 format_grand_num)
 
-        worksheet.write_formula(grand_row, 9, '=I{}/D{}'.format(grand_row+1, grand_row+1),
-                                format_grand_percent)
+        #worksheet.write_formula(grand_row, 9, '=I{}/D{}'.format(grand_row+1, grand_row+1),
+                                #format_grand_percent)
+
+        worksheet.conditional_format(grand_row, 7, grand_row, 7, {"type": "blanks", "format": format_grand_colour})
+        worksheet.conditional_format(grand_row, 9, grand_row, 9, {"type": "blanks", "format": format_grand_colour})
 
 
     def main(self):
